@@ -395,13 +395,32 @@ const COMPONENTS = {
   SIA: ['Actividades comunitarias/grupales','Actividades preventivas','Agendas','Alertas','Avisos generales','Centinela','Citación','Contacto','Diagnosticos y procedimientos','Dietas y consejos','Escalas y Tablas','Examenes y Patrones Funcionales','Gestión de documentos adjuntos','Gestión de Pacientes','Gestión de Recursos','Historia de salud','Historia familiar','Historia personal','Historia sociofamiliar','Hojas de evolución','Hojas de seguimiento','Incapacidad Temporal','Indicadores','Informes','Integración Alumbra','Integración AVE','Integración Cita Previa','Integración COBRA','Integración CRIBAT','Integración DANTA','Integración DIGISAL','Integración ECGDIG','Integración Escriba','Integración GAIA','Integración GESPET','Integración GESTLAB','Integración GIMD','Integración Gva+Salut','Integración HERA','Integración HSE','Integración HSEAVS','Integración IRIS/HIGIA','Integración KARVIS','Integración LABONLINE','Integración MIZAR','Integración NEBULA','Integración Orion Clinic','Integración ORION RIS','Integración SIA-Webex','Integración SINEA','Integración SIP','Integración SISCOL','Integración SISVEL','Integración SIV','Integración SIVIO','Integración VOLANT','Interconsultas','Listas de trabajo','Monitorización','Notificaciones','Otras pruebas','Pruebas complementarias','Pruebas de Imagen','Pruebas de laboratorio','Recordatorios','Seguridad y auditoría','Utilidades','Webservices']
 };
 
-function detectComponent(text, app) {
+function detectComponent(text, app, filename) {
   const list = COMPONENTS[app] || [];
-  const lower = text.toLowerCase();
-  for (const comp of list) {
-    if (lower.includes(comp.toLowerCase())) return comp;
+  if (!list.length) { console.warn('detectComponent: no components for app', app); return null; }
+
+  // Search in filename first (most reliable), then first 2000 chars of text
+  const searchTargets = [
+    filename || '',
+    text.slice(0, 2000)
+  ];
+
+  console.log('[detectComponent] app:', app, '| filename:', filename);
+  console.log('[detectComponent] searching against', list.length, 'components');
+  console.log('[detectComponent] first 300 chars of text:', text.slice(0, 300));
+
+  for (const target of searchTargets) {
+    const lower = target.toLowerCase();
+    for (const comp of list) {
+      if (lower.includes(comp.toLowerCase())) {
+        console.log('[detectComponent] MATCH:', comp, '(in', target === (filename||'') ? 'filename' : 'text', ')');
+        return comp;
+      }
+    }
   }
-  return 'General';
+
+  console.warn('[detectComponent] NO MATCH found for app:', app, '| filename:', filename);
+  return null; // No fallback to General — null means unmatched
 }
 
 function extractVersionDate(text) {
@@ -480,9 +499,8 @@ async function parseText(text, app, filename, onProgress) {
     if (i < chunks.length - 1) await sleep(2000);
   }
 
-  // Detect component from full text + filename
-  const searchText = (filename + ' ' + text).slice(0, 5000);
-  const component = detectComponent(searchText, app);
+  // Detect component from filename (primary) + text (fallback)
+  const component = detectComponent(text, app, filename);
 
   // Extract latest version date
   const reqDate = extractVersionDate(text);

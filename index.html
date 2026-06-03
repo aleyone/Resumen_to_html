@@ -203,7 +203,7 @@ function populateVersionFilter(app) {
 function populateComponentFilter(reqs) {
   var comps = [];
   reqs.forEach(function(r){
-    var c = r.component || 'General';
+    var c = r.component || 'Sin componente';
     if (comps.indexOf(c) === -1) comps.push(c);
   });
   comps.sort();
@@ -266,7 +266,7 @@ async function loadDeployment(app, version) {
 
 function getVisible(filter) {
   var reqs = currentReqs;
-  if (activeComp) reqs = reqs.filter(function(r){ return (r.component || 'General') === activeComp; });
+  if (activeComp) reqs = reqs.filter(function(r){ return (r.component || 'Sin componente') === activeComp; });
   if (filter) {
     var f = filter.toLowerCase();
     reqs = reqs.filter(function(r){ return (r.title + r.id + (r.component || '')).toLowerCase().indexOf(f) !== -1; });
@@ -282,7 +282,7 @@ function renderSidebar(filter) {
   var groups = {};
   var groupOrder = [];
   visible.forEach(function(r){
-    var c = r.component || 'General';
+    var c = r.component || 'Sin componente';
     if (!groups[c]) { groups[c] = []; groupOrder.push(c); }
     groups[c].push(r);
   });
@@ -338,7 +338,7 @@ function selectReq(idx) {
   if (!r) return;
   var panel = document.getElementById('content');
   panel.className = '';
-  var comp = r.component || 'General';
+  var comp = r.component || 'Sin componente';
 
   var html = '<div class="ci">';
   // Header
@@ -392,7 +392,7 @@ function selectReq(idx) {
   }
 
   // Nav — contextual within component
-  var compReqs = currentReqs.filter(function(x){ return (x.component || 'General') === comp; });
+  var compReqs = currentReqs.filter(function(x){ return (x.component || 'Sin componente') === comp; });
   var pos = compReqs.findIndex(function(x){ return x._idx === idx; });
   var prev = compReqs[pos - 1], next = compReqs[pos + 1];
   var prevLabel = prev ? (prev.id + ' \u2014 ' + trunc(prev.title, 26)) : 'Anterior';
