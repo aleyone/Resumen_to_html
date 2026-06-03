@@ -411,6 +411,53 @@ function associateImages(html,requirements,images){
   }));
 }
 
+// ── Cloudinary unsigned upload (from browser, no server needed) ──
+const CLOUDINARY_CLOUD = 'dav2tz0w7';
+const CLOUDINARY_PRESET = 'resumen-to-html';
+
+async function uploadImageToCloudinary(b64, publicId) {
+  const formData = new FormData();
+  formData.append('file', `data:image/png;base64,${b64}`);
+  formData.append('upload_preset', CLOUDINARY_PRESET);
+  formData.append('public_id', publicId);
+  const resp = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+    method: 'POST', body: formData
+  });
+  const data = await resp.json();
+  if (!data.secure_url) throw new Error('Cloudinary: ' + (data.error?.message || JSON.stringify(data)));
+  return data.secure_url;
+}
+
+async function uploadAllImages(requirements, depId, onProgress) {
+  // Count total images
+  const total = requirements.reduce((acc, r) => acc + (r.images || []).filter(b => b && b.length > 100).length, 0);
+  if (total === 0) return requirements.map(r => ({ ...r, images: [] }));
+
+  let uploaded = 0;
+  const result = [];
+  for (let rIdx = 0; rIdx < requirements.length; rIdx++) {
+    const req = requirements[rIdx];
+    const rawImages = (req.images || []).filter(Boolean);
+    const urls = [];
+    for (let iIdx = 0; iIdx < rawImages.length; iIdx++) {
+      const b64 = rawImages[iIdx];
+      if (!b64 || b64.length < 100) continue;
+      try {
+        const publicId = `gaia-releases/${depId}/req${String(rIdx).padStart(2,'0')}_img${String(iIdx).padStart(2,'0')}`;
+        const url = await uploadImageToCloudinary(b64, publicId);
+        urls.push(url);
+        uploaded++;
+        onProgress(`Subiendo imágenes... ${uploaded}/${total}`, 70 + Math.round((uploaded / total) * 15));
+      } catch(e) {
+        console.warn(`Imagen req${rIdx} img${iIdx} error:`, e.message);
+      }
+    }
+    const { images: _removed, ...rest } = req;
+    result.push({ ...rest, images: urls });
+  }
+  return result;
+}
+
 // ── Main submit ──
 async function submitAll(){
   const app=document.getElementById('f-app').value;
@@ -430,11 +477,12 @@ async function submitAll(){
     let allRequirements=[];
     let globalMeta={};
     const allFileNames=files.map(f=>f.name);
+    const depId=`dep_${Date.now()}`;
 
     for(let fi=0;fi<files.length;fi++){
       const file=files[fi];
       setFileStatus(file.name,'processing','⏳ extrayendo');
-      setProgress(5+Math.round((fi/files.length)*30),`Leyendo: ${file.name}`);
+      setProgress(5+Math.round((fi/files.length)*20),`Leyendo: ${file.name}`);
       const{text,html,images}=await extractFile(file);
 
       setFileStatus(file.name,'processing','⏳ analizando');
@@ -451,16 +499,21 @@ async function submitAll(){
     // Re-number sequentially
     allRequirements=allRequirements.map((r,i)=>({...r,id:`REQ-${String(i+1).padStart(2,'0')}`}));
 
-    setProgress(82,'Subiendo imágenes y guardando...');
+    // Upload images to Cloudinary directly from browser
+    setProgress(70,'Subiendo imágenes a Cloudinary...');
+    const reqsWithUrls = await uploadAllImages(allRequirements, depId, (msg, pct) => setProgress(pct, msg));
+
+    setProgress(86,'Guardando en GitHub...');
 
     const resp=await fetch('/api/upload',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        app,version,author,
+        app, version, author,
+        depId,
         date:new Date().toISOString().split('T')[0],
         files:allFileNames,
-        requirements:allRequirements
+        requirements:reqsWithUrls   // URLs only, no base64
       })
     });
 
