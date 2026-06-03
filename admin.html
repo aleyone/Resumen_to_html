@@ -286,37 +286,31 @@ async function extractDOCX(file) {
   const ab = await file.arrayBuffer();
   const images = [];
 
-  // Extract images directly from docx ZIP (word/media/)
+  // Extract images directly from docx ZIP — never pass through mammoth HTML
   try {
     const JSZip = await loadJSZip();
     const zip = await JSZip.loadAsync(ab);
-    const mediaFiles = Object.keys(zip.files).filter(name =>
-      name.startsWith('word/media/') && /\.(png|jpg|jpeg|gif|webp)$/i.test(name)
-    );
-    console.log('JSZip media files found:', mediaFiles);
-    // Sort by filename to preserve order
-    mediaFiles.sort();
+    const mediaFiles = Object.keys(zip.files)
+      .filter(name => name.startsWith('word/media/') && /\.(png|jpg|jpeg|gif|webp)$/i.test(name))
+      .sort((a, b) => {
+        // Sort numerically: image1.png, image2.png ... image10.png
+        const numA = parseInt(a.match(/(\d+)/)?.[1] || '0');
+        const numB = parseInt(b.match(/(\d+)/)?.[1] || '0');
+        return numA - numB;
+      });
+    console.log('JSZip media files found:', mediaFiles.length);
     for (const mediaFile of mediaFiles) {
       const b64 = await zip.files[mediaFile].async('base64');
       images.push(b64);
     }
     console.log('Total images extracted:', images.length);
   } catch(e) {
-    console.warn('JSZip extraction error:', e.message);
+    console.warn('JSZip error:', e.message);
   }
 
-  // Get HTML from mammoth (for structure/position info)
-  let htmlValue = '';
-  try {
-    const htmlResult = await mammoth.convertToHtml({ arrayBuffer: ab });
-    htmlValue = htmlResult.value || '';
-  } catch(e) {
-    console.warn('mammoth HTML error:', e.message);
-  }
-
-  // Get plain text
+  // Plain text only — no HTML to avoid base64 bloat in AI prompt
   const textResult = await mammoth.extractRawText({ arrayBuffer: ab });
-  return { text: textResult.value, html: htmlValue, images };
+  return { text: textResult.value, html: '', images };
 }
 
 // ── AI parsing — sequential to avoid rate limits ──
