@@ -1,1 +1,689 @@
-{ "deployments": [] }
+{
+  "deployments": [
+    {
+      "id": "dep_1780489350651",
+      "app": "GAIA",
+      "version": "GAIA E4.2.4",
+      "date": "2026-06-03",
+      "author": "Christian Gil",
+      "files": [
+        "Módulo SUFAR GAIA E4.2.4 Ex.29-23.docx"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Nuevo catálogo de productos SUFAR",
+          "modules": [
+            "BOFWEB",
+            "MDIS3",
+            "MPRE3"
+          ],
+          "resumen": "Creación de arquitectura específica para SUFAR mediante nuevas tablas de base de datos (sufarproducto, sufarsubprograma, sufarconfiguracionlogis, proveedor). Permitirá configurar productos individualmente con código nacional, descripción, código LOGIS, proveedor, tipo de envío, validaciones y reglas logísticas. Incluye histórico de cambios, exportación a Excel y permisos específicos en Gestor de Seguridad.",
+          "situacion_actual": "Gestión de productos SUFAR apoyada en configuraciones reutilizadas de Metotrexato sin estructura específica.",
+          "descripcion": "Implementar nuevo módulo SUFAR en Utilidades de Prescripción con tablas dedicadas para gestionar catálogo de productos, subprogramas, configuración logística y proveedores. Incluye consulta, modificación, eliminación de configuraciones con permisos diferenciados.",
+          "tablas": [
+            {
+              "titulo": "Nuevas tablas SUFAR",
+              "cabeceras": [
+                "Tabla",
+                "Descripción"
+              ],
+              "filas": [
+                [
+                  "us_reme.sufarproducto",
+                  "Catálogo de productos SUFAR"
+                ],
+                [
+                  "us_reme.sufarsubprograma",
+                  "Subprogramas SUFAR"
+                ],
+                [
+                  "us_reme.sufarconfiguracionlogis",
+                  "Configuración logística por producto"
+                ],
+                [
+                  "us_reme.proveedor",
+                  "Datos de proveedores"
+                ]
+              ]
+            }
+          ],
+          "configuracion": {
+            "permisos": "Consultar, modificar, eliminar configuraciones SUFAR en Gestor de Seguridad",
+            "variables": [
+              {
+                "nombre": "código nacional",
+                "descripcion": "Código del producto"
+              },
+              {
+                "nombre": "código LOGIS",
+                "descripcion": "Código para sistema logístico"
+              },
+              {
+                "nombre": "tipo de envío",
+                "descripcion": "Centro de Salud o Domicilio"
+              },
+              {
+                "nombre": "reglas logísticas",
+                "descripcion": "Validaciones y circuitos"
+              }
+            ]
+          },
+          "impacto_produccion": "Alto - Afecta prescripción, logística y dispensación",
+          "num_imagenes": 0,
+          "images": []
+        },
+        {
+          "id": "REQ-02",
+          "title": "Configuración logística y tipos de envío",
+          "modules": [
+            "MDIS3",
+            "MPRE3",
+            "GAIAWS"
+          ],
+          "resumen": "Implementar dos circuitos logísticos: Centro de Salud (envío por valija interna) y Domicilio/Home Delivery (envío directo con proveedor). Para Home Delivery son obligatorios: código LOGIS, proveedor, tipo de gestión, capítulo presupuestario y datos logísticos. Se gestionarán plataformas de proveedores, URLs, teléfonos e integración automática.",
+          "situacion_actual": "Comunicación con proveedores y centros poco automatizada sin circuitos logísticos definidos.",
+          "descripcion": "Crear configuración dual de envíos con validaciones específicas para cada tipo. Integrar plataformas de proveedores, URLs de envío de ficheros y datos logísticos. Automatizar comunicación con LOGIS y gestión de entregas.",
+          "tablas": [
+            {
+              "titulo": "Tipos de envío SUFAR",
+              "cabeceras": [
+                "Tipo",
+                "Destino",
+                "Datos obligatorios"
+              ],
+              "filas": [
+                [
+                  "Centro de Salud",
+                  "Centro de Salud",
+                  "Identificación centro"
+                ],
+                [
+                  "Home Delivery",
+                  "Domicilio/Centro sanitario",
+                  "LOGIS, proveedor, presupuesto, datos logísticos"
+                ]
+              ]
+            }
+          ],
+          "configuracion": {
+            "permisos": "Configurar circuitos logísticos, gestionar proveedores",
+            "variables": [
+              {
+                "nombre": "código LOGIS",
+                "descripcion": "Identificador en sistema logístico"
+              },
+              {
+                "nombre": "proveedor",
+                "descripcion": "Entidad responsable envío"
+              },
+              {
+                "nombre": "tipo gestión",
+                "descripcion": "Modelo de gestión logística"
+              },
+              {
+                "nombre": "capítulo presupuestario",
+                "descripcion": "Clasificación presupuestaria"
+              },
+              {
+                "nombre": "plataforma proveedor",
+                "descripcion": "URL y credenciales acceso"
+              }
+            ]
+          },
+          "impacto_produccion": "Alto - Interfaz con sistema logístico externo",
+          "num_imagenes": 0,
+          "images": []
+        },
+        {
+          "id": "REQ-03",
+          "title": "Formularios electrónicos SVP en prescripción",
+          "modules": [
+            "BOFWEB",
+            "MPRE3"
+          ],
+          "resumen": "Eliminar modelo manual en papel. Incorporar formularios electrónicos SVP asociados a agrupaciones de productos que aparezcan automáticamente en prescripción y continuación. Ejemplo: formularios específicos para monitores de glucosa. Automatizar captura de información requerida en dispensación.",
+          "situacion_actual": "Parte de información se tramita en papel de forma manual.",
+          "descripcion": "Integrar formularios electrónicos SVP en flujo de prescripción y continuación. Asociarlos a agrupaciones de productos SUFAR para que se visualicen automáticamente. Permitir captura digital de datos requeridos para cada tipo de producto.",
+          "tablas": [
+            {
+              "titulo": "Asociación formularios-productos",
+              "cabeceras": [
+                "Tipo formulario",
+                "Productos asociados",
+                "Campo obligatorio"
+              ],
+              "filas": [
+                [
+                  "Monitor glucosa",
+                  "Sensores, monitores",
+                  "Datos paciente"
+                ]
+              ]
+            }
+          ],
+          "configuracion": {
+            "permisos": "Crear y asociar formularios a productos",
+            "variables": [
+              {
+                "nombre": "formulario_id",
+                "descripcion": "Identificador formulario SVP"
+              },
+              {
+                "nombre": "agrupacion_producto",
+                "descripcion": "Productos asociados"
+              },
+              {
+                "nombre": "campos_obligatorios",
+                "descripcion": "Campos requeridos"
+              }
+            ]
+          },
+          "impacto_produccion": "Medio - Afecta interfaz prescripción",
+          "num_imagenes": 1,
+          "images": []
+        },
+        {
+          "id": "REQ-04",
+          "title": "Gestión de datos de envío del paciente",
+          "modules": [
+            "MDIS3",
+            "MPRE3"
+          ],
+          "resumen": "Nueva ficha para registrar dirección entrega, centro sanitario, tipo envío, email y datos logísticos SUFAR. Carga inicial desde SIP, modificable solo para SUFAR. Email obligatorio. Selección de cualquier centro sanitario. Almacenamiento junto a información dispensación.",
+          "situacion_actual": "Información de envío dispersa sin estructura específica para SUFAR.",
+          "descripcion": "Crear ficha específica SUFAR con datos de envío independiente de SIP pero originada en ella. Permitir modificación de centro, zona y departamento. Campo email obligatorio. Almacenar datos con información dispensación en proximidad.",
+          "tablas": [
+            {
+              "titulo": "Datos envío SUFAR",
+              "cabeceras": [
+                "Campo",
+                "Origen",
+                "Modificable",
+                "Obligatorio"
+              ],
+              "filas": [
+                [
+                  "Dirección",
+                  "SIP",
+                  "Sí, solo SUFAR",
+                  "Sí"
+                ],
+                [
+                  "Centro sanitario",
+                  "Selección",
+                  "Sí",
+                  "Sí"
+                ],
+                [
+                  "Tipo envío",
+                  "Configuración",
+                  "No",
+                  "Sí"
+                ],
+                [
+                  "Email",
+                  "Manual",
+                  "Sí",
+                  "Sí"
+                ],
+                [
+                  "Datos logísticos",
+                  "Manual",
+                  "Sí",
+                  "Sí"
+                ]
+              ]
+            }
+          ],
+          "configuracion": {
+            "permisos": "Consultar y modificar datos envío paciente SUFAR",
+            "variables": [
+              {
+                "nombre": "email_paciente",
+                "descripcion": "Correo obligatorio para comunicaciones"
+              },
+              {
+                "nombre": "centro_sanitario",
+                "descripcion": "Centro de dispensación"
+              },
+              {
+                "nombre": "tipo_envio",
+                "descripcion": "Centro o Domicilio"
+              }
+            ]
+          },
+          "impacto_produccion": "Medio - Interfaz con SIP",
+          "num_imagenes": 2,
+          "images": []
+        },
+        {
+          "id": "REQ-05",
+          "title": "Tratamiento de datos personales y consentimiento",
+          "modules": [
+            "BOFWEB",
+            "MPRE3",
+            "GAIAEXT"
+          ],
+          "resumen": "Implementar gestión de consentimiento para cesión de datos al proveedor. Sistema permitirá visualizar, imprimir, firmar electrónicamente documento; adjuntar escaneado; registrar lectura banda magnética SIP, código barras SIP, QR tarjeta virtual. Profesional firma electrónica confirmación. Email protegido con DNI. Si no acepta: no envío datos, sin planificación logística.",
+          "situacion_actual": "Sin control de consentimiento explícito para cesión de datos a proveedores.",
+          "descripcion": "Crear flujo de consentimiento informado integrado en prescripción SUFAR. Documento con opciones firma electrónica, lectura SIP/QR, adjuntos. Envío por email protegido. Validación obligatoria antes planificación logística.",
+          "tablas": [
+            {
+              "titulo": "Estados consentimiento tratamiento datos",
+              "cabeceras": [
+                "Estado",
+                "Acción permitida"
+              ],
+              "filas": [
+                [
+                  "Aceptado",
+                  "Envío datos a proveedor, planificación logística"
+                ],
+                [
+                  "Rechazado",
+                  "Sin envío datos, sin planificación"
+                ],
+                [
+                  "Pendiente",
+                  "Bloqueado hasta aceptación"
+                ]
+              ]
+            }
+          ],
+          "configuracion": {
+            "permisos": "Gestionar consentimientos, firmar electrónicamente",
+            "variables": [
+              {
+                "nombre": "documento_consentimiento",
+                "descripcion": "Contenido documento legal"
+              },
+              {
+                "nombre": "firma_electronica",
+                "descripcion": "Certificado firma profesional"
+              },
+              {
+                "nombre": "email_protegido",
+                "descripcion": "Envío asegurado con DNI"
+              }
+            ]
+          },
+          "impacto_produccion": "Alto - Datos personales, requisito legal",
+          "num_imagenes": 1,
+          "images": []
+        },
+        {
+          "id": "REQ-06",
+          "title": "Compromiso terapéutico del paciente",
+          "modules": [
+            "BOFWEB",
+            "MPRE3"
+          ],
+          "resumen": "Implementar gestión de compromiso terapéutico paralela a tratamiento datos. Visualización documento, aceptación electrónica, lectura SIP/QR, adjuntos escaneados, firma profesional. Si paciente no acepta: tratamiento excluido de logística y Home Delivery.",
+          "situacion_actual": "Sin control de compromiso terapéutico específico para productos SUFAR.",
+          "descripcion": "Integrar pantalla compromiso terapéutico en prescripción. Documento con lectura SIP/QR, firma electrónica profesional. Validación obligatoria antes incluyendo en Home Delivery. Bloqueo automático si rechaza.",
+          "tablas": [
+            {
+              "titulo": "Estados compromiso terapéutico",
+              "cabeceras": [
+                "Estado",
+                "Inclusión Home Delivery"
+              ],
+              "filas": [
+                [
+                  "Aceptado",
+                  "Sí"
+                ],
+                [
+                  "Rechazado",
+                  "No"
+                ],
+                [
+                  "Pendiente",
+                  "Bloqueado"
+                ]
+              ]
+            }
+          ],
+          "configuracion": {
+            "permisos": "Gestionar compromisos terapéuticos",
+            "variables": [
+              {
+                "nombre": "documento_compromiso",
+                "descripcion": "Contenido compromiso terapéutico"
+              },
+              {
+                "nombre": "firma_paciente",
+                "descripcion": "Aceptación electrónica paciente"
+              }
+            ]
+          },
+          "impacto_produccion": "Medio - Requisito antes Home Delivery",
+          "num_imagenes": 1,
+          "images": []
+        },
+        {
+          "id": "REQ-07",
+          "title": "Automatización de tratamientos SUFAR",
+          "modules": [
+            "MDIS3",
+            "MPRE3",
+            "GAIAWS"
+          ],
+          "resumen": "Al guardar datos envío, tratamientos activos se identifican automáticamente como SUFAR. Se actualiza centro dispensación, notifican cambios a proveedores, actualizan entregas pendientes. En Home Delivery solo se incluyen tratamientos con primera dispensación registrada.",
+          "situacion_actual": "Procesos manuales sin automatización de identificación y comunicación con proveedores.",
+          "descripcion": "Crear automatismo que al confirmación datos envío SUFAR: marque tratamientos activos como SUFAR, actualice centro dispensación, notifique proveedores, actualice estado entregas. Validación: solo Home Delivery con primera dispensación confirmada.",
+          "tablas": [
+            {
+              "titulo": "Transición a SUFAR automática",
+              "cabeceras": [
+                "Acción",
+                "Condición",
+                "Resultado"
+              ],
+              "filas": [
+                [
+                  "Guardado datos envío",
+                  "Tratamientos activos",
+                  "Marcados como SUFAR"
+                ],
+                [
+                  "Actualización centro",
+                  "Centro configurado",
+                  "Cambio dispensación"
+                ],
+                [
+                  "Notificación proveedor",
+                  "Home Delivery",
+                  "Envío información"
+                ],
+                [
+                  "Inclusión logística",
+                  "Primera dispensación",
+                  "Activación entregas"
+                ]
+              ]
+            }
+          ],
+          "configuracion": {
+            "permisos": "Automatizar gestión SUFAR",
+            "variables": [
+              {
+                "nombre": "flag_sufar",
+                "descripcion": "Marcador tratamiento SUFAR"
+              },
+              {
+                "nombre": "centro_dispensacion",
+                "descripcion": "Centro asignado"
+              },
+              {
+                "nombre": "primera_dispensacion",
+                "descripcion": "Validación entrega inicial"
+              }
+            ]
+          },
+          "impacto_produccion": "Alto - Cambios en tratamientos activos",
+          "num_imagenes": 0,
+          "images": []
+        },
+        {
+          "id": "REQ-08",
+          "title": "Automatización logística y previsión",
+          "modules": [
+            "GAIAWS",
+            "RESIFAP"
+          ],
+          "resumen": "Automatizar cálculo previsión productos, comunicación con LOGIS, cálculo unidades pendientes, ajustes entregas adicionales, pedidos proveedor, programación entregas. Mejorar monitorización procesos, seguimiento incidencias y trazabilidad dispensaciones.",
+          "situacion_actual": "Previsión logística mediante consultas programadas sin automatización de cálculos y pedidos.",
+          "descripcion": "Implementar motor automático de previsión que calcule necesidades, gestione comunicación LOGIS, ajuste por incidencias, genere pedidos. Incluir monitorización en tiempo real y trazabilidad completa de dispensaciones y entregas.",
+          "tablas": [
+            {
+              "titulo": "Procesos automatizados logística",
+              "cabeceras": [
+                "Proceso",
+                "Entrada",
+                "Salida"
+              ],
+              "filas": [
+                [
+                  "Cálculo previsión",
+                  "Tratamientos activos",
+                  "Necesidad productos"
+                ],
+                [
+                  "Comunicación LOGIS",
+                  "Datos necesarios",
+                  "Confirmación recepción"
+                ],
+                [
+                  "Cálculo pendientes",
+                  "Dispensaciones",
+                  "Unidades faltantes"
+                ],
+                [
+                  "Ajustes incidencias",
+                  "Entregas fallidas",
+                  "Pedidos adicionales"
+                ],
+                [
+                  "Generación pedidos",
+                  "Necesidades",
+                  "Órdenes proveedor"
+                ],
+                [
+                  "Programación entregas",
+                  "Disponibilidad",
+                  "Fechas programadas"
+                ]
+              ]
+            }
+          ],
+          "configuracion": {
+            "permisos": "Gestionar automatismos logísticos, monitorizar procesos",
+            "variables": [
+              {
+                "nombre": "algoritmo_prevision",
+                "descripcion": "Cálculo necesidades futuras"
+              },
+              {
+                "nombre": "umbral_pedido",
+                "descripcion": "Cantidad mínima para pedido"
+              },
+              {
+                "nombre": "plazo_entrega",
+                "descripcion": "Tiempo estándar entrega"
+              }
+            ]
+          },
+          "impacto_produccion": "Crítico - Interfaz LOGIS, cambios flujo logístico",
+          "num_imagenes": 0,
+          "images": []
+        },
+        {
+          "id": "REQ-09",
+          "title": "Gestión de incidencias Home Delivery",
+          "modules": [
+            "MDIS3",
+            "MPRE3",
+            "VWEB"
+          ],
+          "resumen": "Nuevas alertas y controles para entregas a domicilio: incidencias en entrega (alerta naranja - ausencia, dirección incorrecta, rechazo) e incidencias tras entrega (alerta roja - pérdida, robo, uso incorrecto). Columna 'Incidencia SUFAR' en detalle tratamiento. Vinculación reposiciones con dispensación original.",
+          "situacion_actual": "Sin control específico de incidencias en entregas a domicilio.",
+          "descripcion": "Crear sistema alertas en dos niveles: naranja (problemas en entrega) y roja (problemas post-entrega). Visualizar en visor y detalle tratamiento. Registrar motivo incidencia, cantidad adicional, vinculación con dispensación original.",
+          "tablas": [
+            {
+              "titulo": "Tipos incidencias Home Delivery",
+              "cabeceras": [
+                "Tipo",
+                "Alerta",
+                "Ejemplos",
+                "Registro"
+              ],
+              "filas": [
+                [
+                  "En entrega",
+                  "Naranja",
+                  "Ausencia, dirección incorrecta, rechazo",
+                  "Fecha, estado, motivo"
+                ],
+                [
+                  "Post-entrega",
+                  "Roja",
+                  "Pérdida, robo, uso incorrecto",
+                  "Cantidad adicional, reposición"
+                ]
+              ]
+            }
+          ],
+          "configuracion": {
+            "permisos": "Registrar incidencias, generar reposiciones",
+            "variables": [
+              {
+                "nombre": "tipo_incidencia",
+                "descripcion": "Clasificación problema"
+              },
+              {
+                "nombre": "motivo_incidencia",
+                "descripcion": "Causa específica"
+              },
+              {
+                "nombre": "cantidad_reposicion",
+                "descripcion": "Producto adicional entregado"
+              }
+            ]
+          },
+          "impacto_produccion": "Alto - Afecta Home Delivery y dispensación",
+          "num_imagenes": 2,
+          "images": []
+        },
+        {
+          "id": "REQ-10",
+          "title": "Cambios en acciones de prescripción SUFAR",
+          "modules": [
+            "MPRE3",
+            "MDIS3"
+          ],
+          "resumen": "Modificación: sin interrupción si activo, ajusta fecha final. Continuación: mantiene SUFAR, actualiza centro según datos paciente. Interrupción: controla confirmación entregas cuando interrumpido. Si se entrega igualmente, queda confirmada. Tratamientos modificados mantienen automáticamente condición SUFAR.",
+          "situacion_actual": "Acciones prescripción sin considerar estado SUFAR ni entregas domiciliarias.",
+          "descripcion": "Implementar lógica especial para tratamientos SUFAR en modificación, continuación e interrupción. Mantener estado SUFAR en modificación, actualizar centro en continuación, permitir confirmación entregas en interrupción.",
+          "tablas": [
+            {
+              "titulo": "Acciones prescripción tratamientos SUFAR",
+              "cabeceras": [
+                "Acción",
+                "Condición",
+                "Comportamiento SUFAR"
+              ],
+              "filas": [
+                [
+                  "Modificación",
+                  "Activo",
+                  "Sin interrupción, ajusta fecha, mantiene SUFAR"
+                ],
+                [
+                  "Modificación",
+                  "Finalizado",
+                  "Nuevo tratamiento normal"
+                ],
+                [
+                  "Continuación",
+                  "Cualquiera",
+                  "Mantiene SUFAR, actualiza centro"
+                ],
+                [
+                  "Interrupción",
+                  "Cualquiera",
+                  "Controla entregas, permite confirmación"
+                ]
+              ]
+            }
+          ],
+          "configuracion": {
+            "permisos": "Modificar, continuar, interrumpir tratamientos SUFAR",
+            "variables": [
+              {
+                "nombre": "mantener_sufar",
+                "descripcion": "Preservar estado SUFAR en cambios"
+              },
+              {
+                "nombre": "actualizar_centro",
+                "descripcion": "Centro según datos actuales paciente"
+              }
+            ]
+          },
+          "impacto_produccion": "Alto - Lógica negocio prescripción",
+          "num_imagenes": 0,
+          "images": []
+        },
+        {
+          "id": "REQ-11",
+          "title": "Validación farmacéutica por FAP",
+          "modules": [
+            "MPRE3",
+            "RESIFAP"
+          ],
+          "resumen": "Algunos tratamientos SUFAR requieren validación previa por farmacéuticos atención primaria (FAP). Notificaciones automáticas diarias/semanales por email y avisos buzón SIA. Pantalla validación: consultar pendientes, revisar detalles e historia clínica, validar. Validación permite dispensar e incluir en planificación automática entregas.",
+          "situacion_actual": "Sin proceso validación específica para tratamientos SUFAR por FAP.",
+          "descripcion": "Crear módulo validación FAP integrado. Notificaciones automáticas de tratamientos pendientes. Pantalla consulta con historia clínica. Permiso validación que desbloquea dispensación e inclusión logística.",
+          "tablas": [
+            {
+              "titulo": "Flujo validación FAP",
+              "cabeceras": [
+                "Estado",
+                "Notificación",
+                "Acción",
+                "Resultado"
+              ],
+              "filas": [
+                [
+                  "Pendiente",
+                  "Email/SIA",
+                  "Consultar, revisar",
+                  "En espera"
+                ],
+                [
+                  "En revisión",
+                  "",
+                  "Revisar historia",
+                  "Análisis"
+                ],
+                [
+                  "Validado",
+                  "Email confirmación",
+                  "Registrar",
+                  "Dispensa + logística"
+                ],
+                [
+                  "Rechazado",
+                  "Email",
+                  "Notificar prescriptor",
+                  "Bloqueo"
+                ]
+              ]
+            }
+          ],
+          "configuracion": {
+            "permisos": "Validar tratamientos SUFAR, acceso historia clínica",
+            "variables": [
+              {
+                "nombre": "frecuencia_notificacion",
+                "descripcion": "Diaria o semanal"
+              },
+              {
+                "nombre": "criterios_validacion",
+                "descripcion": "Reglas validación FAP"
+              },
+              {
+                "nombre": "permisos_fap",
+                "descripcion": "Usuario FAP específico"
+              }
+            ]
+          },
+          "impacto_produccion": "Medio - Workflow adicional pre-dispensación",
+          "num_imagenes": 1,
+          "images": []
+        }
+      ]
+    }
+  ]
+}
