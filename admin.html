@@ -584,15 +584,15 @@ async function submitAll(){
     document.getElementById('f-app').value='';
     loadDeployments();
 
-    // Redirect countdown
-    const rb=document.getElementById('redirect-box');
-    rb.className='on';
-    let secs=3;
-    const timer=setInterval(()=>{
-      secs--;
-      document.getElementById('countdown').textContent=secs;
-      if(secs<=0){clearInterval(timer);window.location.href='/';}
-    },1000);
+    // Auto-redirect disabled during testing
+    // const rb=document.getElementById('redirect-box');
+    // rb.className='on';
+    // let secs=3;
+    // const timer=setInterval(()=>{
+    //   secs--;
+    //   document.getElementById('countdown').textContent=secs;
+    //   if(secs<=0){clearInterval(timer);window.location.href='/';}
+    // },1000);
 
   }catch(err){
     showAlert('error','Error: '+err.message);
