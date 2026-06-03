@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subir Despliegue — GAIA Visor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f8f7f4; --surface: #ffffff; --surface2: #f2f1ee;
+  --border: rgba(0,0,0,0.09); --border2: rgba(0,0,0,0.14);
+  --text: #1a1917; --text2: #6b6a66; --text3: #9b9a96;
+  --accent: #2563eb; --accent-bg: #eff6ff;
+  --green: #16a34a; --green-bg: #f0fdf4; --green-border: #86efac;
+  --red: #dc2626; --red-bg: #fef2f2; --red-border: #fca5a5;
+  --radius: 8px; --radius-lg: 12px; --font: 'Inter', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141412; --surface: #1e1d1a; --surface2: #272622;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.13);
+    --text: #f0ede8; --text2: #9a9790; --text3: #65635e;
+    --accent: #60a5fa; --accent-bg: #1e2a3a;
+    --green: #4ade80; --green-bg: #052e16; --green-border: #166534;
+    --red: #f87171; --red-bg: #450a0a; --red-border: #991b1b;
+  }
+}
+html, body { min-height: 100vh; font-family: var(--font); background: var(--bg); color: var(--text); }
+
+header {
+  height: 52px; display: flex; align-items: center; gap: 10px;
+  padding: 0 24px; border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.logo { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+.logo-dot { width: 26px; height: 26px; border-radius: 6px; background: var(--accent); display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 700; }
+.header-sub { font-size: 13px; color: var(--text3); margin-left: 4px; }
+.view-link { margin-left: auto; font-size: 13px; color: var(--accent); text-decoration: none; }
+.view-link:hover { text-decoration: underline; }
+
+main { max-width: 640px; margin: 48px auto; padding: 0 24px 80px; }
+h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+.subtitle { font-size: 14px; color: var(--text2); margin-bottom: 36px; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; }
+
+.field { margin-bottom: 20px; }
+label { display: block; font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 6px; }
+label span.req { color: var(--accent); margin-left: 2px; }
+input[type=text], select, input[type=date] {
+  width: 100%; padding: 9px 12px; font-size: 14px; font-family: var(--font);
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: var(--radius); color: var(--text); outline: none;
+  transition: border-color 0.15s;
+}
+input:focus, select:focus { border-color: var(--accent); }
+input[readonly] { opacity: 0.6; cursor: default; }
+select option { background: var(--surface); }
+
+.drop-zone {
+  border: 1.5px dashed var(--border2); border-radius: var(--radius);
+  padding: 32px 20px; text-align: center; cursor: pointer;
+  transition: border-color 0.2s, background 0.2s; background: var(--surface2);
+  position: relative;
+}
+.drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: var(--accent-bg); }
+.drop-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.dz-icon { font-size: 32px; margin-bottom: 8px; }
+.dz-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.dz-sub { font-size: 12px; color: var(--text3); }
+
+#file-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.file-item {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: 13px;
+}
+.file-item .fi-name { flex: 1; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.file-item .fi-size { font-size: 11px; color: var(--text3); flex-shrink: 0; }
+.file-item .fi-remove { cursor: pointer; color: var(--text3); font-size: 16px; flex-shrink: 0; line-height: 1; }
+.file-item .fi-remove:hover { color: var(--red); }
+.file-item .fi-status { font-size: 11px; flex-shrink: 0; font-weight: 500; }
+.fi-status.ok { color: var(--green); }
+.fi-status.err { color: var(--red); }
+.fi-status.processing { color: var(--accent); }
+
+.submit-btn {
+  width: 100%; padding: 11px; font-size: 14px; font-weight: 500; font-family: var(--font);
+  background: var(--accent); color: white; border: none; border-radius: var(--radius);
+  cursor: pointer; transition: opacity 0.15s; margin-top: 8px;
+}
+.submit-btn:hover { opacity: 0.9; }
+.submit-btn:disabled { opacity: 0.5; cursor: default; }
+
+#progress-area { display: none; margin-top: 20px; }
+#progress-area.on { display: block; }
+.progress-bar-wrap { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+.progress-bar { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s; width: 0%; }
+#progress-msg { font-size: 13px; color: var(--text2); }
+
+.alert { padding: 12px 16px; border-radius: var(--radius); font-size: 13px; margin-top: 16px; display: none; }
+.alert.on { display: block; }
+.alert.success { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.alert.error { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><div class="logo-dot">G</div> GAIA Visor</div>
+  <span class="header-sub">— Administración</span>
+  <a href="/" class="view-link">← Ir al visor</a>
+</header>
+
+<main>
+  <h1>Subir despliegue</h1>
+  <p class="subtitle">Procesa los documentos de novedades y publícalos en el visor del CAU.</p>
+
+  <div class="card">
+    <div class="field">
+      <label>Aplicación <span class="req">*</span></label>
+      <select id="f-app">
+        <option value="">Selecciona una aplicación...</option>
+        <option value="GAIA">GAIA</option>
+        <option value="SIA">SIA</option>
+        <option value="SIP">SIP</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Versión <span class="req">*</span></label>
+      <input type="text" id="f-version" placeholder="Ej: E4.2.X Ex.29-23">
+    </div>
+
+    <div class="field">
+      <label>Fecha de subida</label>
+      <input type="text" id="f-date" readonly>
+    </div>
+
+    <div class="field">
+      <label>Autor <span class="req">*</span></label>
+      <input type="text" id="f-author" placeholder="Nombre y apellido">
+    </div>
+
+    <div class="field">
+      <label>Documentos <span class="req">*</span></label>
+      <div class="drop-zone" id="drop-zone"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="handleDrop(event)">
+        <input type="file" id="file-input" accept=".pdf,.docx,.doc,.txt" multiple onchange="addFiles(this.files)">
+        <div class="dz-icon">📄</div>
+        <div class="dz-title">Arrastra los documentos aquí</div>
+        <div class="dz-sub">Word (.docx) · PDF · múltiples ficheros permitidos</div>
+      </div>
+      <div id="file-list"></div>
+    </div>
+
+    <div id="progress-area">
+      <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+      <div id="progress-msg">Procesando...</div>
+    </div>
+
+    <div class="alert" id="alert-ok">✓ Despliegue publicado correctamente. <a href="/" style="color:inherit;font-weight:500">Ver en el visor →</a></div>
+    <div class="alert" id="alert-err"></div>
+
+    <button class="submit-btn" id="submit-btn" onclick="submitAll()">Procesar y publicar</button>
+  </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// Set today's date
+document.getElementById('f-date').value = new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric' });
+
+let files = [];
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('drag-over');
+  addFiles(e.dataTransfer.files);
+}
+
+function addFiles(fileList) {
+  for (const f of fileList) {
+    if (!files.find(x => x.name === f.name)) files.push(f);
+  }
+  renderFileList();
+}
+
+function removeFile(name) {
+  files = files.filter(f => f.name !== name);
+  renderFileList();
+}
+
+function renderFileList() {
+  const list = document.getElementById('file-list');
+  list.innerHTML = files.map(f => `
+    <div class="file-item" id="fi-${CSS.escape(f.name)}">
+      <span>📄</span>
+      <span class="fi-name">${f.name}</span>
+      <span class="fi-size">${(f.size/1024).toFixed(0)} KB</span>
+      <span class="fi-status" id="fis-${CSS.escape(f.name)}"></span>
+      <span class="fi-remove" onclick="removeFile('${f.name.replace(/'/g,"\\'")}')">×</span>
+    </div>`).join('');
+}
+
+function setFileStatus(name, status, text) {
+  const el = document.getElementById('fis-' + CSS.escape(name));
+  if (el) { el.textContent = text; el.className = 'fi-status ' + status; }
+}
+
+function setProgress(pct, msg) {
+  document.getElementById('progress-area').className = 'on';
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-msg').textContent = msg;
+}
+
+function showAlert(type, msg) {
+  document.getElementById('alert-ok').className = 'alert' + (type === 'success' ? ' on success' : '');
+  const err = document.getElementById('alert-err');
+  err.className = 'alert' + (type === 'error' ? ' on error' : '');
+  if (type === 'error') err.textContent = msg;
+}
+
+// ── Extract text + images from file ──
+async function extractFile(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext === 'txt') {
+    return { text: await file.text(), images: [] };
+  } else if (ext === 'pdf') {
+    return await extractPDF(file);
+  } else {
+    return await extractDOCX(file);
+  }
+}
+
+async function extractPDF(file) {
+  const ab = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
+  let text = '';
+  for (let i = 1; i <= Math.min(pdf.numPages, 60); i++) {
+    const pg = await pdf.getPage(i);
+    const tc = await pg.getTextContent();
+    text += tc.items.map(x => x.str).join(' ') + '\n';
+  }
+  return { text, images: [] };
+}
+
+async function extractDOCX(file) {
+  const ab = await file.arrayBuffer();
+  const images = [];
+
+  const result = await mammoth.convertToHtml({ arrayBuffer: ab }, {
+    convertImage: mammoth.images.imgElement(async (image) => {
+      const b64 = await image.read('base64');
+      images.push(b64);
+      return { src: `img_${images.length - 1}` };
+    })
+  });
+
+  // Also get plain text for AI
+  const textResult = await mammoth.extractRawText({ arrayBuffer: ab });
+  return { text: textResult.value, html: result.value, images };
+}
+
+// ── AI parsing (chunked) ──
+function splitByRequirement(content) {
+  const pattern = /(?=\*{0,2}Requerimiento\*{0,2}\s*:)/gi;
+  return content.split(pattern).filter(p => p.trim().length > 100);
+}
+
+async function callAI(prompt) {
+  const resp = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 4000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  if (!resp.ok) throw new Error('API error ' + resp.status);
+  const data = await resp.json();
+  const raw = data.content.map(b => b.text || '').join('');
+  const clean = raw.replace(/```json[\s\S]*?```|```/g, '').trim();
+  return JSON.parse(clean);
+}
+
+function buildPrompt(chunk, isFirst, total, idx) {
+  const metaLine = isFirst ? 'Extrae también el meta (title, version, app).' : 'Para "meta" devuelve campos vacíos.';
+  return `Eres experto en documentación de despliegues sanitarios (GAIA). Extrae requerimientos de este fragmento (${idx+1}/${total}) para el equipo CAU. ${metaLine}
+Módulos: BOFWEB, MDIS3, MPRE3, PROTO, RELE, GAIAWS, GAIAEXT, RESIFAP, VWEB.
+Responde SOLO con JSON válido sin markdown:
+{"meta":{"title":"","version":"","app":"GAIA"},"requirements":[{"id":"REQ-XX","title":"título corto","modules":["MOD"],"resumen":"resumen ejecutivo en 3-5 líneas orientado a soporte CAU: qué cambia, dónde, qué debe saber el usuario","situacion_actual":"resumen situación previa (párrafos separados por \\n)","descripcion":"descripción del cambio (párrafos separados por \\n)","tablas":[{"titulo":"","cabeceras":[],"filas":[]}],"configuracion":{"permisos":"","variables":[{"nombre":"","descripcion":""}]},"impacto_produccion":"","num_imagenes":0}]}
+Si no hay requerimientos completos devuelve requirements:[].
+FRAGMENTO:
+${chunk}`;
+}
+
+async function parseText(text, onProgress) {
+  const parts = splitByRequirement(text);
+  const CHUNK_SIZE = 11000;
+  const chunks = [];
+  let current = '';
+  for (const part of parts) {
+    if (current.length + part.length > CHUNK_SIZE && current.length > 0) {
+      chunks.push(current); current = part;
+    } else { current += '\n\n' + part; }
+  }
+  if (current.trim()) chunks.push(current);
+
+  let allReqs = [], meta = {};
+  const BATCH = 3;
+  for (let i = 0; i < chunks.length; i += BATCH) {
+    const batch = chunks.slice(i, i + BATCH);
+    onProgress(`Analizando bloques ${i+1}–${Math.min(i+BATCH, chunks.length)} de ${chunks.length}...`);
+    const results = await Promise.all(
+      batch.map((c, j) => callAI(buildPrompt(c, i+j===0, chunks.length, i+j)).catch(() => ({ meta:{}, requirements:[] })))
+    );
+    for (let j = 0; j < results.length; j++) {
+      const r = results[j];
+      if (i+j===0 && r.meta?.title) meta = r.meta;
+      if (r.requirements?.length) allReqs = allReqs.concat(r.requirements);
+    }
+  }
+  allReqs = allReqs.map((r, i) => ({ ...r, id: `REQ-${String(i+1).padStart(2,'0')}` }));
+  return { meta, requirements: allReqs };
+}
+
+// ── Associate images to requirements by HTML position ──
+function associateImages(html, requirements, images) {
+  if (!html || !images.length) return requirements.map(r => ({ ...r, images: [] }));
+
+  // Parse HTML to find img order between requirement headings
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const nodes = Array.from(doc.body.childNodes);
+
+  // Find heading positions and image positions
+  const reqBoundaries = [];
+  let currentReqIdx = -1;
+  const imgAssignments = {};
+
+  let imgCounter = 0;
+  nodes.forEach(node => {
+    const text = node.textContent || '';
+    if (/requerimiento\s*:/i.test(text)) currentReqIdx++;
+    if (node.nodeName === 'IMG' || node.querySelector?.('img')) {
+      const imgs = node.nodeName === 'IMG' ? [node] : Array.from(node.querySelectorAll('img'));
+      imgs.forEach(() => {
+        if (currentReqIdx >= 0) {
+          if (!imgAssignments[currentReqIdx]) imgAssignments[currentReqIdx] = [];
+          imgAssignments[currentReqIdx].push(imgCounter);
+        }
+        imgCounter++;
+      });
+    }
+  });
+
+  return requirements.map((req, idx) => ({
+    ...req,
+    images: (imgAssignments[idx] || []).map(i => images[i]).filter(Boolean)
+  }));
+}
+
+// ── Main submit ──
+async function submitAll() {
+  const app = document.getElementById('f-app').value;
+  const version = document.getElementById('f-version').value.trim();
+  const author = document.getElementById('f-author').value.trim();
+
+  if (!app) return showAlert('error', 'Selecciona una aplicación.');
+  if (!version) return showAlert('error', 'Introduce la versión.');
+  if (!author) return showAlert('error', 'Introduce el autor.');
+  if (!files.length) return showAlert('error', 'Añade al menos un documento.');
+
+  document.getElementById('submit-btn').disabled = true;
+  showAlert('none');
+  setProgress(5, 'Iniciando...');
+
+  try {
+    let allRequirements = [];
+    let globalMeta = {};
+
+    for (let fi = 0; fi < files.length; fi++) {
+      const file = files[fi];
+      setFileStatus(file.name, 'processing', '⏳ procesando');
+      setProgress(10 + (fi / files.length) * 60, `Extrayendo texto: ${file.name}`);
+
+      const { text, html, images } = await extractFile(file);
+
+      setProgress(20 + (fi / files.length) * 60, `Analizando con IA: ${file.name}`);
+      const { meta, requirements } = await parseText(text, msg => {
+        setProgress(30 + (fi / files.length) * 60, msg);
+      });
+
+      if (fi === 0) globalMeta = meta;
+
+      // Associate images
+      const reqsWithImages = associateImages(html || '', requirements, images || []);
+      allRequirements = allRequirements.concat(reqsWithImages);
+      setFileStatus(file.name, 'ok', `✓ ${requirements.length} reqs`);
+    }
+
+    // Re-number all reqs sequentially
+    allRequirements = allRequirements.map((r, i) => ({
+      ...r, id: `REQ-${String(i+1).padStart(2,'0')}`
+    }));
+
+    setProgress(75, 'Subiendo imágenes y guardando...');
+
+    // Prepare images map for upload
+    const imagesMap = {};
+    allRequirements.forEach((req, rIdx) => {
+      (req.images || []).forEach((b64, iIdx) => {
+        if (b64 && b64.length > 100) imagesMap[`${rIdx}/${iIdx}`] = b64;
+      });
+    });
+
+    // Upload to server
+    for (let fi = 0; fi < files.length; fi++) {
+      const file = files[fi];
+      const reqs = allRequirements.filter((_, i) => {
+        // All reqs for this file
+        const perFile = Math.ceil(allRequirements.length / files.length);
+        return i >= fi * perFile && i < (fi + 1) * perFile;
+      });
+
+      const resp = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          app, version, author,
+          filename: file.name,
+          requirements: allRequirements.map(r => ({ ...r, images: (r.images||[]).map((_, iIdx) => `PENDING_${iIdx}`) })),
+          images: imagesMap
+        })
+      });
+
+      const result = await resp.json();
+      if (!resp.ok || !result.ok) throw new Error(result.error || 'Error en el servidor');
+    }
+
+    setProgress(100, 'Completado');
+    showAlert('success');
+    files = [];
+    renderFileList();
+    document.getElementById('f-version').value = '';
+    document.getElementById('f-author').value = '';
+    document.getElementById('f-app').value = '';
+
+  } catch (err) {
+    showAlert('error', 'Error: ' + err.message);
+    setProgress(0, '');
+    document.getElementById('progress-area').className = '';
+  } finally {
+    document.getElementById('submit-btn').disabled = false;
+  }
+}
+</script>
+</body>
+</html>
