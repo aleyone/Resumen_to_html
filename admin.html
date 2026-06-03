@@ -3,204 +3,233 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Subir Despliegue — GAIA Visor</title>
+<title>Admin — Visor Novedades</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg: #f8f7f4; --surface: #ffffff; --surface2: #f2f1ee;
-  --border: rgba(0,0,0,0.09); --border2: rgba(0,0,0,0.14);
-  --text: #1a1917; --text2: #6b6a66; --text3: #9b9a96;
-  --accent: #2563eb; --accent-bg: #eff6ff;
-  --green: #16a34a; --green-bg: #f0fdf4; --green-border: #86efac;
-  --red: #dc2626; --red-bg: #fef2f2; --red-border: #fca5a5;
-  --radius: 8px; --radius-lg: 12px; --font: 'Inter', system-ui, sans-serif;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f8f7f4;--surface:#ffffff;--surface2:#f2f1ee;
+  --border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.14);
+  --text:#1a1917;--text2:#6b6a66;--text3:#9b9a96;
+  --accent:#2563eb;--accent-bg:#eff6ff;
+  --green:#16a34a;--green-bg:#f0fdf4;--green-border:#86efac;
+  --red:#dc2626;--red-bg:#fef2f2;--red-border:#fca5a5;
+  --radius:8px;--radius-lg:12px;--font:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #141412; --surface: #1e1d1a; --surface2: #272622;
-    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.13);
-    --text: #f0ede8; --text2: #9a9790; --text3: #65635e;
-    --accent: #60a5fa; --accent-bg: #1e2a3a;
-    --green: #4ade80; --green-bg: #052e16; --green-border: #166534;
-    --red: #f87171; --red-bg: #450a0a; --red-border: #991b1b;
-  }
+@media(prefers-color-scheme:dark){:root{
+  --bg:#141412;--surface:#1e1d1a;--surface2:#272622;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.13);
+  --text:#f0ede8;--text2:#9a9790;--text3:#65635e;
+  --accent:#60a5fa;--accent-bg:#1e2a3a;
+  --green:#4ade80;--green-bg:#052e16;--green-border:#166534;
+  --red:#f87171;--red-bg:#450a0a;--red-border:#991b1b;
+}}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);}
+
+header{height:52px;display:flex;align-items:center;gap:10px;padding:0 20px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;}
+.logo{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;}
+.logo-dot{width:26px;height:26px;border-radius:6px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:700;}
+.header-badge{font-size:11px;padding:2px 8px;border-radius:4px;background:var(--surface2);border:1px solid var(--border2);color:var(--text3);font-weight:500;}
+.view-link{margin-left:auto;font-size:13px;color:var(--accent);text-decoration:none;}
+.view-link:hover{text-decoration:underline;}
+
+#layout{display:flex;height:calc(100vh - 52px);overflow:hidden;}
+
+/* LEFT PANEL */
+#left-panel{width:320px;min-width:260px;border-right:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;overflow:hidden;}
+#lp-header{padding:16px;border-bottom:1px solid var(--border);}
+#lp-header h2{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.06em;}
+#dep-list{overflow-y:auto;flex:1;padding:8px;}
+#dep-list::-webkit-scrollbar{width:4px;}
+#dep-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+.dep-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;position:relative;}
+.dep-card .dc-app{font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--accent);margin-bottom:3px;}
+.dep-card .dc-version{font-size:13px;font-weight:500;color:var(--text);}
+.dep-card .dc-meta{font-size:11px;color:var(--text3);margin-top:4px;line-height:1.5;}
+.dep-card .dc-files{font-size:11px;color:var(--text2);margin-top:4px;font-family:var(--mono);}
+.dep-card .dc-del{
+  position:absolute;top:10px;right:10px;
+  font-size:12px;color:var(--text3);cursor:pointer;
+  padding:3px 8px;border-radius:4px;border:1px solid var(--border2);background:var(--surface);
+  transition:all 0.15s;
 }
-html, body { min-height: 100vh; font-family: var(--font); background: var(--bg); color: var(--text); }
+.dep-card .dc-del:hover{color:var(--red);border-color:var(--red-border);background:var(--red-bg);}
+.dep-empty{padding:24px;text-align:center;font-size:13px;color:var(--text3);}
 
-header {
-  height: 52px; display: flex; align-items: center; gap: 10px;
-  padding: 0 24px; border-bottom: 1px solid var(--border);
-  background: var(--surface);
-}
-.logo { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
-.logo-dot { width: 26px; height: 26px; border-radius: 6px; background: var(--accent); display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 700; }
-.header-sub { font-size: 13px; color: var(--text3); margin-left: 4px; }
-.view-link { margin-left: auto; font-size: 13px; color: var(--accent); text-decoration: none; }
-.view-link:hover { text-decoration: underline; }
+/* RIGHT PANEL */
+#right-panel{flex:1;overflow-y:auto;padding:32px 40px;}
+#right-panel::-webkit-scrollbar{width:5px;}
+#right-panel::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+.rp-inner{max-width:560px;}
+h1{font-size:20px;font-weight:600;margin-bottom:4px;}
+.subtitle{font-size:13px;color:var(--text2);margin-bottom:28px;}
 
-main { max-width: 640px; margin: 48px auto; padding: 0 24px 80px; }
-h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
-.subtitle { font-size: 14px; color: var(--text2); margin-bottom: 36px; }
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;}
+.field{margin-bottom:18px;}
+label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:5px;}
+label .req{color:var(--accent);margin-left:2px;}
+input[type=text],select{width:100%;padding:8px 12px;font-size:14px;font-family:var(--font);background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);outline:none;transition:border-color 0.15s;}
+input:focus,select:focus{border-color:var(--accent);}
+input[readonly]{opacity:0.55;cursor:default;}
 
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; }
+.drop-zone{border:1.5px dashed var(--border2);border-radius:var(--radius);padding:28px 20px;text-align:center;cursor:pointer;transition:border-color 0.2s,background 0.2s;background:var(--surface2);position:relative;}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:var(--accent-bg);}
+.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.dz-icon{font-size:28px;margin-bottom:6px;}
+.dz-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px;}
+.dz-sub{font-size:12px;color:var(--text3);}
 
-.field { margin-bottom: 20px; }
-label { display: block; font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 6px; }
-label span.req { color: var(--accent); margin-left: 2px; }
-input[type=text], select, input[type=date] {
-  width: 100%; padding: 9px 12px; font-size: 14px; font-family: var(--font);
-  background: var(--surface2); border: 1px solid var(--border2);
-  border-radius: var(--radius); color: var(--text); outline: none;
-  transition: border-color 0.15s;
-}
-input:focus, select:focus { border-color: var(--accent); }
-input[readonly] { opacity: 0.6; cursor: default; }
-select option { background: var(--surface); }
+#file-list{margin-top:8px;display:flex;flex-direction:column;gap:5px;}
+.file-item{display:flex;align-items:center;gap:8px;padding:7px 11px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);font-size:12px;}
+.fi-name{flex:1;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fi-size{font-size:11px;color:var(--text3);flex-shrink:0;}
+.fi-status{font-size:11px;flex-shrink:0;font-weight:500;}
+.fi-status.ok{color:var(--green);}
+.fi-status.err{color:var(--red);}
+.fi-status.processing{color:var(--accent);}
+.fi-remove{cursor:pointer;color:var(--text3);font-size:16px;flex-shrink:0;line-height:1;}
+.fi-remove:hover{color:var(--red);}
 
-.drop-zone {
-  border: 1.5px dashed var(--border2); border-radius: var(--radius);
-  padding: 32px 20px; text-align: center; cursor: pointer;
-  transition: border-color 0.2s, background 0.2s; background: var(--surface2);
-  position: relative;
-}
-.drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: var(--accent-bg); }
-.drop-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-.dz-icon { font-size: 32px; margin-bottom: 8px; }
-.dz-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
-.dz-sub { font-size: 12px; color: var(--text3); }
+#progress-area{display:none;margin-top:16px;}
+#progress-area.on{display:block;}
+.pb-wrap{height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-bottom:7px;}
+.pb-bar{height:100%;background:var(--accent);border-radius:3px;transition:width 0.3s;width:0%;}
+#progress-msg{font-size:12px;color:var(--text2);}
 
-#file-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
-.file-item {
-  display: flex; align-items: center; gap: 8px; padding: 8px 12px;
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: var(--radius); font-size: 13px;
-}
-.file-item .fi-name { flex: 1; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.file-item .fi-size { font-size: 11px; color: var(--text3); flex-shrink: 0; }
-.file-item .fi-remove { cursor: pointer; color: var(--text3); font-size: 16px; flex-shrink: 0; line-height: 1; }
-.file-item .fi-remove:hover { color: var(--red); }
-.file-item .fi-status { font-size: 11px; flex-shrink: 0; font-weight: 500; }
-.fi-status.ok { color: var(--green); }
-.fi-status.err { color: var(--red); }
-.fi-status.processing { color: var(--accent); }
+.alert{padding:12px 16px;border-radius:var(--radius);font-size:13px;margin-top:14px;display:none;line-height:1.5;}
+.alert.on{display:block;}
+.alert.success{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+.alert.error{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);}
 
-.submit-btn {
-  width: 100%; padding: 11px; font-size: 14px; font-weight: 500; font-family: var(--font);
-  background: var(--accent); color: white; border: none; border-radius: var(--radius);
-  cursor: pointer; transition: opacity 0.15s; margin-top: 8px;
-}
-.submit-btn:hover { opacity: 0.9; }
-.submit-btn:disabled { opacity: 0.5; cursor: default; }
+.submit-btn{width:100%;padding:10px;font-size:14px;font-weight:500;font-family:var(--font);background:var(--accent);color:white;border:none;border-radius:var(--radius);cursor:pointer;transition:opacity 0.15s;margin-top:6px;}
+.submit-btn:hover{opacity:0.88;}
+.submit-btn:disabled{opacity:0.45;cursor:default;}
 
-#progress-area { display: none; margin-top: 20px; }
-#progress-area.on { display: block; }
-.progress-bar-wrap { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
-.progress-bar { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s; width: 0%; }
-#progress-msg { font-size: 13px; color: var(--text2); }
+/* confirm modal */
+#confirm-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:50;align-items:center;justify-content:center;}
+#confirm-modal.on{display:flex;}
+.cm-box{background:var(--surface);border-radius:var(--radius-lg);padding:24px;max-width:380px;width:90%;border:1px solid var(--border2);}
+.cm-title{font-size:15px;font-weight:600;margin-bottom:8px;}
+.cm-text{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6;}
+.cm-actions{display:flex;gap:10px;justify-content:flex-end;}
+.cm-cancel{padding:7px 16px;font-size:13px;font-family:var(--font);background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);cursor:pointer;color:var(--text);}
+.cm-cancel:hover{background:var(--border);}
+.cm-confirm{padding:7px 16px;font-size:13px;font-family:var(--font);background:var(--red);border:none;border-radius:var(--radius);cursor:pointer;color:white;}
+.cm-confirm:hover{opacity:0.85;}
 
-.alert { padding: 12px 16px; border-radius: var(--radius); font-size: 13px; margin-top: 16px; display: none; }
-.alert.on { display: block; }
-.alert.success { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
-.alert.error { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+/* redirect countdown */
+#redirect-box{display:none;margin-top:14px;padding:12px 16px;border-radius:var(--radius);background:var(--accent-bg);border:1px solid rgba(37,99,235,0.2);font-size:13px;color:var(--accent);}
+#redirect-box.on{display:block;}
 </style>
 </head>
 <body>
-
 <header>
-  <div class="logo"><div class="logo-dot">G</div> GAIA Visor</div>
-  <span class="header-sub">— Administración</span>
+  <div class="logo"><div class="logo-dot">G</div> Visor Novedades</div>
+  <span class="header-badge">Admin</span>
   <a href="/" class="view-link">← Ir al visor</a>
 </header>
 
-<main>
-  <h1>Subir despliegue</h1>
-  <p class="subtitle">Procesa los documentos de novedades y publícalos en el visor del CAU.</p>
-
-  <div class="card">
-    <div class="field">
-      <label>Aplicación <span class="req">*</span></label>
-      <select id="f-app">
-        <option value="">Selecciona una aplicación...</option>
-        <option value="GAIA">GAIA</option>
-        <option value="SIA">SIA</option>
-        <option value="SIP">SIP</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>Versión <span class="req">*</span></label>
-      <input type="text" id="f-version" placeholder="Ej: E4.2.X Ex.29-23">
-    </div>
-
-    <div class="field">
-      <label>Fecha de subida</label>
-      <input type="text" id="f-date" readonly>
-    </div>
-
-    <div class="field">
-      <label>Autor <span class="req">*</span></label>
-      <input type="text" id="f-author" placeholder="Nombre y apellido">
-    </div>
-
-    <div class="field">
-      <label>Documentos <span class="req">*</span></label>
-      <div class="drop-zone" id="drop-zone"
-        ondragover="event.preventDefault();this.classList.add('drag-over')"
-        ondragleave="this.classList.remove('drag-over')"
-        ondrop="handleDrop(event)">
-        <input type="file" id="file-input" accept=".pdf,.docx,.doc,.txt" multiple onchange="addFiles(this.files)">
-        <div class="dz-icon">📄</div>
-        <div class="dz-title">Arrastra los documentos aquí</div>
-        <div class="dz-sub">Word (.docx) · PDF · múltiples ficheros permitidos</div>
-      </div>
-      <div id="file-list"></div>
-    </div>
-
-    <div id="progress-area">
-      <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
-      <div id="progress-msg">Procesando...</div>
-    </div>
-
-    <div class="alert" id="alert-ok">✓ Despliegue publicado correctamente. <a href="/" style="color:inherit;font-weight:500">Ver en el visor →</a></div>
-    <div class="alert" id="alert-err"></div>
-
-    <button class="submit-btn" id="submit-btn" onclick="submitAll()">Procesar y publicar</button>
+<div id="layout">
+  <!-- LEFT: deployment history -->
+  <div id="left-panel">
+    <div id="lp-header"><h2>Despliegues publicados</h2></div>
+    <div id="dep-list"><div class="dep-empty">Cargando...</div></div>
   </div>
-</main>
+
+  <!-- RIGHT: upload form -->
+  <div id="right-panel">
+    <div class="rp-inner">
+      <h1>Subir despliegue</h1>
+      <p class="subtitle">Procesa los documentos y publícalos en el visor del CAU.</p>
+
+      <div class="card">
+        <div class="field">
+          <label>Aplicación <span class="req">*</span></label>
+          <select id="f-app">
+            <option value="">Selecciona...</option>
+            <option value="GAIA">GAIA</option>
+            <option value="SIA">SIA</option>
+            <option value="SIP">SIP</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Versión <span class="req">*</span></label>
+          <input type="text" id="f-version" placeholder="Ej: E4.2.X Ex.29-23">
+        </div>
+        <div class="field">
+          <label>Fecha de subida</label>
+          <input type="text" id="f-date" readonly>
+        </div>
+        <div class="field">
+          <label>Autor <span class="req">*</span></label>
+          <select id="f-author">
+            <option value="">Selecciona...</option>
+            <option>Montse Vaño</option>
+            <option>Belén Nuñez</option>
+            <option>Christian Gil</option>
+            <option>Rafa Pastor</option>
+            <option>Jordi Gallego</option>
+            <option>Mª Carmen Belenguer</option>
+            <option>David Gil</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Documentos <span class="req">*</span></label>
+          <div class="drop-zone" id="drop-zone"
+            ondragover="event.preventDefault();this.classList.add('drag-over')"
+            ondragleave="this.classList.remove('drag-over')"
+            ondrop="handleDrop(event)">
+            <input type="file" id="file-input" accept=".pdf,.docx,.doc,.txt" multiple onchange="addFiles(this.files)">
+            <div class="dz-icon">📄</div>
+            <div class="dz-title">Arrastra los documentos aquí</div>
+            <div class="dz-sub">Word (.docx) · PDF · múltiples ficheros</div>
+          </div>
+          <div id="file-list"></div>
+        </div>
+
+        <div id="progress-area">
+          <div class="pb-wrap"><div class="pb-bar" id="pb"></div></div>
+          <div id="progress-msg">Procesando...</div>
+        </div>
+
+        <div class="alert" id="alert-ok">✓ Despliegue publicado correctamente.</div>
+        <div id="redirect-box">Redirigiendo al visor en <strong id="countdown">3</strong> segundos...</div>
+        <div class="alert" id="alert-err"></div>
+
+        <button class="submit-btn" id="submit-btn" onclick="submitAll()">Procesar y publicar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm delete modal -->
+<div id="confirm-modal">
+  <div class="cm-box">
+    <div class="cm-title">¿Eliminar despliegue?</div>
+    <div class="cm-text" id="cm-text">Se eliminarán todos los requerimientos e imágenes asociados. Esta acción no se puede deshacer.</div>
+    <div class="cm-actions">
+      <button class="cm-cancel" onclick="closeConfirm()">Cancelar</button>
+      <button class="cm-confirm" id="cm-confirm-btn">Eliminar</button>
+    </div>
+  </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+document.getElementById('f-date').value=new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
 
-// Set today's date
-document.getElementById('f-date').value = new Date().toLocaleDateString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric' });
+let files=[];
+let pendingDeleteId=null;
 
-let files = [];
-
-function handleDrop(e) {
-  e.preventDefault();
-  document.getElementById('drop-zone').classList.remove('drag-over');
-  addFiles(e.dataTransfer.files);
-}
-
-function addFiles(fileList) {
-  for (const f of fileList) {
-    if (!files.find(x => x.name === f.name)) files.push(f);
-  }
-  renderFileList();
-}
-
-function removeFile(name) {
-  files = files.filter(f => f.name !== name);
-  renderFileList();
-}
-
-function renderFileList() {
-  const list = document.getElementById('file-list');
-  list.innerHTML = files.map(f => `
+// ── File handling ──
+function handleDrop(e){e.preventDefault();document.getElementById('drop-zone').classList.remove('drag-over');addFiles(e.dataTransfer.files);}
+function addFiles(fl){for(const f of fl){if(!files.find(x=>x.name===f.name))files.push(f);}renderFileList();}
+function removeFile(name){files=files.filter(f=>f.name!==name);renderFileList();}
+function renderFileList(){
+  document.getElementById('file-list').innerHTML=files.map(f=>`
     <div class="file-item" id="fi-${CSS.escape(f.name)}">
       <span>📄</span>
       <span class="fi-name">${f.name}</span>
@@ -209,260 +238,278 @@ function renderFileList() {
       <span class="fi-remove" onclick="removeFile('${f.name.replace(/'/g,"\\'")}')">×</span>
     </div>`).join('');
 }
+function setFileStatus(name,cls,txt){const el=document.getElementById('fis-'+CSS.escape(name));if(el){el.textContent=txt;el.className='fi-status '+cls;}}
 
-function setFileStatus(name, status, text) {
-  const el = document.getElementById('fis-' + CSS.escape(name));
-  if (el) { el.textContent = text; el.className = 'fi-status ' + status; }
+// ── Progress ──
+function setProgress(pct,msg){
+  document.getElementById('progress-area').className='on';
+  document.getElementById('pb').style.width=pct+'%';
+  document.getElementById('progress-msg').textContent=msg;
+}
+function showAlert(type,msg){
+  document.getElementById('alert-ok').className='alert'+(type==='success'?' on success':'');
+  const err=document.getElementById('alert-err');
+  err.className='alert'+(type==='error'?' on error':'');
+  if(type==='error')err.textContent=msg;
 }
 
-function setProgress(pct, msg) {
-  document.getElementById('progress-area').className = 'on';
-  document.getElementById('progress-bar').style.width = pct + '%';
-  document.getElementById('progress-msg').textContent = msg;
+// ── Extract ──
+async function extractFile(file){
+  const ext=file.name.split('.').pop().toLowerCase();
+  if(ext==='txt')return{text:await file.text(),images:[]};
+  if(ext==='pdf')return extractPDF(file);
+  return extractDOCX(file);
 }
-
-function showAlert(type, msg) {
-  document.getElementById('alert-ok').className = 'alert' + (type === 'success' ? ' on success' : '');
-  const err = document.getElementById('alert-err');
-  err.className = 'alert' + (type === 'error' ? ' on error' : '');
-  if (type === 'error') err.textContent = msg;
-}
-
-// ── Extract text + images from file ──
-async function extractFile(file) {
-  const ext = file.name.split('.').pop().toLowerCase();
-  if (ext === 'txt') {
-    return { text: await file.text(), images: [] };
-  } else if (ext === 'pdf') {
-    return await extractPDF(file);
-  } else {
-    return await extractDOCX(file);
+async function extractPDF(file){
+  const ab=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:ab}).promise;
+  let text='';
+  for(let i=1;i<=Math.min(pdf.numPages,60);i++){
+    const pg=await pdf.getPage(i);
+    const tc=await pg.getTextContent();
+    text+=tc.items.map(x=>x.str).join(' ')+'\n';
   }
+  return{text,images:[]};
 }
-
-async function extractPDF(file) {
-  const ab = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
-  let text = '';
-  for (let i = 1; i <= Math.min(pdf.numPages, 60); i++) {
-    const pg = await pdf.getPage(i);
-    const tc = await pg.getTextContent();
-    text += tc.items.map(x => x.str).join(' ') + '\n';
-  }
-  return { text, images: [] };
-}
-
-async function extractDOCX(file) {
-  const ab = await file.arrayBuffer();
-  const images = [];
-
-  const result = await mammoth.convertToHtml({ arrayBuffer: ab }, {
-    convertImage: mammoth.images.imgElement(async (image) => {
-      const b64 = await image.read('base64');
+async function extractDOCX(file){
+  const ab=await file.arrayBuffer();
+  const images=[];
+  const htmlResult=await mammoth.convertToHtml({arrayBuffer:ab},{
+    convertImage:mammoth.images.imgElement(async(img)=>{
+      const b64=await img.read('base64');
       images.push(b64);
-      return { src: `img_${images.length - 1}` };
+      return{src:`__img_${images.length-1}__`};
     })
   });
-
-  // Also get plain text for AI
-  const textResult = await mammoth.extractRawText({ arrayBuffer: ab });
-  return { text: textResult.value, html: result.value, images };
+  const textResult=await mammoth.extractRawText({arrayBuffer:ab});
+  return{text:textResult.value,html:htmlResult.value,images};
 }
 
-// ── AI parsing (chunked) ──
-function splitByRequirement(content) {
-  const pattern = /(?=\*{0,2}Requerimiento\*{0,2}\s*:)/gi;
-  return content.split(pattern).filter(p => p.trim().length > 100);
+// ── AI parsing — sequential to avoid rate limits ──
+function splitByReq(content){
+  return content.split(/(?=\*{0,2}Requerimiento\*{0,2}\s*:)/gi).filter(p=>p.trim().length>100);
 }
 
-async function callAI(prompt) {
-  const resp = await fetch('/api/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 4000,
-      messages: [{ role: 'user', content: prompt }]
-    })
+async function callAI(prompt){
+  const resp=await fetch('/api/chat',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:3000,messages:[{role:'user',content:prompt}]})
   });
-  if (!resp.ok) throw new Error('API error ' + resp.status);
-  const data = await resp.json();
-  const raw = data.content.map(b => b.text || '').join('');
-  const clean = raw.replace(/```json[\s\S]*?```|```/g, '').trim();
+  if(!resp.ok)throw new Error('API error '+resp.status);
+  const data=await resp.json();
+  if(data.type==='error')throw new Error(data.error?.message||'API error');
+  const raw=data.content.map(b=>b.text||'').join('');
+  const clean=raw.replace(/```json[\s\S]*?```|```/g,'').trim();
   return JSON.parse(clean);
 }
 
-function buildPrompt(chunk, isFirst, total, idx) {
-  const metaLine = isFirst ? 'Extrae también el meta (title, version, app).' : 'Para "meta" devuelve campos vacíos.';
-  return `Eres experto en documentación de despliegues sanitarios (GAIA). Extrae requerimientos de este fragmento (${idx+1}/${total}) para el equipo CAU. ${metaLine}
-Módulos: BOFWEB, MDIS3, MPRE3, PROTO, RELE, GAIAWS, GAIAEXT, RESIFAP, VWEB.
+function buildPrompt(chunk,isFirst,total,idx){
+  const metaLine=isFirst?'Extrae también el meta (title,version,app).':'Para "meta" devuelve campos vacíos.';
+  return`Eres experto en documentación de despliegues sanitarios (GAIA). Extrae requerimientos del fragmento ${idx+1}/${total} para el CAU. ${metaLine}
+Módulos: BOFWEB,MDIS3,MPRE3,PROTO,RELE,GAIAWS,GAIAEXT,RESIFAP,VWEB.
 Responde SOLO con JSON válido sin markdown:
-{"meta":{"title":"","version":"","app":"GAIA"},"requirements":[{"id":"REQ-XX","title":"título corto","modules":["MOD"],"resumen":"resumen ejecutivo en 3-5 líneas orientado a soporte CAU: qué cambia, dónde, qué debe saber el usuario","situacion_actual":"resumen situación previa (párrafos separados por \\n)","descripcion":"descripción del cambio (párrafos separados por \\n)","tablas":[{"titulo":"","cabeceras":[],"filas":[]}],"configuracion":{"permisos":"","variables":[{"nombre":"","descripcion":""}]},"impacto_produccion":"","num_imagenes":0}]}
+{"meta":{"title":"","version":"","app":"GAIA"},"requirements":[{"id":"REQ-XX","title":"título corto","modules":["MOD"],"resumen":"resumen ejecutivo 3-5 líneas para soporte CAU: qué cambia, dónde, qué debe saber el usuario","situacion_actual":"situación previa (párrafos con \\n)","descripcion":"descripción del cambio (párrafos con \\n)","tablas":[{"titulo":"","cabeceras":[],"filas":[]}],"configuracion":{"permisos":"","variables":[{"nombre":"","descripcion":""}]},"impacto_produccion":"","num_imagenes":0}]}
 Si no hay requerimientos completos devuelve requirements:[].
 FRAGMENTO:
 ${chunk}`;
 }
 
-async function parseText(text, onProgress) {
-  const parts = splitByRequirement(text);
-  const CHUNK_SIZE = 11000;
-  const chunks = [];
-  let current = '';
-  for (const part of parts) {
-    if (current.length + part.length > CHUNK_SIZE && current.length > 0) {
-      chunks.push(current); current = part;
-    } else { current += '\n\n' + part; }
-  }
-  if (current.trim()) chunks.push(current);
+// Sequential with 1.5s delay between calls to respect rate limits
+async function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
-  let allReqs = [], meta = {};
-  const BATCH = 3;
-  for (let i = 0; i < chunks.length; i += BATCH) {
-    const batch = chunks.slice(i, i + BATCH);
-    onProgress(`Analizando bloques ${i+1}–${Math.min(i+BATCH, chunks.length)} de ${chunks.length}...`);
-    const results = await Promise.all(
-      batch.map((c, j) => callAI(buildPrompt(c, i+j===0, chunks.length, i+j)).catch(() => ({ meta:{}, requirements:[] })))
-    );
-    for (let j = 0; j < results.length; j++) {
-      const r = results[j];
-      if (i+j===0 && r.meta?.title) meta = r.meta;
-      if (r.requirements?.length) allReqs = allReqs.concat(r.requirements);
-    }
+async function parseText(text,onProgress){
+  const parts=splitByReq(text);
+  const CHUNK_SIZE=10000;
+  const chunks=[];
+  let current='';
+  for(const part of parts){
+    if(current.length+part.length>CHUNK_SIZE&&current.length>0){chunks.push(current);current=part;}
+    else{current+='\n\n'+part;}
   }
-  allReqs = allReqs.map((r, i) => ({ ...r, id: `REQ-${String(i+1).padStart(2,'0')}` }));
-  return { meta, requirements: allReqs };
+  if(current.trim())chunks.push(current);
+
+  let allReqs=[],meta={};
+  for(let i=0;i<chunks.length;i++){
+    onProgress(`Analizando bloque ${i+1} de ${chunks.length}...`,Math.round(20+(i/chunks.length)*60));
+    try{
+      const result=await callAI(buildPrompt(chunks[i],i===0,chunks.length,i));
+      if(i===0&&result.meta?.title)meta=result.meta;
+      if(result.requirements?.length)allReqs=allReqs.concat(result.requirements);
+    }catch(e){
+      console.warn('Chunk',i,'error:',e.message);
+      // On rate limit, wait longer and retry once
+      if(e.message.includes('rate_limit')||e.message.includes('429')){
+        onProgress(`Límite de API alcanzado, esperando 10s...`,Math.round(20+(i/chunks.length)*60));
+        await sleep(10000);
+        try{
+          const retry=await callAI(buildPrompt(chunks[i],i===0,chunks.length,i));
+          if(i===0&&retry.meta?.title)meta=retry.meta;
+          if(retry.requirements?.length)allReqs=allReqs.concat(retry.requirements);
+        }catch(e2){console.error('Retry failed:',e2.message);}
+      }
+    }
+    if(i<chunks.length-1)await sleep(1500);
+  }
+  allReqs=allReqs.map((r,i)=>({...r,id:`REQ-${String(i+1).padStart(2,'0')}`}));
+  return{meta,requirements:allReqs};
 }
 
-// ── Associate images to requirements by HTML position ──
-function associateImages(html, requirements, images) {
-  if (!html || !images.length) return requirements.map(r => ({ ...r, images: [] }));
-
-  // Parse HTML to find img order between requirement headings
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-  const nodes = Array.from(doc.body.childNodes);
-
-  // Find heading positions and image positions
-  const reqBoundaries = [];
-  let currentReqIdx = -1;
-  const imgAssignments = {};
-
-  let imgCounter = 0;
-  nodes.forEach(node => {
-    const text = node.textContent || '';
-    if (/requerimiento\s*:/i.test(text)) currentReqIdx++;
-    if (node.nodeName === 'IMG' || node.querySelector?.('img')) {
-      const imgs = node.nodeName === 'IMG' ? [node] : Array.from(node.querySelectorAll('img'));
-      imgs.forEach(() => {
-        if (currentReqIdx >= 0) {
-          if (!imgAssignments[currentReqIdx]) imgAssignments[currentReqIdx] = [];
-          imgAssignments[currentReqIdx].push(imgCounter);
-        }
-        imgCounter++;
-      });
-    }
+// ── Associate images to requirements ──
+function associateImages(html,requirements,images){
+  if(!html||!images.length)return requirements.map(r=>({...r,images:[]}));
+  const parser=new DOMParser();
+  const doc=parser.parseFromString(html,'text/html');
+  const imgAssign={};
+  let reqIdx=-1;
+  doc.body.childNodes.forEach(node=>{
+    const txt=node.textContent||'';
+    if(/requerimiento\s*:/i.test(txt))reqIdx++;
+    const imgs=node.nodeName==='IMG'?[node]:(node.querySelectorAll?Array.from(node.querySelectorAll('img')):[]);
+    imgs.forEach(img=>{
+      const src=img.getAttribute('src')||'';
+      const m=src.match(/__img_(\d+)__/);
+      if(m&&reqIdx>=0){
+        const idx=parseInt(m[1]);
+        if(!imgAssign[reqIdx])imgAssign[reqIdx]=[];
+        imgAssign[reqIdx].push(idx);
+      }
+    });
   });
-
-  return requirements.map((req, idx) => ({
+  return requirements.map((req,idx)=>({
     ...req,
-    images: (imgAssignments[idx] || []).map(i => images[i]).filter(Boolean)
+    images:(imgAssign[idx]||[]).map(i=>images[i]).filter(Boolean)
   }));
 }
 
 // ── Main submit ──
-async function submitAll() {
-  const app = document.getElementById('f-app').value;
-  const version = document.getElementById('f-version').value.trim();
-  const author = document.getElementById('f-author').value.trim();
+async function submitAll(){
+  const app=document.getElementById('f-app').value;
+  const version=document.getElementById('f-version').value.trim();
+  const author=document.getElementById('f-author').value;
+  if(!app)return showAlert('error','Selecciona una aplicación.');
+  if(!version)return showAlert('error','Introduce la versión.');
+  if(!author)return showAlert('error','Selecciona el autor.');
+  if(!files.length)return showAlert('error','Añade al menos un documento.');
 
-  if (!app) return showAlert('error', 'Selecciona una aplicación.');
-  if (!version) return showAlert('error', 'Introduce la versión.');
-  if (!author) return showAlert('error', 'Introduce el autor.');
-  if (!files.length) return showAlert('error', 'Añade al menos un documento.');
-
-  document.getElementById('submit-btn').disabled = true;
+  document.getElementById('submit-btn').disabled=true;
   showAlert('none');
-  setProgress(5, 'Iniciando...');
+  document.getElementById('redirect-box').className='';
+  setProgress(5,'Iniciando...');
 
-  try {
-    let allRequirements = [];
-    let globalMeta = {};
+  try{
+    let allRequirements=[];
+    let globalMeta={};
+    const allFileNames=files.map(f=>f.name);
 
-    for (let fi = 0; fi < files.length; fi++) {
-      const file = files[fi];
-      setFileStatus(file.name, 'processing', '⏳ procesando');
-      setProgress(10 + (fi / files.length) * 60, `Extrayendo texto: ${file.name}`);
+    for(let fi=0;fi<files.length;fi++){
+      const file=files[fi];
+      setFileStatus(file.name,'processing','⏳ extrayendo');
+      setProgress(5+Math.round((fi/files.length)*30),`Leyendo: ${file.name}`);
+      const{text,html,images}=await extractFile(file);
 
-      const { text, html, images } = await extractFile(file);
-
-      setProgress(20 + (fi / files.length) * 60, `Analizando con IA: ${file.name}`);
-      const { meta, requirements } = await parseText(text, msg => {
-        setProgress(30 + (fi / files.length) * 60, msg);
+      setFileStatus(file.name,'processing','⏳ analizando');
+      const{meta,requirements}=await parseText(text,(msg,pct)=>{
+        setProgress(pct,`[${fi+1}/${files.length}] ${msg}`);
       });
 
-      if (fi === 0) globalMeta = meta;
-
-      // Associate images
-      const reqsWithImages = associateImages(html || '', requirements, images || []);
-      allRequirements = allRequirements.concat(reqsWithImages);
-      setFileStatus(file.name, 'ok', `✓ ${requirements.length} reqs`);
+      if(fi===0)globalMeta=meta;
+      const reqsWithImgs=associateImages(html||'',requirements,images||[]);
+      allRequirements=allRequirements.concat(reqsWithImgs);
+      setFileStatus(file.name,'ok',`✓ ${requirements.length} reqs`);
     }
 
-    // Re-number all reqs sequentially
-    allRequirements = allRequirements.map((r, i) => ({
-      ...r, id: `REQ-${String(i+1).padStart(2,'0')}`
-    }));
+    // Re-number sequentially
+    allRequirements=allRequirements.map((r,i)=>({...r,id:`REQ-${String(i+1).padStart(2,'0')}`}));
 
-    setProgress(75, 'Subiendo imágenes y guardando...');
+    setProgress(82,'Subiendo imágenes y guardando...');
 
-    // Prepare images map for upload
-    const imagesMap = {};
-    allRequirements.forEach((req, rIdx) => {
-      (req.images || []).forEach((b64, iIdx) => {
-        if (b64 && b64.length > 100) imagesMap[`${rIdx}/${iIdx}`] = b64;
-      });
+    const resp=await fetch('/api/upload',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        app,version,author,
+        date:new Date().toISOString().split('T')[0],
+        files:allFileNames,
+        requirements:allRequirements
+      })
     });
 
-    // Upload to server
-    for (let fi = 0; fi < files.length; fi++) {
-      const file = files[fi];
-      const reqs = allRequirements.filter((_, i) => {
-        // All reqs for this file
-        const perFile = Math.ceil(allRequirements.length / files.length);
-        return i >= fi * perFile && i < (fi + 1) * perFile;
-      });
+    const result=await resp.json();
+    if(!resp.ok||!result.ok)throw new Error(result.error||'Error en el servidor');
 
-      const resp = await fetch('/api/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          app, version, author,
-          filename: file.name,
-          requirements: allRequirements.map(r => ({ ...r, images: (r.images||[]).map((_, iIdx) => `PENDING_${iIdx}`) })),
-          images: imagesMap
-        })
-      });
-
-      const result = await resp.json();
-      if (!resp.ok || !result.ok) throw new Error(result.error || 'Error en el servidor');
-    }
-
-    setProgress(100, 'Completado');
+    setProgress(100,'Completado');
     showAlert('success');
-    files = [];
-    renderFileList();
-    document.getElementById('f-version').value = '';
-    document.getElementById('f-author').value = '';
-    document.getElementById('f-app').value = '';
+    files=[];renderFileList();
+    document.getElementById('f-version').value='';
+    document.getElementById('f-author').value='';
+    document.getElementById('f-app').value='';
+    loadDeployments();
 
-  } catch (err) {
-    showAlert('error', 'Error: ' + err.message);
-    setProgress(0, '');
-    document.getElementById('progress-area').className = '';
-  } finally {
-    document.getElementById('submit-btn').disabled = false;
+    // Redirect countdown
+    const rb=document.getElementById('redirect-box');
+    rb.className='on';
+    let secs=3;
+    const timer=setInterval(()=>{
+      secs--;
+      document.getElementById('countdown').textContent=secs;
+      if(secs<=0){clearInterval(timer);window.location.href='/';}
+    },1000);
+
+  }catch(err){
+    showAlert('error','Error: '+err.message);
+    setProgress(0,'');
+    document.getElementById('progress-area').className='';
+  }finally{
+    document.getElementById('submit-btn').disabled=false;
   }
 }
+
+// ── Deployment list ──
+async function loadDeployments(){
+  const list=document.getElementById('dep-list');
+  try{
+    const resp=await fetch('/api/deployments');
+    const data=await resp.json();
+    const deps=data.deployments||[];
+    if(!deps.length){list.innerHTML='<div class="dep-empty">No hay despliegues publicados.</div>';return;}
+    list.innerHTML=deps.map(d=>`
+      <div class="dep-card">
+        <button class="dc-del" onclick="confirmDelete('${d.id}','${d.app} ${d.version}')">🗑 Borrar</button>
+        <div class="dc-app">${d.app}</div>
+        <div class="dc-version">${d.version}</div>
+        <div class="dc-meta">${d.author} · ${d.date} · ${d.reqCount} requerimientos</div>
+        <div class="dc-files">${(d.files||[]).join(', ')}</div>
+      </div>`).join('');
+  }catch(e){list.innerHTML=`<div class="dep-empty">Error cargando: ${e.message}</div>`;}
+}
+
+// ── Delete ──
+function confirmDelete(id,label){
+  pendingDeleteId=id;
+  document.getElementById('cm-text').textContent=`¿Eliminar "${label}"? Se borrarán todos sus requerimientos e imágenes de Cloudinary. Esta acción no se puede deshacer.`;
+  document.getElementById('confirm-modal').className='on';
+  document.getElementById('cm-confirm-btn').onclick=()=>doDelete(id);
+}
+function closeConfirm(){document.getElementById('confirm-modal').className='';pendingDeleteId=null;}
+async function doDelete(id){
+  closeConfirm();
+  const list=document.getElementById('dep-list');
+  list.innerHTML='<div class="dep-empty">Eliminando...</div>';
+  try{
+    const resp=await fetch('/api/delete',{
+      method:'DELETE',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({depId:id})
+    });
+    const data=await resp.json();
+    if(!resp.ok||!data.ok)throw new Error(data.error||'Error al eliminar');
+    loadDeployments();
+  }catch(e){
+    list.innerHTML=`<div class="dep-empty">Error: ${e.message}</div>`;
+    setTimeout(loadDeployments,2000);
+  }
+}
+
+loadDeployments();
 </script>
 </body>
 </html>
