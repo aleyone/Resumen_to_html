@@ -1,1 +1,15 @@
-{ "deployments": [] }
+{
+  "deployments": [
+    {
+      "id": "dep_1780486995132",
+      "app": "GAIA",
+      "version": "GAIA E4.2.4 Ex. 29-23",
+      "date": "2026-06-03",
+      "author": "Christian Gil",
+      "files": [
+        "Novedades GAIA E4.2.X Ex.29-23 1.docx"
+      ],
+      "requirements": []
+    }
+  ]
+}
