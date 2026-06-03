@@ -461,72 +461,118 @@ async function readDOCX(file) {
   return res.value;
 }
 
-async function parseWithAI(content, filename) {
-  const chunk = content.slice(0, 14000);
+function splitByRequirement(content) {
+  // Split on "Requerimiento:" headings — works for both bold (**) and plain text
+  const pattern = /(?=\*{0,2}Requerimiento\*{0,2}\s*:)/gi;
+  const parts = content.split(pattern).filter(p => p.trim().length > 100);
+  // First part may contain doc header/meta — keep it but flag it
+  return parts;
+}
 
-  const prompt = `Eres un asistente experto en documentación de despliegues de software sanitario (aplicación GAIA). Analiza el documento de novedades y extrae TODOS los requerimientos de forma estructurada para el equipo de soporte CAU.
+function buildPrompt(chunk, isFirst, totalChunks, chunkIdx) {
+  const metaInstruction = isFirst
+    ? `Extrae también el meta del despliegue (título, versión, app).`
+    : `Para el campo "meta" devuelve: {"title":"","version":"","app":"GAIA"} (vacío, ya lo tenemos).`;
 
-Módulos posibles de GAIA: BOFWEB, MDIS3, MPRE3, PROTO, RELE, GAIAWS, GAIAEXT, RESIFAP, VWEB.
+  return `Eres un experto en documentación de despliegues de software sanitario (GAIA). Extrae los requerimientos de este fragmento (${chunkIdx+1}/${totalChunks}) para el equipo CAU.
 
-Responde ÚNICAMENTE con JSON válido, sin markdown ni backticks. Estructura exacta:
+${metaInstruction}
+Módulos GAIA: BOFWEB, MDIS3, MPRE3, PROTO, RELE, GAIAWS, GAIAEXT, RESIFAP, VWEB.
+
+Responde ÚNICAMENTE con JSON válido, sin markdown ni backticks:
 {
-  "meta": {
-    "title": "título completo del despliegue",
-    "version": "versión si la hay (ej: E4.2.X Ex.29-23)",
-    "app": "GAIA"
-  },
+  "meta": {"title":"...","version":"...","app":"GAIA"},
   "requirements": [
     {
-      "id": "REQ-01",
-      "title": "título corto y descriptivo del requerimiento",
-      "modules": ["MODULO1","MODULO2"],
-      "situacion_actual": "Resumen en prosa clara de la situación previa al cambio. Máximo 3 párrafos. Separa párrafos con salto de línea.",
-      "descripcion": "Descripción detallada del cambio implementado. Prosa bien estructurada con saltos de línea entre puntos importantes. Incluye submódulos o componentes afectados si los hay.",
-      "tablas": [
-        {
-          "titulo": "nombre descriptivo de la tabla",
-          "cabeceras": ["Columna1","Columna2","Columna3"],
-          "filas": [["valor1","valor2","valor3"]]
-        }
-      ],
+      "id": "REQ-XX",
+      "title": "título corto del requerimiento",
+      "modules": ["MODULO"],
+      "situacion_actual": "resumen situación previa, párrafos separados por \\n",
+      "descripcion": "descripción del cambio, párrafos separados por \\n",
+      "tablas": [{"titulo":"...","cabeceras":["col1","col2"],"filas":[["v1","v2"]]}],
       "configuracion": {
-        "permisos": "descripción de nuevos permisos creados, o 'Sin nuevos permisos'",
-        "variables": [
-          { "nombre": "NOMBRE.VARIABLE", "descripcion": "qué hace esta variable" }
-        ]
+        "permisos": "nuevos permisos o Sin nuevos permisos",
+        "variables": [{"nombre":"VARIABLE","descripcion":"qué hace"}]
       },
-      "impacto_produccion": "texto del impacto en producción si lo hay, vacío si no",
+      "impacto_produccion": "impacto si lo hay",
       "num_imagenes": 0
     }
   ]
 }
 
-Extrae TODOS los requerimientos en orden. Para tablas de categorías, permisos o configuración: inclúyelas en el array tablas con datos completos.
+Si el fragmento no contiene requerimientos completos, devuelve requirements:[].
+Incluye tablas de categorías completas en el array tablas.
 
-DOCUMENTO:
+FRAGMENTO:
 ${chunk}`;
+}
 
+async function callAI(prompt) {
   const resp = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 8000,
+      max_tokens: 4000,
       messages: [{ role: 'user', content: prompt }]
     })
   });
-
-  if (!resp.ok) throw new Error('Error API Anthropic (' + resp.status + '). Verifica tu conexión.');
+  if (!resp.ok) throw new Error('Error API (' + resp.status + ')');
   const data = await resp.json();
   const raw = data.content.map(b => b.text || '').join('');
-  const clean = raw.replace(/```json|```/g, '').trim();
+  const clean = raw.replace(/```json[\s\S]*?```|```/g, '').trim();
+  return JSON.parse(clean);
+}
 
-  let parsed;
-  try { parsed = JSON.parse(clean); }
-  catch(e) { throw new Error('La IA no devolvió JSON válido. Intenta de nuevo.'); }
+async function parseWithAI(content, filename) {
+  // Split document by requirement boundaries
+  const parts = splitByRequirement(content);
 
-  deployMeta = parsed.meta || {};
-  reqs = (parsed.requirements || []).map((r, i) => ({ ...r, _idx: i }));
+  // Group into chunks of max ~12000 chars, respecting requirement boundaries
+  const CHUNK_SIZE = 12000;
+  const chunks = [];
+  let current = '';
+  for (const part of parts) {
+    if (current.length + part.length > CHUNK_SIZE && current.length > 0) {
+      chunks.push(current);
+      current = part;
+    } else {
+      current += '\n\n' + part;
+    }
+  }
+  if (current.trim()) chunks.push(current);
+
+  setLoading(true, `Analizando documento en ${chunks.length} bloques...`, '');
+
+  // Process chunks in batches of 3 (parallel)
+  const BATCH = 3;
+  let allReqs = [];
+  let meta = {};
+
+  for (let i = 0; i < chunks.length; i += BATCH) {
+    const batch = chunks.slice(i, i + BATCH);
+    setLoading(true, `Procesando bloques ${i+1}–${Math.min(i+BATCH, chunks.length)} de ${chunks.length}...`, `${allReqs.length} requerimientos encontrados`);
+
+    const results = await Promise.all(
+      batch.map((chunk, j) => callAI(buildPrompt(chunk, i + j === 0, chunks.length, i + j)).catch(e => ({ meta: {}, requirements: [] })))
+    );
+
+    for (let j = 0; j < results.length; j++) {
+      const r = results[j];
+      if (i + j === 0 && r.meta && r.meta.title) meta = r.meta;
+      if (r.requirements && r.requirements.length) allReqs = allReqs.concat(r.requirements);
+    }
+  }
+
+  // Re-number IDs sequentially
+  allReqs = allReqs.map((r, i) => ({
+    ...r,
+    id: 'REQ-' + String(i + 1).padStart(2, '0'),
+    _idx: i
+  }));
+
+  deployMeta = meta;
+  reqs = allReqs;
 
   setLoading(false);
   initApp(filename);
