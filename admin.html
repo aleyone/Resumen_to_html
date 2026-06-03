@@ -419,11 +419,12 @@ async function uploadImageToCloudinary(b64, publicId) {
   const formData = new FormData();
   formData.append('file', `data:image/png;base64,${b64}`);
   formData.append('upload_preset', CLOUDINARY_PRESET);
-  formData.append('public_id', publicId);
+  // Note: unsigned presets ignore public_id — Cloudinary assigns one automatically
   const resp = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
     method: 'POST', body: formData
   });
   const data = await resp.json();
+  console.log('Cloudinary response:', data.secure_url || data.error);
   if (!data.secure_url) throw new Error('Cloudinary: ' + (data.error?.message || JSON.stringify(data)));
   return data.secure_url;
 }
