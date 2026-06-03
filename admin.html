@@ -271,18 +271,52 @@ async function extractPDF(file){
   }
   return{text,images:[]};
 }
-async function extractDOCX(file){
-  const ab=await file.arrayBuffer();
-  const images=[];
-  const htmlResult=await mammoth.convertToHtml({arrayBuffer:ab},{
-    convertImage:mammoth.images.imgElement(async(img)=>{
-      const b64=await img.read('base64');
-      images.push(b64);
-      return{src:`__img_${images.length-1}__`};
-    })
+async function loadJSZip() {
+  if (window.JSZip) return window.JSZip;
+  await new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+    s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
   });
-  const textResult=await mammoth.extractRawText({arrayBuffer:ab});
-  return{text:textResult.value,html:htmlResult.value,images};
+  return window.JSZip;
+}
+
+async function extractDOCX(file) {
+  const ab = await file.arrayBuffer();
+  const images = [];
+
+  // Extract images directly from docx ZIP (word/media/)
+  try {
+    const JSZip = await loadJSZip();
+    const zip = await JSZip.loadAsync(ab);
+    const mediaFiles = Object.keys(zip.files).filter(name =>
+      name.startsWith('word/media/') && /\.(png|jpg|jpeg|gif|webp)$/i.test(name)
+    );
+    console.log('JSZip media files found:', mediaFiles);
+    // Sort by filename to preserve order
+    mediaFiles.sort();
+    for (const mediaFile of mediaFiles) {
+      const b64 = await zip.files[mediaFile].async('base64');
+      images.push(b64);
+    }
+    console.log('Total images extracted:', images.length);
+  } catch(e) {
+    console.warn('JSZip extraction error:', e.message);
+  }
+
+  // Get HTML from mammoth (for structure/position info)
+  let htmlValue = '';
+  try {
+    const htmlResult = await mammoth.convertToHtml({ arrayBuffer: ab });
+    htmlValue = htmlResult.value || '';
+  } catch(e) {
+    console.warn('mammoth HTML error:', e.message);
+  }
+
+  // Get plain text
+  const textResult = await mammoth.extractRawText({ arrayBuffer: ab });
+  return { text: textResult.value, html: htmlValue, images };
 }
 
 // ── AI parsing — sequential to avoid rate limits ──
@@ -385,30 +419,50 @@ async function parseText(text, onProgress) {
 }
 
 // ── Associate images to requirements ──
-function associateImages(html,requirements,images){
-  if(!html||!images.length)return requirements.map(r=>({...r,images:[]}));
-  const parser=new DOMParser();
-  const doc=parser.parseFromString(html,'text/html');
-  const imgAssign={};
-  let reqIdx=-1;
-  doc.body.childNodes.forEach(node=>{
-    const txt=node.textContent||'';
-    if(/requerimiento\s*:/i.test(txt))reqIdx++;
-    const imgs=node.nodeName==='IMG'?[node]:(node.querySelectorAll?Array.from(node.querySelectorAll('img')):[]);
-    imgs.forEach(img=>{
-      const src=img.getAttribute('src')||'';
-      const m=src.match(/__img_(\d+)__/);
-      if(m&&reqIdx>=0){
-        const idx=parseInt(m[1]);
-        if(!imgAssign[reqIdx])imgAssign[reqIdx]=[];
-        imgAssign[reqIdx].push(idx);
-      }
+function associateImages(html, requirements, images) {
+  if (!images.length) return requirements.map(r => ({ ...r, images: [] }));
+
+  // Split the full document HTML by requirement headings to find image positions
+  // mammoth puts <img src="__img_N__"> markers if it found images via convertImage
+  // With JSZip we don't have position info, so we distribute images by
+  // finding which requirement section they likely belong to via text proximity
+
+  // Strategy: find requirement boundaries in HTML, count <img> tags between them
+  // Since mammoth HTML won't have __img__ markers anymore, we use a simpler
+  // proportional distribution based on requirement order
+
+  // Split HTML into sections by requirement heading
+  const sections = html.split(/(?=<[^>]*>[\s\S]*?[Rr]equerimiento[\s\S]*?:)/);
+
+  // Count total image "slots" across all sections (img tags in html)
+  const totalHtmlImgs = (html.match(/<img/g) || []).length;
+
+  if (totalHtmlImgs === 0) {
+    // No position info from mammoth — distribute images evenly across requirements
+    // using a simple proportional split based on text length of each requirement
+    const totalTextLen = requirements.reduce((s, r) =>
+      s + (r.situacion_actual || '').length + (r.descripcion || '').length, 0);
+
+    let imgIdx = 0;
+    return requirements.map(r => {
+      const reqTextLen = (r.situacion_actual || '').length + (r.descripcion || '').length;
+      const proportion = totalTextLen > 0 ? reqTextLen / totalTextLen : 1 / requirements.length;
+      const count = Math.round(proportion * images.length);
+      const assigned = images.slice(imgIdx, imgIdx + count);
+      imgIdx += count;
+      return { ...r, images: assigned };
     });
+  }
+
+  // If mammoth did produce img tags, use section-based assignment
+  let imgIdx = 0;
+  return requirements.map((req, idx) => {
+    const section = sections[idx + 1] || '';
+    const sectionImgCount = (section.match(/<img/g) || []).length;
+    const assigned = images.slice(imgIdx, imgIdx + sectionImgCount);
+    imgIdx += sectionImgCount;
+    return { ...req, images: assigned };
   });
-  return requirements.map((req,idx)=>({
-    ...req,
-    images:(imgAssign[idx]||[]).map(i=>images[i]).filter(Boolean)
-  }));
 }
 
 // ── Cloudinary unsigned upload (from browser, no server needed) ──
@@ -485,6 +539,7 @@ async function submitAll(){
       setFileStatus(file.name,'processing','⏳ extrayendo');
       setProgress(5+Math.round((fi/files.length)*20),`Leyendo: ${file.name}`);
       const{text,html,images}=await extractFile(file);
+      console.log(`[${file.name}] text length:`, text?.length, '| images:', images?.length, '| html length:', html?.length);
 
       setFileStatus(file.name,'processing','⏳ analizando');
       const{meta,requirements}=await parseText(text,(msg,pct)=>{
