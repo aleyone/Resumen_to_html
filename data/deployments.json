@@ -1,3 +1,535 @@
 {
-  "deployments": []
+  "deployments": [
+    {
+      "id": "dep_1780491111177",
+      "app": "GAIA",
+      "version": "GAIA E4.2.4",
+      "date": "2026-06-03",
+      "author": "David Gil",
+      "files": [
+        "Módulo SUFAR GAIA E4.2.4 Ex.29-23.docx"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Nuevo catálogo de productos SUFAR",
+          "modules": [
+            "BOFWEB",
+            "PROTO"
+          ],
+          "resumen": "Creación de arquitectura específica para SUFAR mediante nuevas tablas de BD (sufarproducto, sufarsubprograma, sufarconfiguracionlogis, proveedor). Permite configuración individual de productos con código nacional, descripción, código LOGIS, proveedor, tipo de envío, validaciones y reglas logísticas. Incluye histórico de cambios, exportación a Excel y permisos específicos en Gestor de Seguridad.",
+          "situacion_actual": "Gestión de productos SUFAR reutiliza configuraciones de Metotrexato sin catálogo específico",
+          "descripcion": "Implementar nuevo módulo SUFAR en Utilidades de Prescripción con tablas us_reme.sufarproducto, us_reme.sufarsubprograma, us_reme.sufarconfiguracionlogis, us_reme.proveedor para gestionar catálogo completo de productos SUFAR.",
+          "tablas": [
+            {
+              "titulo": "Nuevas tablas SUFAR",
+              "cabeceras": [
+                "Tabla",
+                "Descripción"
+              ],
+              "filas": [
+                [
+                  "us_reme.sufarproducto",
+                  "Catálogo de productos SUFAR con código nacional, descripción, LOGIS"
+                ],
+                [
+                  "us_reme.sufarsubprograma",
+                  "Subprogramas asociados a productos SUFAR"
+                ],
+                [
+                  "us_reme.sufarconfiguracionlogis",
+                  "Configuraciones logísticas por producto"
+                ],
+                [
+                  "us_reme.proveedor",
+                  "Datos de proveedores SUFAR"
+                ]
+              ]
+            }
+          ],
+          "configuracion": {
+            "permisos": "Permisos específicos en Gestor de Seguridad: consultar, modificar, eliminar configuraciones SUFAR",
+            "variables": [
+              {
+                "nombre": "codigo_nacional",
+                "descripcion": "Código nacional del producto SUFAR"
+              },
+              {
+                "nombre": "codigo_LOGIS",
+                "descripcion": "Código de integración con sistema logístico"
+              },
+              {
+                "nombre": "tipo_envio",
+                "descripcion": "Tipo de envío: Centro Salud o Home Delivery"
+              }
+            ]
+          },
+          "impacto_produccion": "Alto - Nueva arquitectura de datos, requiere validación de integridad referencial",
+          "num_imagenes": 0,
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491152/ylkhri244xfib7qfknzg.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491153/sz4hg2fy1iwa1pvdgnde.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491154/guw96uotb3yrpxyd2vww.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491154/eexmqxdliaw1afh1mks8.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491155/e0qqve6chkmnegqn4qds.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491156/poudz4uqxol5urchxnoh.png"
+          ]
+        },
+        {
+          "id": "REQ-02",
+          "title": "Configuración logística y tipos de envío",
+          "modules": [
+            "BOFWEB",
+            "GAIAWS",
+            "GAIAEXT"
+          ],
+          "resumen": "Implementar dos circuitos logísticos: Centro de Salud (envío mediante valija interna) y Home Delivery (envío directo del proveedor al domicilio). Para Home Delivery configurar campos obligatorios: código LOGIS, proveedor, tipo de gestión, capítulo presupuestario. Integrar plataformas de proveedores, URLs de envío, teléfonos e integración logística automática.",
+          "situacion_actual": "Gestión logística manual con poca automatización en comunicación con proveedores",
+          "descripcion": "Crear configuración específica por producto de circuitos logísticos: Centro de Salud con valija interna; Home Delivery con campos obligatorios y integración con plataformas de proveedores.",
+          "tablas": [
+            {
+              "titulo": "Tipos de envío y campos obligatorios",
+              "cabeceras": [
+                "Tipo Envío",
+                "Campos Obligatorios",
+                "Gestión"
+              ],
+              "filas": [
+                [
+                  "Centro de Salud",
+                  "Centro destino",
+                  "Valija interna"
+                ],
+                [
+                  "Home Delivery",
+                  "Código LOGIS, Proveedor, Capítulo presupuestario",
+                  "Directo al domicilio/centro sanitario"
+                ]
+              ]
+            }
+          ],
+          "configuracion": {
+            "permisos": "Modificación de configuración logística por productos SUFAR",
+            "variables": [
+              {
+                "nombre": "codigo_LOGIS",
+                "descripcion": "Identificador de producto en sistema logístico"
+              },
+              {
+                "nombre": "proveedor_id",
+                "descripcion": "Identificador del proveedor asignado"
+              },
+              {
+                "nombre": "url_envio",
+                "descripcion": "URL de plataforma del proveedor para envío de ficheros"
+              }
+            ]
+          },
+          "impacto_produccion": "Medio-Alto - Integración con sistemas externos de proveedores",
+          "num_imagenes": 1,
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491157/vghohrgqqhirfcoxfesy.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491158/qc4obbemcbm8cdono5ag.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491159/waiibwgzp0juy5iljzqe.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491159/i3ighojow83o2aspnx7g.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491161/y4cbpyi3iovig36ez42y.png"
+          ]
+        },
+        {
+          "id": "REQ-03",
+          "title": "Formularios electrónicos SVP en prescripción",
+          "modules": [
+            "BOFWEB",
+            "MPRE3",
+            "PROTO"
+          ],
+          "resumen": "Eliminar modelo manual en papel e incorporar formularios electrónicos SVP integrados en prescripción y continuación de tratamientos. Formularios asociables a agrupaciones de productos que aparecen automáticamente (ej: formularios específicos para monitores de glucosa).",
+          "situacion_actual": "Parte de la información SUFAR se tramita en papel",
+          "descripcion": "Implementar sistema de formularios electrónicos SVP que se asocien a agrupaciones de productos SUFAR y aparezcan automáticamente en prescripción y continuación de tratamientos.",
+          "tablas": [],
+          "configuracion": {
+            "permisos": "Crear, modificar, eliminar formularios SUFAR asociados a productos",
+            "variables": [
+              {
+                "nombre": "agrupacion_producto",
+                "descripcion": "Agrupación de productos a los que se asocia el formulario"
+              },
+              {
+                "nombre": "tipo_formulario",
+                "descripcion": "Tipo específico: ej. monitores glucosa, sensores"
+              }
+            ]
+          },
+          "impacto_produccion": "Medio - Cambio en flujo de prescripción, requiere capacitación",
+          "num_imagenes": 0,
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491162/lb0xerkdmqaemhxiphyz.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491162/ankgcwohfhucpst8p9zw.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491163/kqew9uliysdj677rloiu.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491164/qavhkusllzegfohxlinj.png"
+          ]
+        },
+        {
+          "id": "REQ-04",
+          "title": "Ficha de datos de envío del paciente SUFAR",
+          "modules": [
+            "BOFWEB",
+            "MPRE3",
+            "RESIFAP"
+          ],
+          "resumen": "Nueva ficha para registrar dirección de entrega, centro sanitario, tipo de envío, email y datos logísticos SUFAR. Datos cargados inicialmente desde SIP pero modificables solo para SUFAR sin alterar SIP. Email obligatorio. Se almacenan junto a información de dispensación en proximidad.",
+          "situacion_actual": "Falta estructura específica para datos de envío SUFAR",
+          "descripcion": "Crear nueva ficha de datos de envío SUFAR con campos: dirección entrega, centro sanitario, tipo envío, email, datos logísticos. Permite modificación independiente de SIP con validación de email obligatorio.",
+          "tablas": [
+            {
+              "titulo": "Campos ficha datos envío SUFAR",
+              "cabeceras": [
+                "Campo",
+                "Obligatorio",
+                "Fuente inicial"
+              ],
+              "filas": [
+                [
+                  "Dirección entrega",
+                  "Sí",
+                  "SIP (modificable)"
+                ],
+                [
+                  "Centro sanitario",
+                  "Sí",
+                  "SIP (modificable)"
+                ],
+                [
+                  "Tipo envío",
+                  "Sí",
+                  "Configuración producto"
+                ],
+                [
+                  "Email",
+                  "Sí",
+                  "SIP (modificable)"
+                ],
+                [
+                  "Datos logísticos",
+                  "Según tipo",
+                  "Proveedores"
+                ]
+              ]
+            }
+          ],
+          "configuracion": {
+            "permisos": "Modificar datos de envío SUFAR independientemente de SIP",
+            "variables": [
+              {
+                "nombre": "email_paciente",
+                "descripcion": "Email para comunicaciones logísticas (obligatorio)"
+              },
+              {
+                "nombre": "centro_sanitario",
+                "descripcion": "Centro de entrega seleccionable libremente"
+              }
+            ]
+          },
+          "impacto_produccion": "Medio - Nuevos campos en prescripción",
+          "num_imagenes": 2,
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491164/kqaltxsazimnxql4jubi.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491165/xynnpwatxcslxcrgkcfj.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491165/hkmu2ibeszvjrcgupugc.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491166/slleof6ozrnnnikcr83g.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491167/h0qrte28xucwrh52chc7.png"
+          ]
+        },
+        {
+          "id": "REQ-05",
+          "title": "Tratamiento de datos personales SUFAR",
+          "modules": [
+            "BOFWEB",
+            "MPRE3",
+            "PROTO"
+          ],
+          "resumen": "Incorporar gestión de consentimiento para cesión de datos a proveedores. Paciente puede visualizar, imprimir, firmar electrónicamente documento de tratamiento de datos. Sistema permite lectura de banda magnética SIP, código barras, QR. Si paciente rechaza, datos no se envían a proveedor y tratamiento no entra en planificación logística.",
+          "situacion_actual": "Sin gestión formal de consentimiento de datos para cesión a proveedores",
+          "descripcion": "Implementar flujo de aceptación de tratamiento de datos con documento electrónico, lectura de identificación del paciente (SIP/QR/código barras), firma electrónica profesional y envío por email protegido.",
+          "tablas": [],
+          "configuracion": {
+            "permisos": "Firma electrónica de documentos de consentimiento, envío email protegido con DNI",
+            "variables": [
+              {
+                "nombre": "aceptacion_datos",
+                "descripcion": "Flag de aceptación del tratamiento de datos"
+              },
+              {
+                "nombre": "lectura_identificacion",
+                "descripcion": "Tipo de lectura: banda magnética, código barras, QR"
+              }
+            ]
+          },
+          "impacto_produccion": "Alto - Requiere integración con servicios de firma electrónica y email protegido",
+          "num_imagenes": 0,
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491167/mthapvc02de0zomomys0.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491168/dnkcnd06oojvo8x5qbhx.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491169/wsbzfw3a5408cuqajjal.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491169/iglb5mjavjz84dsi9ofa.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491170/c0eem1dqdrnmqylc1pjp.png"
+          ]
+        },
+        {
+          "id": "REQ-06",
+          "title": "Compromiso terapéutico del paciente",
+          "modules": [
+            "BOFWEB",
+            "MPRE3",
+            "PROTO"
+          ],
+          "resumen": "Gestión de compromiso terapéutico con flujo similar a tratamiento de datos: visualización documento, aceptación electrónica, lectura SIP/QR, adjuntos escaneados y firma profesional. Si paciente no acepta, tratamiento no se incluye en procesos logísticos ni Home Delivery.",
+          "situacion_actual": "Sin control de compromiso terapéutico del paciente",
+          "descripcion": "Implementar documento de compromiso terapéutico que debe ser aceptado electrónicamente por paciente. Su rechazo bloquea procesos logísticos y Home Delivery.",
+          "tablas": [],
+          "configuracion": {
+            "permisos": "Gestión de documentos de compromiso, firma electrónica",
+            "variables": [
+              {
+                "nombre": "aceptacion_compromiso",
+                "descripcion": "Flag de aceptación del compromiso terapéutico"
+              }
+            ]
+          },
+          "impacto_produccion": "Medio - Nuevo documento en flujo de prescripción SUFAR",
+          "num_imagenes": 0,
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491170/trdnsvympmyavspmz5s1.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491171/eafaufknbl3ikiwluuh5.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491171/pfjpikgoxhcmzcdhpo8s.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491172/gioe5rgredgtocs6ycmx.png"
+          ]
+        },
+        {
+          "id": "REQ-07",
+          "title": "Automatización de tratamientos SUFAR",
+          "modules": [
+            "BOFWEB",
+            "MPRE3",
+            "GAIAWS",
+            "PROTO"
+          ],
+          "resumen": "Cuando se guardan datos de envío, tratamientos activos se identifican automáticamente como SUFAR, actualiza centro de dispensación, notifica cambios a proveedores y actualiza entregas pendientes. En Home Delivery solo se incluyen tratamientos con primera dispensación registrada.",
+          "situacion_actual": "Identificación y gestión manual de tratamientos SUFAR",
+          "descripcion": "Automatizar identificación de tratamientos como SUFAR al guardar datos de envío, actualizar centro dispensación, notificar proveedores y entregas pendientes.",
+          "tablas": [],
+          "configuracion": {
+            "permisos": "Automatización de identificación SUFAR, notificación a proveedores",
+            "variables": [
+              {
+                "nombre": "estado_SUFAR",
+                "descripcion": "Identificación automática del tratamiento como SUFAR"
+              },
+              {
+                "nombre": "primera_dispensacion",
+                "descripcion": "Requisito para incluir en Home Delivery"
+              }
+            ]
+          },
+          "impacto_produccion": "Alto - Cambios automáticos en estados de tratamientos",
+          "num_imagenes": 0,
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491173/f0qwxjufk6fzwdmrknta.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491173/pgblsba0khqk9iro4w4f.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491174/r8a9yhlqnzp7pjkzwpqp.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491174/cpgqa65vlgiigpt9ndi0.png"
+          ]
+        },
+        {
+          "id": "REQ-08",
+          "title": "Automatización logística y previsión",
+          "modules": [
+            "BOFWEB",
+            "MDIS3",
+            "GAIAWS",
+            "GAIAEXT"
+          ],
+          "resumen": "Automatizar cálculo de previsión de productos, comunicación con LOGIS, cálculo de unidades pendientes, ajustes por entregas adicionales, pedidos al proveedor y programación de entregas. Mejora monitorización de procesos, seguimiento de incidencias y trazabilidad de dispensaciones.",
+          "situacion_actual": "Previsión logística mediante consultas programadas sobre tratamientos",
+          "descripcion": "Implementar automatización completa de procesos logísticos: cálculo de previsión, integración con LOGIS, gestión de pedidos y entregas con seguimiento completo.",
+          "tablas": [],
+          "configuracion": {
+            "permisos": "Automatización de cálculos logísticos, comunicación LOGIS",
+            "variables": [
+              {
+                "nombre": "unidades_pendientes",
+                "descripcion": "Cálculo automático de unidades a entregar"
+              },
+              {
+                "nombre": "entregas_adicionales",
+                "descripcion": "Ajustes por incidencias o reposiciones"
+              }
+            ]
+          },
+          "impacto_produccion": "Muy Alto - Cambio de procesos logísticos, integración LOGIS",
+          "num_imagenes": 0,
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491175/cv0eq5arodtg32d6mhpp.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491176/afrwrhsnxon7xcbkyzro.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491176/cyczmzsxgnahakj72kne.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491177/zfcstn0xgics1coisth6.png"
+          ]
+        },
+        {
+          "id": "REQ-09",
+          "title": "Gestión de incidencias en Home Delivery",
+          "modules": [
+            "BOFWEB",
+            "MDIS3",
+            "VWEB"
+          ],
+          "resumen": "Nuevas alertas y controles para entregas a domicilio: alertas en visor (incidencias en entrega con motivo, incidencias tras entrega con cantidad repuesta), columna 'Incidencia SUFAR' en detalle de tratamiento con tooltips, vinculación de dispensaciones reposición con original.",
+          "situacion_actual": "Sin control específico de incidencias en entregas Home Delivery SUFAR",
+          "descripcion": "Implementar sistema de alertas y seguimiento de incidencias en Home Delivery: alerta naranja para fallos en entrega (ausencia, dirección incorrecta, rechazo), alerta roja para problemas post-entrega (pérdida, robo, uso incorrecto).",
+          "tablas": [
+            {
+              "titulo": "Tipos de alertas de incidencia",
+              "cabeceras": [
+                "Color",
+                "Tipo Incidencia",
+                "Ejemplos"
+              ],
+              "filas": [
+                [
+                  "Naranja",
+                  "Incidencia en entrega",
+                  "Ausencia, dirección incorrecta, rechazo, falta material"
+                ],
+                [
+                  "Roja",
+                  "Incidencia tras entrega",
+                  "Pérdida, robo, uso incorrecto"
+                ]
+              ]
+            }
+          ],
+          "configuracion": {
+            "permisos": "Registro y seguimiento de incidencias, gestión de reposiciones",
+            "variables": [
+              {
+                "nombre": "tipo_incidencia",
+                "descripcion": "Clasificación de incidencia: en entrega o post-entrega"
+              },
+              {
+                "nombre": "motivo_incidencia",
+                "descripcion": "Motivo específico de la incidencia"
+              }
+            ]
+          },
+          "impacto_produccion": "Medio - Nuevas columnas y alertas en vistas",
+          "num_imagenes": 2,
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491177/ilkdkfujbs9rqtopjqli.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491178/tzjeeljyhnizzk3clofo.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491179/aavqhkvaomgmbyysd60d.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491179/amexzcfeklyyz8krdtp8.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491180/fcfgkdguc3lbyq3os48y.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491181/jvjnibnlbx853roflfj0.png"
+          ]
+        },
+        {
+          "id": "REQ-10",
+          "title": "Cambios sobre acciones de prescripción SUFAR",
+          "modules": [
+            "BOFWEB",
+            "MPRE3",
+            "PROTO"
+          ],
+          "resumen": "Modificación de tratamientos: no interrumpe si activo, ajusta fecha final e inicia nuevo al día siguiente (mantiene condición SUFAR). Continuación: mantiene SUFAR, actualiza centro según datos actuales. Interrupción: controla confirmación entregas en domicilio. Tratamientos modificados mantienen automáticamente condición SUFAR.",
+          "situacion_actual": "Acciones de prescripción sin lógica específica para tratamientos SUFAR",
+          "descripcion": "Implementar lógica específica para acciones de prescripción en tratamientos SUFAR: modificación ajusta fechas sin interrumpir, continuación mantiene SUFAR, interrupción controla entregas en domicilio.",
+          "tablas": [
+            {
+              "titulo": "Lógica de acciones prescripción SUFAR",
+              "cabeceras": [
+                "Acción",
+                "Comportamiento",
+                "Condición SUFAR"
+              ],
+              "filas": [
+                [
+                  "Modificación (activo)",
+                  "Ajusta fecha final, nuevo al día siguiente",
+                  "Se mantiene"
+                ],
+                [
+                  "Modificación (finalizado)",
+                  "Genera nuevo tratamiento normal",
+                  "Se mantiene"
+                ],
+                [
+                  "Continuación",
+                  "Sigue siendo SUFAR, actualiza centro",
+                  "Se mantiene"
+                ],
+                [
+                  "Interrupción",
+                  "Controla confirmación entregas domicilio",
+                  "Se mantiene"
+                ]
+              ]
+            }
+          ],
+          "configuracion": {
+            "permisos": "Modificación de fechas y centros en tratamientos SUFAR",
+            "variables": [
+              {
+                "nombre": "mantener_SUFAR",
+                "descripcion": "Flag para mantener condición SUFAR en acciones"
+              }
+            ]
+          },
+          "impacto_produccion": "Alto - Cambios en lógica de acciones de prescripción",
+          "num_imagenes": 0,
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491183/wyqnn60c8t1u96ifmqwy.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491184/mfn2wgscpeyjogkux50h.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491185/ikqozdi1m7x5gheswnxb.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491185/qd22f35z4zmwhhebod1h.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491186/wljsapruwqcpt1z5zhfz.png"
+          ]
+        },
+        {
+          "id": "REQ-11",
+          "title": "Validación farmacéutica FAP en SUFAR",
+          "modules": [
+            "BOFWEB",
+            "MPRE3",
+            "RESIFAP"
+          ],
+          "resumen": "Algunos tratamientos SUFAR requieren validación previa de farmacéuticos atención primaria (FAP). Notificaciones automáticas diarias/semanales por email y SIA. Pantalla de validación FAP para consultar tratamientos pendientes, revisar historia clínica y validar. La validación permite dispensar e incluir en planificación automática de entregas.",
+          "situacion_actual": "Sin proceso de validación farmacéutica específico para tratamientos SUFAR",
+          "descripcion": "Implementar flujo de validación FAP con notificaciones automáticas (email y SIA), pantalla de consulta de tratamientos pendientes y validación que permite dispensación e inclusión en planificación logística.",
+          "tablas": [],
+          "configuracion": {
+            "permisos": "Validación de tratamientos SUFAR, acceso a historia clínica",
+            "variables": [
+              {
+                "nombre": "requiere_validacion_FAP",
+                "descripcion": "Flag indicando si tratamiento SUFAR requiere validación"
+              },
+              {
+                "nombre": "frecuencia_notificacion",
+                "descripcion": "Periodicidad de notificaciones: diaria o semanal"
+              }
+            ]
+          },
+          "impacto_produccion": "Medio - Nuevo flujo de validación, notificaciones automáticas",
+          "num_imagenes": 1,
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491186/pt4iybqtvqf8amsbazqo.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491187/xa4xc1fgkkmyth5kctdi.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491188/vflyod7hvkqmstx3v5ar.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491188/wri6o2vainqyqxwcln7u.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780491189/k8e7ltlrlkyszyd4sof0.png"
+          ]
+        }
+      ]
+    }
+  ]
 }
