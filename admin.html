@@ -290,68 +290,98 @@ function splitByReq(content){
   return content.split(/(?=\*{0,2}Requerimiento\*{0,2}\s*:)/gi).filter(p=>p.trim().length>100);
 }
 
-async function callAI(prompt){
-  const resp=await fetch('/api/chat',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:3000,messages:[{role:'user',content:prompt}]})
-  });
-  if(!resp.ok)throw new Error('API error '+resp.status);
-  const data=await resp.json();
-  if(data.type==='error')throw new Error(data.error?.message||'API error');
-  const raw=data.content.map(b=>b.text||'').join('');
-  const clean=raw.replace(/```json[\s\S]*?```|```/g,'').trim();
-  return JSON.parse(clean);
+function extractJSON(raw) {
+  // Try direct parse first
+  try { return JSON.parse(raw.trim()); } catch(_) {}
+  // Strip markdown fences: ```json ... ``` or ``` ... ```
+  const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fenced) { try { return JSON.parse(fenced[1].trim()); } catch(_) {} }
+  // Find first { ... } block
+  const start = raw.indexOf('{');
+  const end = raw.lastIndexOf('}');
+  if (start !== -1 && end !== -1 && end > start) {
+    try { return JSON.parse(raw.slice(start, end + 1)); } catch(_) {}
+  }
+  throw new Error('No se pudo extraer JSON válido de la respuesta de la IA');
 }
 
-function buildPrompt(chunk,isFirst,total,idx){
-  const metaLine=isFirst?'Extrae también el meta (title,version,app).':'Para "meta" devuelve campos vacíos.';
-  return`Eres experto en documentación de despliegues sanitarios (GAIA). Extrae requerimientos del fragmento ${idx+1}/${total} para el CAU. ${metaLine}
+async function callAI(prompt) {
+  if (!prompt || prompt.trim().length < 50) throw new Error('Prompt vacío');
+  const resp = await fetch('/api/chat', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 6000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  if (!resp.ok) {
+    const errText = await resp.text().catch(() => '');
+    throw new Error(`API error ${resp.status}: ${errText.slice(0, 200)}`);
+  }
+  const data = await resp.json();
+  if (data.type === 'error') throw new Error(data.error?.message || 'API error');
+  const raw = data.content.map(b => b.text || '').join('');
+  if (!raw.trim()) throw new Error('Respuesta vacía de la IA');
+  return extractJSON(raw);
+}
+
+function buildPrompt(chunk, isFirst, total, idx) {
+  if (!chunk || chunk.trim().length < 50) return null;
+  const metaLine = isFirst ? 'Extrae también el meta (title,version,app).' : 'Para "meta" devuelve campos vacíos.';
+  return `Eres experto en documentación de despliegues sanitarios (GAIA). Extrae requerimientos del fragmento ${idx+1}/${total} para el CAU. ${metaLine}
 Módulos: BOFWEB,MDIS3,MPRE3,PROTO,RELE,GAIAWS,GAIAEXT,RESIFAP,VWEB.
-Responde SOLO con JSON válido sin markdown:
-{"meta":{"title":"","version":"","app":"GAIA"},"requirements":[{"id":"REQ-XX","title":"título corto","modules":["MOD"],"resumen":"resumen ejecutivo 3-5 líneas para soporte CAU: qué cambia, dónde, qué debe saber el usuario","situacion_actual":"situación previa (párrafos con \\n)","descripcion":"descripción del cambio (párrafos con \\n)","tablas":[{"titulo":"","cabeceras":[],"filas":[]}],"configuracion":{"permisos":"","variables":[{"nombre":"","descripcion":""}]},"impacto_produccion":"","num_imagenes":0}]}
+IMPORTANTE: Responde ÚNICAMENTE con el objeto JSON, sin texto antes ni después, sin bloques de código markdown.
+Formato exacto:
+{"meta":{"title":"","version":"","app":"GAIA"},"requirements":[{"id":"REQ-XX","title":"título corto","modules":["MOD"],"resumen":"resumen ejecutivo 3-5 líneas para soporte CAU","situacion_actual":"situación previa","descripcion":"descripción del cambio","tablas":[{"titulo":"","cabeceras":[],"filas":[]}],"configuracion":{"permisos":"","variables":[{"nombre":"","descripcion":""}]},"impacto_produccion":"","num_imagenes":0}]}
 Si no hay requerimientos completos devuelve requirements:[].
 FRAGMENTO:
-${chunk}`;
+${chunk.slice(0, 7000)}`;
 }
 
-// Sequential with 1.5s delay between calls to respect rate limits
-async function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-async function parseText(text,onProgress){
-  const parts=splitByReq(text);
-  const CHUNK_SIZE=10000;
-  const chunks=[];
-  let current='';
-  for(const part of parts){
-    if(current.length+part.length>CHUNK_SIZE&&current.length>0){chunks.push(current);current=part;}
-    else{current+='\n\n'+part;}
+async function parseText(text, onProgress) {
+  const parts = splitByReq(text);
+  // Each requirement gets its own chunk — max 7000 chars per chunk
+  const MAX_CHUNK = 7000;
+  const chunks = [];
+  let current = '';
+  for (const part of parts) {
+    if (current.length + part.length > MAX_CHUNK && current.length > 0) {
+      chunks.push(current);
+      current = part;
+    } else {
+      current += '\n\n' + part;
+    }
   }
-  if(current.trim())chunks.push(current);
+  if (current.trim()) chunks.push(current);
 
-  let allReqs=[],meta={};
-  for(let i=0;i<chunks.length;i++){
-    onProgress(`Analizando bloque ${i+1} de ${chunks.length}...`,Math.round(20+(i/chunks.length)*60));
-    try{
-      const result=await callAI(buildPrompt(chunks[i],i===0,chunks.length,i));
-      if(i===0&&result.meta?.title)meta=result.meta;
-      if(result.requirements?.length)allReqs=allReqs.concat(result.requirements);
-    }catch(e){
-      console.warn('Chunk',i,'error:',e.message);
-      // On rate limit, wait longer and retry once
-      if(e.message.includes('rate_limit')||e.message.includes('429')){
-        onProgress(`Límite de API alcanzado, esperando 10s...`,Math.round(20+(i/chunks.length)*60));
-        await sleep(10000);
-        try{
-          const retry=await callAI(buildPrompt(chunks[i],i===0,chunks.length,i));
-          if(i===0&&retry.meta?.title)meta=retry.meta;
-          if(retry.requirements?.length)allReqs=allReqs.concat(retry.requirements);
-        }catch(e2){console.error('Retry failed:',e2.message);}
+  let allReqs = [], meta = {};
+  for (let i = 0; i < chunks.length; i++) {
+    onProgress(`Analizando bloque ${i+1} de ${chunks.length}...`, Math.round(20 + (i / chunks.length) * 60));
+    const prompt = buildPrompt(chunks[i], i === 0, chunks.length, i);
+    if (!prompt) { console.warn('Chunk', i, 'vacío, saltando'); continue; }
+    try {
+      const result = await callAI(prompt);
+      if (i === 0 && result.meta?.title) meta = result.meta;
+      if (result.requirements?.length) allReqs = allReqs.concat(result.requirements);
+    } catch(e) {
+      console.warn('Chunk', i, 'error:', e.message);
+      if (e.message.includes('rate_limit') || e.message.includes('429') || e.message.includes('Too Many')) {
+        onProgress(`Límite de API, esperando 15s...`, Math.round(20 + (i / chunks.length) * 60));
+        await sleep(15000);
+        try {
+          const retry = await callAI(prompt);
+          if (i === 0 && retry.meta?.title) meta = retry.meta;
+          if (retry.requirements?.length) allReqs = allReqs.concat(retry.requirements);
+        } catch(e2) { console.error('Retry chunk', i, 'failed:', e2.message); }
       }
     }
-    if(i<chunks.length-1)await sleep(1500);
+    if (i < chunks.length - 1) await sleep(2000);
   }
-  allReqs=allReqs.map((r,i)=>({...r,id:`REQ-${String(i+1).padStart(2,'0')}`}));
-  return{meta,requirements:allReqs};
+  allReqs = allReqs.map((r, i) => ({ ...r, id: `REQ-${String(i+1).padStart(2,'0')}` }));
+  return { meta, requirements: allReqs };
 }
 
 // ── Associate images to requirements ──
