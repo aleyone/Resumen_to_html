@@ -180,10 +180,10 @@ input[readonly]{opacity:0.55;cursor:default;}
             ondragover="event.preventDefault();this.classList.add('drag-over')"
             ondragleave="this.classList.remove('drag-over')"
             ondrop="handleDrop(event)">
-            <input type="file" id="file-input" accept=".pdf,.docx,.doc,.txt" multiple onchange="addFiles(this.files)">
+            <input type="file" id="file-input" accept=".pdf,.docx,.doc,.pptx,.ppt,.txt" multiple onchange="addFiles(this.files)">
             <div class="dz-icon">📄</div>
             <div class="dz-title">Arrastra los documentos aquí</div>
-            <div class="dz-sub">Word (.docx) · PDF · múltiples ficheros</div>
+            <div class="dz-sub">Word (.docx) · PDF · PowerPoint (.pptx) · múltiples ficheros</div>
           </div>
           <div id="file-list"></div>
         </div>
@@ -258,7 +258,42 @@ async function extractFile(file){
   const ext=file.name.split('.').pop().toLowerCase();
   if(ext==='txt')return{text:await file.text(),images:[]};
   if(ext==='pdf')return extractPDF(file);
+  if(ext==='pptx'||ext==='ppt')return extractPPTX(file);
   return extractDOCX(file);
+}
+
+async function extractPPTX(file){
+  const ab=await file.arrayBuffer();
+  const images=[];
+  let text='';
+  try{
+    const JSZip=await loadJSZip();
+    const zip=await JSZip.loadAsync(ab);
+    // Extract text from slide XML files
+    const slideFiles=Object.keys(zip.files)
+      .filter(name=>/^ppt\/slides\/slide\d+\.xml$/.test(name))
+      .sort((a,b)=>{
+        const na=parseInt(a.match(/slide(\d+)/)[1]);
+        const nb=parseInt(b.match(/slide(\d+)/)[1]);
+        return na-nb;
+      });
+    for(const slideFile of slideFiles){
+      const xml=await zip.files[slideFile].async('string');
+      // Extract text from <a:t> tags
+      const matches=[...xml.matchAll(/<a:t[^>]*>([^<]+)<\/a:t>/g)];
+      text+=matches.map(m=>m[1]).join(' ')+'\n';
+    }
+    // Extract images
+    const mediaFiles=Object.keys(zip.files)
+      .filter(name=>name.startsWith('ppt/media/')&&/\.(png|jpg|jpeg|gif|webp)$/i.test(name))
+      .sort();
+    for(const mf of mediaFiles){
+      const b64=await zip.files[mf].async('base64');
+      images.push(b64);
+    }
+    console.log('PPTX: slides text length:', text.length, '| images:', images.length);
+  }catch(e){console.warn('PPTX error:',e.message);}
+  return{text,html:'',images};
 }
 async function extractPDF(file){
   const ab=await file.arrayBuffer();
@@ -354,14 +389,46 @@ async function callAI(prompt) {
   return extractJSON(raw);
 }
 
+// ── Components config (Jira Data Center — migrate to API when on Cloud) ──
+const COMPONENTS = {
+  GAIA: ['BOF','BOFWEB','EHDSIPOR','EXT','GAIAWEB','GAIAWS','GFAR','ICPA','MDIS','MDIS3','MPRE','MPRE3','PECME','PROTO','REFAR','RELE','RELESNS','RESI','RESIFAP','SEGU','SVP','TALO','VIME','VWEB','WSP'],
+  SIA: ['Actividades comunitarias/grupales','Actividades preventivas','Agendas','Alertas','Avisos generales','Centinela','Citación','Contacto','Diagnosticos y procedimientos','Dietas y consejos','Escalas y Tablas','Examenes y Patrones Funcionales','Gestión de documentos adjuntos','Gestión de Pacientes','Gestión de Recursos','Historia de salud','Historia familiar','Historia personal','Historia sociofamiliar','Hojas de evolución','Hojas de seguimiento','Incapacidad Temporal','Indicadores','Informes','Integración Alumbra','Integración AVE','Integración Cita Previa','Integración COBRA','Integración CRIBAT','Integración DANTA','Integración DIGISAL','Integración ECGDIG','Integración Escriba','Integración GAIA','Integración GESPET','Integración GESTLAB','Integración GIMD','Integración Gva+Salut','Integración HERA','Integración HSE','Integración HSEAVS','Integración IRIS/HIGIA','Integración KARVIS','Integración LABONLINE','Integración MIZAR','Integración NEBULA','Integración Orion Clinic','Integración ORION RIS','Integración SIA-Webex','Integración SINEA','Integración SIP','Integración SISCOL','Integración SISVEL','Integración SIV','Integración SIVIO','Integración VOLANT','Interconsultas','Listas de trabajo','Monitorización','Notificaciones','Otras pruebas','Pruebas complementarias','Pruebas de Imagen','Pruebas de laboratorio','Recordatorios','Seguridad y auditoría','Utilidades','Webservices']
+};
+
+function detectComponent(text, app) {
+  const list = COMPONENTS[app] || [];
+  const lower = text.toLowerCase();
+  for (const comp of list) {
+    if (lower.includes(comp.toLowerCase())) return comp;
+  }
+  return 'General';
+}
+
+function extractVersionDate(text) {
+  const allDates = [];
+  const patterns = [/(\d{2}\/\d{2}\/\d{4})/g, /(\d{4}-\d{2}-\d{2})/g, /(\d{2}\/\d{2}\/\d{2})\b/g];
+  for (const pat of patterns) {
+    for (const m of text.matchAll(pat)) {
+      const raw = m[1];
+      let iso = null;
+      if (raw.includes('/')) {
+        const p = raw.split('/');
+        const yr = p[2].length === 2 ? '20'+p[2] : p[2];
+        iso = `${yr}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+      } else { iso = raw; }
+      if (iso && iso >= '2000-01-01' && iso <= '2099-12-31') allDates.push(iso);
+    }
+  }
+  allDates.sort((a,b) => b.localeCompare(a));
+  return allDates[0] || null;
+}
+
 function buildPrompt(chunk, isFirst, total, idx) {
   if (!chunk || chunk.trim().length < 50) return null;
   const metaLine = isFirst ? 'Extrae también el meta (title,version,app).' : 'Para "meta" devuelve campos vacíos.';
-  return `Eres experto en documentación de despliegues sanitarios (GAIA). Extrae requerimientos del fragmento ${idx+1}/${total} para el CAU. ${metaLine}
-Módulos: BOFWEB,MDIS3,MPRE3,PROTO,RELE,GAIAWS,GAIAEXT,RESIFAP,VWEB.
-IMPORTANTE: Responde ÚNICAMENTE con el objeto JSON, sin texto antes ni después, sin bloques de código markdown.
-Formato exacto:
-{"meta":{"title":"","version":"","app":"GAIA"},"requirements":[{"id":"REQ-XX","title":"título corto","modules":["MOD"],"resumen":"resumen ejecutivo 3-5 líneas para soporte CAU","situacion_actual":"situación previa","descripcion":"descripción del cambio","tablas":[{"titulo":"","cabeceras":[],"filas":[]}],"configuracion":{"permisos":"","variables":[{"nombre":"","descripcion":""}]},"impacto_produccion":"","num_imagenes":0}]}
+  return `Eres experto en documentación de requerimientos de software sanitario (GAIA/SIA). Analiza este fragmento (${idx+1}/${total}) y extrae requerimientos para el equipo CAU. ${metaLine}
+IMPORTANTE: Responde ÚNICAMENTE con JSON válido, sin texto previo ni bloques markdown.
+{"meta":{"title":"","version":"","app":""},"requirements":[{"id":"REQ-XX","title":"título corto descriptivo","resumen":"resumen ejecutivo 3-5 líneas orientado a soporte CAU: qué cambia, dónde, impacto para el usuario","situacion_actual":"situación previa al cambio","descripcion":"descripción completa del cambio implementado","tablas":[{"titulo":"","cabeceras":[],"filas":[]}],"configuracion":{"permisos":"","variables":[{"nombre":"","descripcion":""}]},"impacto_produccion":""}]}
 Si no hay requerimientos completos devuelve requirements:[].
 FRAGMENTO:
 ${chunk.slice(0, 7000)}`;
@@ -369,21 +436,25 @@ ${chunk.slice(0, 7000)}`;
 
 async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-async function parseText(text, onProgress) {
-  const parts = splitByReq(text);
-  // Each requirement gets its own chunk — max 7000 chars per chunk
-  const MAX_CHUNK = 7000;
-  const chunks = [];
-  let current = '';
-  for (const part of parts) {
-    if (current.length + part.length > MAX_CHUNK && current.length > 0) {
-      chunks.push(current);
-      current = part;
-    } else {
-      current += '\n\n' + part;
+async function parseText(text, app, filename, onProgress) {
+  // For individual requirement files: single call with full text
+  // For summary files: chunk by requirement heading
+  const isSingleReq = !text.includes('Requerimiento:') || text.split(/Requerimiento\s*:/i).length <= 2;
+
+  let chunks = [];
+  if (isSingleReq) {
+    // Single requirement — send in chunks of 7000 chars
+    for (let i = 0; i < text.length; i += 7000) chunks.push(text.slice(i, i + 7000));
+  } else {
+    // Summary doc — split by requirement heading
+    const parts = text.split(/(?=\*{0,2}Requerimiento\*{0,2}\s*:)/gi).filter(p => p.trim().length > 100);
+    let current = '';
+    for (const part of parts) {
+      if (current.length + part.length > 7000 && current.length > 0) { chunks.push(current); current = part; }
+      else { current += '\n\n' + part; }
     }
+    if (current.trim()) chunks.push(current);
   }
-  if (current.trim()) chunks.push(current);
 
   let allReqs = [], meta = {};
   for (let i = 0; i < chunks.length; i++) {
@@ -408,7 +479,25 @@ async function parseText(text, onProgress) {
     }
     if (i < chunks.length - 1) await sleep(2000);
   }
-  allReqs = allReqs.map((r, i) => ({ ...r, id: `REQ-${String(i+1).padStart(2,'0')}` }));
+
+  // Detect component from full text + filename
+  const searchText = (filename + ' ' + text).slice(0, 5000);
+  const component = detectComponent(searchText, app);
+
+  // Extract latest version date
+  const reqDate = extractVersionDate(text);
+
+  // Save raw_text (first 50k chars — enough for Q&A search)
+  const raw_text = text.slice(0, 50000);
+
+  allReqs = allReqs.map((r, i) => ({
+    ...r,
+    id: `REQ-${String(i+1).padStart(2,'0')}`,
+    component,
+    raw_text,
+    req_date: reqDate
+  }));
+
   return { meta, requirements: allReqs };
 }
 
@@ -536,7 +625,7 @@ async function submitAll(){
       console.log(`[${file.name}] text length:`, text?.length, '| images:', images?.length, '| html length:', html?.length);
 
       setFileStatus(file.name,'processing','⏳ analizando');
-      const{meta,requirements}=await parseText(text,(msg,pct)=>{
+      const{meta,requirements}=await parseText(text, app, file.name, (msg,pct)=>{
         setProgress(pct,`[${fi+1}/${files.length}] ${msg}`);
       });
 
