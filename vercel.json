@@ -7,7 +7,8 @@
     { "src": "api/upload.js", "use": "@vercel/node" },
     { "src": "api/deployments.js", "use": "@vercel/node" },
     { "src": "api/delete.js", "use": "@vercel/node" },
-    { "src": "api/edit.js", "use": "@vercel/node" }
+    { "src": "api/edit.js", "use": "@vercel/node" },
+    { "src": "api/search.js", "use": "@vercel/node" }
   ],
   "routes": [
     { "src": "/api/chat", "dest": "/api/chat.js" },
@@ -15,6 +16,7 @@
     { "src": "/api/deployments", "dest": "/api/deployments.js" },
     { "src": "/api/delete", "dest": "/api/delete.js" },
     { "src": "/api/edit", "dest": "/api/edit.js" },
+    { "src": "/api/search", "dest": "/api/search.js" },
     { "src": "/admin", "dest": "/admin.html" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]

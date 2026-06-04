@@ -84,6 +84,129 @@ select.fs:focus{border-color:var(--accent);}
 .sec-body p:last-child{margin-bottom:0;}
 .sec-body code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:1px 6px;border-radius:4px;border:1px solid var(--border2);}
 .gallery-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+
+/* ── CHAT PANEL ── */
+#chat-fab{
+  position:fixed;bottom:24px;right:24px;z-index:50;
+  width:48px;height:48px;border-radius:50%;
+  background:var(--accent);color:white;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  box-shadow:0 4px 14px rgba(37,99,235,0.4);transition:transform 0.15s,opacity 0.15s;
+}
+#chat-fab:hover{transform:scale(1.08);}
+#chat-fab.open{background:var(--surface2);color:var(--text2);box-shadow:0 2px 8px rgba(0,0,0,0.12);}
+
+#chat-panel{
+  position:fixed;top:52px;right:0;bottom:0;z-index:40;
+  width:400px;max-width:100vw;
+  background:var(--surface);border-left:1px solid var(--border);
+  display:flex;flex-direction:column;
+  transform:translateX(100%);transition:transform 0.25s ease;
+  box-shadow:-4px 0 20px rgba(0,0,0,0.08);
+}
+#chat-panel.open{transform:translateX(0);}
+
+#chat-header{
+  padding:14px 16px 12px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;flex-shrink:0;
+}
+.chat-title{font-size:14px;font-weight:600;color:var(--text);flex:1;}
+.chat-subtitle{font-size:11px;color:var(--text3);}
+
+#chat-filters{
+  padding:10px 14px;border-bottom:1px solid var(--border);
+  display:flex;flex-direction:column;gap:7px;flex-shrink:0;
+  background:var(--surface2);
+}
+.cf-row{display:flex;align-items:center;gap:8px;}
+.cf-label{font-size:11px;color:var(--text3);font-weight:500;width:70px;flex-shrink:0;}
+select.cf-sel{
+  flex:1;padding:5px 8px;font-size:12px;font-family:var(--font);
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--radius);color:var(--text);outline:none;
+}
+select.cf-sel:focus{border-color:var(--accent);}
+.cf-check{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;}
+.cf-check input{accent-color:var(--accent);cursor:pointer;}
+
+#chat-messages{
+  flex:1;overflow-y:auto;padding:14px;
+  display:flex;flex-direction:column;gap:12px;
+}
+#chat-messages::-webkit-scrollbar{width:4px;}
+#chat-messages::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+
+.chat-msg{display:flex;flex-direction:column;gap:4px;max-width:92%;}
+.chat-msg.user{align-self:flex-end;align-items:flex-end;}
+.chat-msg.assistant{align-self:flex-start;align-items:flex-start;}
+.msg-bubble{
+  padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.65;
+}
+.chat-msg.user .msg-bubble{
+  background:var(--accent);color:white;border-bottom-right-radius:4px;
+}
+.chat-msg.assistant .msg-bubble{
+  background:var(--surface2);color:var(--text);border:1px solid var(--border);
+  border-bottom-left-radius:4px;
+}
+.msg-bubble p{margin-bottom:8px;}
+.msg-bubble p:last-child{margin-bottom:0;}
+.msg-refs{display:flex;flex-direction:column;gap:3px;margin-top:6px;}
+.msg-ref{
+  font-size:10px;color:var(--text3);background:var(--surface2);
+  border:1px solid var(--border);border-radius:4px;
+  padding:2px 8px;display:inline-flex;align-items:center;gap:4px;
+}
+.msg-ref-comp{font-weight:600;color:var(--accent);}
+
+.chat-thinking{
+  align-self:flex-start;padding:10px 14px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:12px;border-bottom-left-radius:4px;
+  font-size:13px;color:var(--text3);
+  display:flex;align-items:center;gap:8px;
+}
+.dots span{
+  display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--text3);animation:dot-pulse 1.2s infinite;
+}
+.dots span:nth-child(2){animation-delay:0.2s;}
+.dots span:nth-child(3){animation-delay:0.4s;}
+@keyframes dot-pulse{0%,80%,100%{opacity:0.3;transform:scale(0.8);}40%{opacity:1;transform:scale(1);}}
+
+.chat-empty{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:10px;color:var(--text3);font-size:13px;
+  text-align:center;padding:20px;
+}
+.chat-empty-icon{font-size:32px;opacity:0.4;}
+
+#chat-input-area{
+  padding:12px 14px;border-top:1px solid var(--border);
+  display:flex;gap:8px;align-items:flex-end;flex-shrink:0;
+  background:var(--surface);
+}
+#chat-input{
+  flex:1;padding:9px 12px;font-size:13px;font-family:var(--font);
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:var(--radius);color:var(--text);outline:none;
+  resize:none;max-height:100px;min-height:38px;line-height:1.5;
+}
+#chat-input:focus{border-color:var(--accent);}
+#chat-send{
+  width:36px;height:36px;border-radius:var(--radius);
+  background:var(--accent);color:white;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+  flex-shrink:0;transition:opacity 0.15s;
+}
+#chat-send:hover{opacity:0.88;}
+#chat-send:disabled{opacity:0.4;cursor:default;}
+#chat-clear{
+  font-size:11px;color:var(--text3);cursor:pointer;
+  padding:4px 8px;border-radius:4px;border:1px solid var(--border2);
+  background:none;flex-shrink:0;
+}
+#chat-clear:hover{background:var(--surface2);}
 .gallery-thumb{width:120px;height:80px;border-radius:var(--radius);border:1px solid var(--border2);object-fit:cover;cursor:pointer;transition:transform 0.15s,border-color 0.15s;background:var(--surface2);}
 .gallery-thumb:hover{transform:scale(1.04);border-color:var(--accent);}
 /* nav top */
@@ -414,6 +537,203 @@ function lbBg(e) { if (e.target === document.getElementById('lightbox')) lbClose
 function lbKey(e) { if (e.key === 'Escape') lbClose(); if (e.key === 'ArrowLeft') lbNav(-1); if (e.key === 'ArrowRight') lbNav(1); }
 
 init();
+</script>
+<!-- CHAT FAB -->
+<button id="chat-fab" onclick="toggleChat()" title="Asistente CAU">&#128172;</button>
+
+<!-- CHAT PANEL -->
+<div id="chat-panel">
+  <div id="chat-header">
+    <div>
+      <div class="chat-title">&#128172; Asistente CAU</div>
+      <div class="chat-subtitle">Consulta sobre requerimientos</div>
+    </div>
+    <button id="chat-clear" onclick="clearChat()">Limpiar</button>
+  </div>
+  <div id="chat-filters">
+    <div class="cf-row">
+      <span class="cf-label">Aplicación</span>
+      <select class="cf-sel" id="cf-app"><option value="">Todas</option></select>
+    </div>
+    <div class="cf-row">
+      <span class="cf-label">Componente</span>
+      <select class="cf-sel" id="cf-comp"><option value="">Todos</option></select>
+    </div>
+    <label class="cf-check">
+      <input type="checkbox" id="cf-last" checked>
+      Buscar solo en la última versión
+    </label>
+  </div>
+  <div id="chat-messages">
+    <div class="chat-empty">
+      <div class="chat-empty-icon">&#129302;</div>
+      <div>Haz una pregunta sobre los requerimientos publicados.</div>
+      <div style="font-size:11px;color:var(--text3)">Usa los filtros para acotar la búsqueda.</div>
+    </div>
+  </div>
+  <div id="chat-input-area">
+    <textarea id="chat-input" placeholder="Escribe tu pregunta..." rows="1"
+      oninput="autoResize(this)"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
+    <button id="chat-send" onclick="sendChat()">&#10148;</button>
+  </div>
+</div>
+
+<script>
+// ── CHAT ──
+var chatHistory = []; // [{role, content}]
+var chatOpen = false;
+
+function toggleChat() {
+  chatOpen = !chatOpen;
+  document.getElementById('chat-panel').classList.toggle('open', chatOpen);
+  document.getElementById('chat-fab').classList.toggle('open', chatOpen);
+  if (chatOpen) {
+    syncChatFilters();
+    document.getElementById('chat-input').focus();
+  }
+}
+
+function syncChatFilters() {
+  // Sync app filter from main filters
+  var appSel = document.getElementById('f-app');
+  var cfApp = document.getElementById('cf-app');
+  // Populate cf-app from allDeployments
+  var apps = [];
+  allDeployments.forEach(function(d){ if (apps.indexOf(d.app) === -1) apps.push(d.app); });
+  cfApp.innerHTML = '<option value="">Todas</option>';
+  apps.forEach(function(a){
+    var o = document.createElement('option');
+    o.value = a; o.textContent = a;
+    if (appSel.value === a) o.selected = true;
+    cfApp.appendChild(o);
+  });
+  updateChatComponents();
+}
+
+function updateChatComponents() {
+  var app = document.getElementById('cf-app').value;
+  var cfComp = document.getElementById('cf-comp');
+  var comps = [];
+  currentReqs.forEach(function(r){
+    var c = r.component;
+    if (c && c !== 'Sin componente' && comps.indexOf(c) === -1) comps.push(c);
+  });
+  comps.sort();
+  cfComp.innerHTML = '<option value="">Todos</option>';
+  comps.forEach(function(c){
+    var o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    cfComp.appendChild(o);
+  });
+}
+
+document.getElementById('cf-app').addEventListener('change', updateChatComponents);
+
+function clearChat() {
+  chatHistory = [];
+  var msgs = document.getElementById('chat-messages');
+  msgs.innerHTML = '<div class="chat-empty"><div class="chat-empty-icon">&#129302;</div><div>Haz una pregunta sobre los requerimientos publicados.</div><div style="font-size:11px;color:var(--text3)">Usa los filtros para acotar la búsqueda.</div></div>';
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+
+function addMsg(role, content, refs) {
+  var msgs = document.getElementById('chat-messages');
+  // Remove empty state
+  var empty = msgs.querySelector('.chat-empty');
+  if (empty) empty.remove();
+
+  var div = document.createElement('div');
+  div.className = 'chat-msg ' + role;
+
+  var bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  // Format content as paragraphs
+  bubble.innerHTML = content.split('\n').filter(function(l){ return l.trim(); })
+    .map(function(l){ return '<p>' + l.trim() + '</p>'; }).join('');
+  div.appendChild(bubble);
+
+  if (refs && refs.length) {
+    var refsDiv = document.createElement('div');
+    refsDiv.className = 'msg-refs';
+    refs.forEach(function(r){
+      var span = document.createElement('span');
+      span.className = 'msg-ref';
+      span.innerHTML = '<span class="msg-ref-comp">' + r.component + '</span> ' + r.title + ' · ' + r.version;
+      refsDiv.appendChild(span);
+    });
+    div.appendChild(refsDiv);
+  }
+
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function addThinking() {
+  var msgs = document.getElementById('chat-messages');
+  var div = document.createElement('div');
+  div.className = 'chat-thinking';
+  div.id = 'chat-thinking';
+  div.innerHTML = 'Buscando en requerimientos <div class="dots"><span></span><span></span><span></span></div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeThinking() {
+  var t = document.getElementById('chat-thinking');
+  if (t) t.remove();
+}
+
+async function sendChat() {
+  var input = document.getElementById('chat-input');
+  var question = input.value.trim();
+  if (!question) return;
+
+  var sendBtn = document.getElementById('chat-send');
+  sendBtn.disabled = true;
+  input.value = '';
+  input.style.height = 'auto';
+
+  addMsg('user', question);
+  chatHistory.push({ role: 'user', content: question });
+  addThinking();
+
+  var app = document.getElementById('cf-app').value;
+  var component = document.getElementById('cf-comp').value;
+  var lastVersionOnly = document.getElementById('cf-last').checked;
+
+  try {
+    var resp = await fetch('/api/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        question: question,
+        app: app,
+        component: component,
+        lastVersionOnly: lastVersionOnly,
+        history: chatHistory.slice(-6)
+      })
+    });
+    var data = await resp.json();
+    removeThinking();
+
+    var answer = data.answer || 'No se pudo obtener respuesta.';
+    addMsg('assistant', answer, data.references);
+    chatHistory.push({ role: 'assistant', content: answer });
+
+  } catch(e) {
+    removeThinking();
+    addMsg('assistant', 'Error al conectar con el servidor: ' + e.message);
+  }
+
+  sendBtn.disabled = false;
+  input.focus();
+}
 </script>
 </body>
 </html>
