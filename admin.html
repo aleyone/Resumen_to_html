@@ -121,6 +121,15 @@ input[readonly]{opacity:0.55;cursor:default;}
 /* redirect countdown */
 #redirect-box{display:none;margin-top:14px;padding:12px 16px;border-radius:var(--radius);background:var(--accent-bg);border:1px solid rgba(37,99,235,0.2);font-size:13px;color:var(--accent);}
 #redirect-box.on{display:block;}
+
+/* doc type radio */
+.radio-group{display:flex;gap:10px;margin-top:4px;}
+.radio-opt{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;border:1px solid var(--border2);border-radius:var(--radius);cursor:pointer;flex:1;transition:border-color 0.15s,background 0.15s;}
+.radio-opt:hover{background:var(--surface2);}
+.radio-opt input[type=radio]{margin-top:2px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
+.radio-opt.selected{border-color:var(--accent);background:var(--accent-bg);}
+.radio-opt-label{font-size:13px;font-weight:500;color:var(--text);}
+.radio-opt-sub{font-size:11px;color:var(--text3);margin-top:2px;line-height:1.4;}
 </style>
 </head>
 <body>
@@ -175,6 +184,25 @@ input[readonly]{opacity:0.55;cursor:default;}
           </select>
         </div>
         <div class="field">
+          <label>Tipo de documento <span class="req">*</span></label>
+          <div class="radio-group">
+            <label class="radio-opt" id="radio-opt-single" onclick="setDocType('single')">
+              <input type="radio" name="doc-type" id="dt-single" value="single">
+              <div>
+                <div class="radio-opt-label">Requerimiento individual</div>
+                <div class="radio-opt-sub">1 fichero = 1 requerimiento completo</div>
+              </div>
+            </label>
+            <label class="radio-opt" id="radio-opt-summary" onclick="setDocType('summary')">
+              <input type="radio" name="doc-type" id="dt-summary" value="summary">
+              <div>
+                <div class="radio-opt-label">Documento resumen</div>
+                <div class="radio-opt-sub">1 fichero con varios requerimientos</div>
+              </div>
+            </label>
+          </div>
+        </div>
+        <div class="field">
           <label>Documentos <span class="req">*</span></label>
           <div class="drop-zone" id="drop-zone"
             ondragover="event.preventDefault();this.classList.add('drag-over')"
@@ -224,7 +252,15 @@ document.getElementById('f-date').value=new Date().toLocaleDateString('es-ES',{d
 let files=[];
 let pendingDeleteId=null;
 
-// ── File handling ──
+// ── Doc type ──
+let docType = '';
+function setDocType(type) {
+  docType = type;
+  document.getElementById('radio-opt-single').classList.toggle('selected', type === 'single');
+  document.getElementById('radio-opt-summary').classList.toggle('selected', type === 'summary');
+  document.getElementById('dt-single').checked = type === 'single';
+  document.getElementById('dt-summary').checked = type === 'summary';
+}
 function handleDrop(e){e.preventDefault();document.getElementById('drop-zone').classList.remove('drag-over');addFiles(e.dataTransfer.files);}
 function addFiles(fl){for(const f of fl){if(!files.find(x=>x.name===f.name))files.push(f);}renderFileList();}
 function removeFile(name){files=files.filter(f=>f.name!==name);renderFileList();}
@@ -448,12 +484,25 @@ function extractVersionDate(text) {
   return allDates[0] || null;
 }
 
-function buildPrompt(chunk, isFirst, total, idx) {
-  if (!chunk || chunk.trim().length < 50) return null;
-  const metaLine = isFirst ? 'Extrae también el meta (title,version,app).' : 'Para "meta" devuelve campos vacíos.';
-  return `Eres experto en documentación de requerimientos de software sanitario (GAIA/SIA). Analiza este fragmento (${idx+1}/${total}) y extrae requerimientos para el equipo CAU. ${metaLine}
+function buildPromptSingle(chunk, chunkIdx, totalChunks) {
+  const isFirst = chunkIdx === 0;
+  const metaLine = isFirst ? 'Extrae el meta (title, version, app).' : 'Para "meta" devuelve campos vacíos.';
+  const instruccion = isFirst
+    ? 'Estás analizando UN ÚNICO requerimiento. Extrae toda la información relevante en UN SOLO objeto de requerimiento.'
+    : `Este es el fragmento ${chunkIdx+1}/${totalChunks} del mismo requerimiento. Extrae información adicional que no hayas visto antes (situación actual, descripción, tablas, impacto). Devuelve requirements con UN SOLO objeto enriquecido o requirements:[] si no hay info nueva.`;
+  return `Eres experto en documentación de requerimientos sanitarios (GAIA/SIA). ${instruccion} ${metaLine}
 IMPORTANTE: Responde ÚNICAMENTE con JSON válido, sin texto previo ni bloques markdown.
-{"meta":{"title":"","version":"","app":""},"requirements":[{"id":"REQ-XX","title":"título corto descriptivo","resumen":"resumen ejecutivo 3-5 líneas orientado a soporte CAU: qué cambia, dónde, impacto para el usuario","situacion_actual":"situación previa al cambio","descripcion":"descripción completa del cambio implementado","tablas":[{"titulo":"","cabeceras":[],"filas":[]}],"configuracion":{"permisos":"","variables":[{"nombre":"","descripcion":""}]},"impacto_produccion":""}]}
+{"meta":{"title":"","version":"","app":""},"requirements":[{"id":"REQ-01","title":"título descriptivo del requerimiento","resumen":"resumen ejecutivo completo orientado a soporte CAU — puede ser varios párrafos si la funcionalidad es compleja. Explica qué cambia, para qué sirve, cómo afecta al usuario y qué debe saber el equipo de soporte","situacion_actual":"descripción de la situación previa al cambio","descripcion":"descripción técnica y funcional completa del cambio implementado","tablas":[{"titulo":"","cabeceras":[],"filas":[]}],"configuracion":{"permisos":"","variables":[{"nombre":"","descripcion":""}]},"impacto_produccion":""}]}
+FRAGMENTO ${chunkIdx+1}/${totalChunks}:
+${chunk.slice(0, 7000)}`;
+}
+
+function buildPromptSummary(chunk, chunkIdx, totalChunks) {
+  const isFirst = chunkIdx === 0;
+  const metaLine = isFirst ? 'Extrae también el meta (title,version,app).' : 'Para "meta" devuelve campos vacíos.';
+  return `Eres experto en documentación de despliegues sanitarios (GAIA/SIA). Extrae TODOS los requerimientos del fragmento ${chunkIdx+1}/${totalChunks}. ${metaLine}
+IMPORTANTE: Responde ÚNICAMENTE con JSON válido, sin texto previo ni bloques markdown.
+{"meta":{"title":"","version":"","app":""},"requirements":[{"id":"REQ-XX","title":"título corto","resumen":"resumen ejecutivo 3-5 líneas para soporte CAU: qué cambia, dónde, impacto","situacion_actual":"situación previa","descripcion":"descripción del cambio","tablas":[{"titulo":"","cabeceras":[],"filas":[]}],"configuracion":{"permisos":"","variables":[{"nombre":"","descripcion":""}]},"impacto_produccion":""}]}
 Si no hay requerimientos completos devuelve requirements:[].
 FRAGMENTO:
 ${chunk.slice(0, 7000)}`;
@@ -461,65 +510,107 @@ ${chunk.slice(0, 7000)}`;
 
 async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-async function parseText(text, app, filename, onProgress) {
-  // For individual requirement files: single call with full text
-  // For summary files: chunk by requirement heading
-  const isSingleReq = !text.includes('Requerimiento:') || text.split(/Requerimiento\s*:/i).length <= 2;
+async function parseText(text, app, filename, docType, onProgress) {
+  let allReqs = [], meta = {};
 
-  let chunks = [];
-  if (isSingleReq) {
-    // Single requirement — send in chunks of 7000 chars
-    for (let i = 0; i < text.length; i += 7000) chunks.push(text.slice(i, i + 7000));
+  if (docType === 'single') {
+    // ── SINGLE REQUIREMENT MODE ──
+    // Chunk the document but merge all results into ONE requirement
+    const CHUNK = 7000;
+    const chunks = [];
+    for (let i = 0; i < text.length; i += CHUNK) chunks.push(text.slice(i, i + CHUNK));
+
+    let merged = null; // Single requirement object we keep enriching
+
+    for (let i = 0; i < chunks.length; i++) {
+      onProgress(`Analizando bloque ${i+1} de ${chunks.length}...`, Math.round(20 + (i / chunks.length) * 60));
+      const prompt = buildPromptSingle(chunks[i], i, chunks.length);
+      try {
+        const result = await callAI(prompt);
+        if (i === 0 && result.meta?.title) meta = result.meta;
+        const reqs = result.requirements || [];
+        if (reqs.length > 0) {
+          if (!merged) {
+            merged = reqs[0];
+          } else {
+            // Enrich: append new content to existing fields
+            if (reqs[0].situacion_actual && !merged.situacion_actual) merged.situacion_actual = reqs[0].situacion_actual;
+            if (reqs[0].descripcion) merged.descripcion = (merged.descripcion || '') + '\n' + reqs[0].descripcion;
+            if (reqs[0].impacto_produccion && !merged.impacto_produccion) merged.impacto_produccion = reqs[0].impacto_produccion;
+            if (reqs[0].tablas?.length) merged.tablas = [...(merged.tablas || []), ...reqs[0].tablas].filter(t => t.cabeceras?.length);
+            if (reqs[0].configuracion?.permisos && !merged.configuracion?.permisos) {
+              merged.configuracion = merged.configuracion || {};
+              merged.configuracion.permisos = reqs[0].configuracion.permisos;
+            }
+            if (reqs[0].configuracion?.variables?.length) {
+              merged.configuracion = merged.configuracion || {};
+              merged.configuracion.variables = [...(merged.configuracion.variables || []), ...reqs[0].configuracion.variables];
+            }
+          }
+        }
+      } catch(e) {
+        console.warn('Single chunk', i, 'error:', e.message);
+        if (e.message.includes('rate_limit') || e.message.includes('429') || e.message.includes('Too Many')) {
+          onProgress(`Límite de API, esperando 15s...`, Math.round(20 + (i / chunks.length) * 60));
+          await sleep(15000);
+          try {
+            const retry = await callAI(prompt);
+            if (i === 0 && retry.meta?.title) meta = retry.meta;
+            const reqs = retry.requirements || [];
+            if (reqs.length > 0 && !merged) merged = reqs[0];
+          } catch(e2) { console.error('Retry chunk', i, 'failed:', e2.message); }
+        }
+      }
+      if (i < chunks.length - 1) await sleep(2000);
+    }
+
+    allReqs = merged ? [{ ...merged, id: 'REQ-01' }] : [];
+
   } else {
-    // Summary doc — split by requirement heading
+    // ── SUMMARY MODE ──
     const parts = text.split(/(?=\*{0,2}Requerimiento\*{0,2}\s*:)/gi).filter(p => p.trim().length > 100);
+    const chunks = [];
     let current = '';
     for (const part of parts) {
       if (current.length + part.length > 7000 && current.length > 0) { chunks.push(current); current = part; }
       else { current += '\n\n' + part; }
     }
     if (current.trim()) chunks.push(current);
-  }
 
-  let allReqs = [], meta = {};
-  for (let i = 0; i < chunks.length; i++) {
-    onProgress(`Analizando bloque ${i+1} de ${chunks.length}...`, Math.round(20 + (i / chunks.length) * 60));
-    const prompt = buildPrompt(chunks[i], i === 0, chunks.length, i);
-    if (!prompt) { console.warn('Chunk', i, 'vacío, saltando'); continue; }
-    try {
-      const result = await callAI(prompt);
-      if (i === 0 && result.meta?.title) meta = result.meta;
-      if (result.requirements?.length) allReqs = allReqs.concat(result.requirements);
-    } catch(e) {
-      console.warn('Chunk', i, 'error:', e.message);
-      if (e.message.includes('rate_limit') || e.message.includes('429') || e.message.includes('Too Many')) {
-        onProgress(`Límite de API, esperando 15s...`, Math.round(20 + (i / chunks.length) * 60));
-        await sleep(15000);
-        try {
-          const retry = await callAI(prompt);
-          if (i === 0 && retry.meta?.title) meta = retry.meta;
-          if (retry.requirements?.length) allReqs = allReqs.concat(retry.requirements);
-        } catch(e2) { console.error('Retry chunk', i, 'failed:', e2.message); }
+    for (let i = 0; i < chunks.length; i++) {
+      onProgress(`Analizando bloque ${i+1} de ${chunks.length}...`, Math.round(20 + (i / chunks.length) * 60));
+      const prompt = buildPromptSummary(chunks[i], i, chunks.length);
+      if (!prompt) continue;
+      try {
+        const result = await callAI(prompt);
+        if (i === 0 && result.meta?.title) meta = result.meta;
+        if (result.requirements?.length) allReqs = allReqs.concat(result.requirements);
+      } catch(e) {
+        console.warn('Summary chunk', i, 'error:', e.message);
+        if (e.message.includes('rate_limit') || e.message.includes('429') || e.message.includes('Too Many')) {
+          onProgress(`Límite de API, esperando 15s...`, Math.round(20 + (i / chunks.length) * 60));
+          await sleep(15000);
+          try {
+            const retry = await callAI(prompt);
+            if (i === 0 && retry.meta?.title) meta = retry.meta;
+            if (retry.requirements?.length) allReqs = allReqs.concat(retry.requirements);
+          } catch(e2) { console.error('Retry chunk', i, 'failed:', e2.message); }
+        }
       }
+      if (i < chunks.length - 1) await sleep(2000);
     }
-    if (i < chunks.length - 1) await sleep(2000);
   }
 
   // Detect component from filename (primary) + text (fallback)
   const component = detectComponent(text, app, filename);
-
-  // Extract latest version date
   const reqDate = extractVersionDate(text);
-
-  // raw_text stored separately — NOT in requirements array
   const raw_text = text.slice(0, 50000);
 
   allReqs = allReqs.map((r, i) => ({
     ...r,
-    id: `REQ-${String(i+1).padStart(2,'0')}`,
+    id: docType === 'single' ? 'REQ-01' : `REQ-${String(i+1).padStart(2,'0')}`,
     component,
     req_date: reqDate
-    // raw_text intentionally excluded — stored in data/raw/ on server
   }));
 
   return { meta, requirements: allReqs, raw_text };
@@ -628,6 +719,7 @@ async function submitAll(){
   if(!app)return showAlert('error','Selecciona una aplicación.');
   if(!version)return showAlert('error','Introduce la versión.');
   if(!author)return showAlert('error','Selecciona el autor.');
+  if(!docType)return showAlert('error','Selecciona el tipo de documento.');
   if(!files.length)return showAlert('error','Añade al menos un documento.');
 
   document.getElementById('submit-btn').disabled=true;
@@ -650,7 +742,7 @@ async function submitAll(){
       console.log(`[${file.name}] text length:`, text?.length, '| images:', images?.length, '| html length:', html?.length);
 
       setFileStatus(file.name,'processing','⏳ analizando');
-      const{meta,requirements,raw_text}=await parseText(text, app, file.name, (msg,pct)=>{
+      const{meta,requirements,raw_text}=await parseText(text, app, file.name, docType, (msg,pct)=>{
         setProgress(pct,`[${fi+1}/${files.length}] ${msg}`);
       });
 
@@ -693,6 +785,9 @@ async function submitAll(){
     document.getElementById('f-version').value='';
     document.getElementById('f-author').value='';
     document.getElementById('f-app').value='';
+    setDocType('');
+    document.getElementById('dt-single').checked=false;
+    document.getElementById('dt-summary').checked=false;
     loadDeployments();
 
     // Auto-redirect disabled during testing
