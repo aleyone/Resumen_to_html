@@ -1,3 +1,1181 @@
 {
-  "deployments": []
+  "deployments": [
+    {
+      "id": "dep_1780572653346",
+      "app": "GAIA",
+      "version": "GAIA E4.2.4",
+      "date": "2026-06-04",
+      "author": "David Gil",
+      "files": [
+        "[GAIA][2023-29] GAIA-523 - [GVMEGAIA-27207] [MPRE3] Citas de SIA en avisos cronicos _v3.docx"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Integración de citas SIA en avisos de tratamientos crónicos próximos a vencimiento",
+          "resumen": "Se mejora la herramienta de tratamientos crónicos próximos a vencimiento para incluir información de citas programadas del paciente. Los médicos, enfermeros, farmacéuticos y pacientes visualizarán citas médicas y de enfermería asociadas a los avisos de vencimiento de tratamientos crónicos. Esto permite una gestión integrada: el profesional puede ver si el paciente tiene cita programada antes de que venza su tratamiento crónico, evitando interrupciones en la medicación. Los pacientes reciben notificaciones y SMS que incluyen información sobre sus citas. El equipo de soporte debe estar preparado para consultas sobre qué citas aparecen en los avisos y cómo se relacionan con los tratamientos crónicos.",
+          "situacion_actual": "Actualmente, desde la pantalla de Utilidades de prescripción, los médicos de primaria acceden a la herramienta 'Tratamientos crónicos' para identificar pacientes con tratamientos crónicos próximos a vencimiento (fecha de fin anterior a fecha actual + 60 días). La herramienta permite filtrar por cupo del médico, cupos del centro, cupos por centro del departamento o cupos del departamento. Se visualiza un listado de pacientes con tratamientos próximos a vencer, pero no incluye información sobre citas programadas que el paciente pueda tener. Esta falta de información puede llevar a que se requiera tratamiento sin que el paciente esté programado para una cita clínica que lo justifique.",
+          "descripcion": "Se integra información de citas de SIA en la herramienta de tratamientos crónicos próximos a vencimiento. Los cambios funcionales incluyen:\n\n1. VISUALIZACIÓN DE CITAS EN LISTADO DE PACIENTES: Cuando se consulta la utilidad de tratamientos crónicos, el listado de pacientes con tratamientos próximos a vencer mostrará también si el paciente tiene cita médica o cita de enfermería programada. Esta información es visible para médicos, enfermeros y farmacéuticos según sus perfiles.\n\n2. COMPORTAMIENTO SEGÚN ESTADO DE CITA:\n   - Si el paciente tiene cita médica programada: se indica en el listado\n   - Si el paciente tiene cita de enfermería programada: se indica en el listado\n   - Si el paciente no tiene cita: se muestra sin cita\n   - La información de cita es considerada al generar avisos y notificaciones\n\n3. NOTIFICACIONES Y SMS AL PACIENTE: Los pacientes reciben notificaciones (en app GVA+Salut) y SMS que integran información sobre sus citas programadas. La notificación de vencimiento próximo de tratamiento crónico incluye datos de la cita si el paciente la tiene programada.\n\n4. AVISOS EN APP GVAPLUSHEALTH: Los avisos de tratamiento crónico próximo a vencimiento que se muestran en la app del paciente incluyen información de citas cuando están disponibles, permitiendo al paciente conocer si tiene cita programada para renovar su medicación.\n\n5. FLUJO DE TRABAJO CLÍNICO MEJORADO:\n   - Médico: Consulta tratamientos crónicos próximos a vencer y ve inmediatamente si el paciente tiene cita programada, facilitando la decisión de continuar o modificar el tratamiento\n   - Enfermería: Cuando un tratamiento es indicable por enfermería (con cita de enfermería programada), puede realizar seguimiento integrado\n   - Farmacia: Accede a la información de tratamientos y citas para validar que hay cita programada antes de dispensar\n   - Paciente: Recibe aviso de vencimiento con información de su cita, sabiendo cuándo puede renovar su medicación\nSe añade funcionalidad de listado de pacientes con tratamientos crónicos próximos a vencimiento, accesible desde menú principal. El listado agrupa pacientes por CUPO mostrando titular del CUPO. Para cada paciente se ofrecen opciones en menú de acciones: 'Ver tratamientos' (muestra fecha inicio/fin, código diagnóstico, descripción tratamiento, icono de adhesión, y tooltip con datos adicionales), 'Historia clínica en modo edición' (visible solo para usuarios con permiso), y 'Marcar como revisado' (visible solo cuando se filtran crónicos próximos a vencimiento + cupo del médico, si variable de configuración tiene valor positivo). Desde historia clínica, el médico visualiza alerta de tratamientos próximos a vencer y puede prolongar múltiples tratamientos simultáneamente. Coordinadores médicos acceden a opción 'Cupos del centro' (si tienen permiso específico) para supervisar pacientes de todos los CUPOS de su centro. Existe opción de filtro 'Crónicos vigentes' que devuelve pacientes con tratamientos crónicos vigentes en rango de fechas. Marcaje de revisión: cuando médico marca paciente como revisado, desaparece de su listado de trabajo durante días configurados pero permanece en listado de enfermería (y viceversa). Opción adicional 'El paciente no tiene que solicitar cita' evita notificaciones a paciente y Farmacia. Nuevo filtro permite visualizar pacientes marcados como revisados. Para pacientes revisados existe opción 'Marcar como no revisado'. Sistema automático notifica a pacientes mediante APP GVA+Salut y SMS cuando tratamientos están próximos a vencer, permitiendo solicitar cita de renovación.\nSe implementan cuatro canales complementarios de notificación para tratamientos crónicos próximos a vencer:\n\n1. NOTIFICACIONES PUSH EN APP GVA+SALUT:\n- Sistema automático invoca servicio en SIAREST para enviar notificaciones a todos los dispositivos registrados del usuario\n- Solo se envía si el último acceso a GVA+Salut está entre 120 días (configurable) y hoy\n- Texto e idioma según configuración del último acceso del usuario\n- El usuario puede deslizar la notificación hacia la derecha para ver opciones de gestión\n- Al pulsar el engranaje, elige continuar recibiendo notificaciones o desactivarlas\n- Al pulsar la notificación, se abre GVA+Salut\n- Intervalo configurable entre notificaciones a un mismo paciente para evitar saturación\n- Se auditan todas las notificaciones enviadas\n\n2. MENSAJES SMS AL DISPOSITIVO MÓVIL:\n- Aviso automático por SMS sin requerir app instalada\n- Se envía solo si el paciente tiene teléfono móvil registrado en SIP (campos USU_TEL1, USU_TEL2 o USU_TEL3)\n- Lógica de selección: se usa el primer teléfono que empiece por 6 o 7 (orden: TEL1 > TEL2 > TEL3)\n- Si ninguno cumple, no se envía SMS\n- Intervalo configurable entre envíos a mismo paciente\n- Se auditan todos los SMS enviados\n\n3. AVISO VISUAL EN GVA+SALUT:\n- Muestra advertencia en pantalla cuando tratamiento está próximo a vencer\n- Título: 'Próximo a su vencimiento'\n- Texto: 'Tratamiento próximo a su vencimiento: solicite cita con el profesional médico para prolongar prescripción'\n- Visible en la sección de tratamientos activos del paciente\n\n4. ALERTA PARA FARMACÉUTICO EN RELE:\n- Aparece al consultar dispensaciones de un paciente con tratamiento vencido\n- Alerta código 31: 'Atención, El paciente tiene tratamientos crónicos próximos a su fecha de vencimiento'\n- Triggeriza cuando fecha fin tratamiento < fecha receta último envase + 30 días (configurable)\nSe añade una columna visible en el listado de crónicos con información de citas pendientes del paciente desglosada en tres subcolumnas (citas de primaria, especializada y enfermería). Un icono indicará si el paciente tiene cita próxima. Al pasar el cursor sobre el icono, aparece un tooltip con la cita más cercana mostrando: fecha/hora, tipo (PRESENCIAL/TELEFÓNICA/VIDEOCONSULTA/DOMICILIO/NO PRESENCIAL), localización, nivel asistencial (primaria/especializada) y servicio asociado. En la pantalla de confirmación de revisión del paciente, aparece esta información de citas para decidir si marcar la opción de no enviar alertas SMS/App. El sistema auditará la visualización de alertas de vencimiento (una sola inserción en auditoría por día y paciente). El envío de SMS/notificaciones APP ahora aplica lógica condicional según citas programadas: para tratamientos crónicos de enfermería, solo notifica si no hay cita médica/enfermería antes del vencimiento; para otros tratamientos crónicos, solo notifica si no hay cita médica/especializada; para dispensación en UFPE, solo notifica si no hay cita de especializada. Se añade un margen configurable de días entre la fecha de cita y vencimiento para determinar si la cita es lo suficientemente próxima.\nSe implementan avisos automáticos de vencimiento próximo de tratamientos crónicos con la siguiente lógica funcional:\n\n**En RELE (Sistema de Farmacia):**\nAl listar dispensaciones, el sistema verifica si la fecha de fin del tratamiento es anterior a (fecha de última receta + 30 días). Si cumple, genera un aviso solo si el paciente NO tiene una cita programada antes del vencimiento. El tipo de cita requerida depende del tipo de tratamiento: para tratamientos de enfermería se valida contra citas de médico de primaria o enfermería; para otros tratamientos, se valida contra citas de especializada o primaria.\n\n**En GVA+Salut (APP del Paciente):**\nEn el listado de tratamientos, los que están próximos a vencimiento muestran una marca visual de aviso. En el detalle del tratamiento aparece el aviso con título 'Próximo a su vencimiento' y texto descriptivo, independientemente de si tiene cita programada. Además, se genera una notificación push cuando se ejecuta el proceso automático de detección de tratamientos próximos a vencimiento (para pacientes sin cita).\n\n**Comportamiento según perfil de usuario:**\n- Oficina de Farmacia: Ve alerta en RELE solo si paciente no tiene cita, debe contactar al paciente para que renueve.\n- Paciente: Ve aviso en la APP siempre que el tratamiento esté próximo a vencer, y recibe notificación push si no tiene cita programada.\n- Médico/Enfermería: Cuando el paciente acude a la cita, puede renovar el tratamiento.\nEl sistema implementa un flujo de notificación automatizado que detecta tratamientos crónicos próximos a vencimiento y selecciona el canal (APP o SMS) y la elegibilidad del paciente según reglas específicas: (1) Si el paciente tiene tratamientos crónicos de enfermería y cita de enfermería o médica anterior al vencimiento, NO recibe notificación. (2) Si tiene tratamientos médicos (no enfermería ni UFPE) y cita médica anterior al vencimiento, NO recibe notificación. (3) Si tiene tratamientos UFPE y cita médica de especializada anterior al vencimiento, NO recibe notificación. (4) Si NO tiene cita o la cita es posterior al vencimiento, recibe notificación push en APP (si está registrado) o SMS con texto: 'Su tratamiento crónico está próximo a su vencimiento: solicite cita con el profesional médico para prolongar la prescripción de sus tratamientos.' Cada notificación/SMS se registra en auditoría con timestamp para evitar reenvíos dentro del plazo configurado.\nCuando el proceso automático de detección de tratamientos próximos a vencimiento se ejecuta, el sistema verifica si el paciente tiene una cita médica de especializada con fecha anterior al fin del primer tratamiento. Si la cita existe, NO se envía el SMS informativo. El SMS solo se envía si el paciente no tiene cita programada. Precondiciones: el paciente debe tener teléfono móvil registrado en SIP, tratamientos crónicos de UFPE próximos a vencimiento, y una cita médica de especializada con fecha anterior al fin del tratamiento.\nSe implementa la visualización de citas pendientes del paciente en el contexto de evaluación de alertas de renovación de tratamiento crónico. El médico accede a un listado de citas ordenadas cronológicamente (por fecha y hora) que incluye tanto citas médicas como de enfermería. Esta información permite al profesional tomar una decisión informada sobre si marcar el checkbox 'El paciente no recibirá una alerta (SMS/App GVASALUT) para que solicite cita por renovación de tratamiento'. Si el paciente ya tiene citas próximas programadas, el médico puede suprimir la alerta automática. Las notificaciones de alerta (SMS y Push en App GVA+Salut) solo se envían a pacientes cuyo último acceso a la aplicación sea reciente (dentro de 120 días configurables) y respetan el idioma de preferencia del usuario (castellano o valenciano).\nSe implementa un mecanismo de alertas inteligente para tratamientos crónicos que: (1) Identifica tratamientos crónico con fecha de vencimiento próxima (dentro de un margen configurable); (2) Valida si el paciente tiene cita médica o de enfermería programada antes de esa fecha; (3) Si NO hay cita, genera alerta visible en RELE indicando 'Próximo a su vencimiento'; (4) En la APP GVA+Salut, los pacientes ven el tratamiento marcado con icono de aviso y acceden a detalle con título y descripción del aviso; (5) El sistema envía notificaciones push a la APP y SMS solo cuando corresponde según configuración de filtros por proveedores sanitarios; (6) Los usuarios de farmacia ven estas alertas al consultar listados de tratamientos de pacientes para facilitar la dispensación y seguimiento.\nEl sistema implementa un flujo de notificación dual (push APP + SMS) que se activa automáticamente cuando un tratamiento crónico se aproxima a su fecha de vencimiento. Las reglas de envío son:\n\n**Notificación ENVIADA:** Paciente con tratamiento crónico próximo a vencer + SIN CITA programada. Recibe mensaje: 'Tratamiento crónico próximo a su vencimiento: solicite cita con el profesional médico para prolongar prescripción'.\n\n**Notificación NO ENVIADA:** Paciente con cita médica, de enfermería o especializada (UFPE) con fecha ANTERIOR al vencimiento del tratamiento. El sistema asume que el paciente renovará en esa cita.\n\n**Casos específicos por tipo de tratamiento:**\n- Tratamientos de enfermería: NO genera notificación si paciente tiene cita de enfermería o médica anterior al vencimiento\n- Tratamientos médicos (primaria/especializada): NO genera notificación si paciente tiene cita médica anterior al vencimiento\n- Tratamientos UFPE: NO genera notificación si paciente tiene cita especializada anterior al vencimiento\n\n**Control antiduplicado:** Si el paciente ya fue notificado por SMS dentro del plazo establecido, no recibe nuevo SMS hasta que expire el período de espera.\n\n**Canales:** Notificación push en APP (requiere APP instalada) + SMS al teléfono móvil registrado en el sistema de pacientes.\nSe implementa una pantalla unificada de 'Tratamientos Crónicos' dentro de Utilidades de Prescripción que permite a los profesionales sanitarios identificar pacientes con tratamientos crónicos próximos a su vencimiento (dentro de una ventana de 30 días configurables). La pantalla integra información de citas pendientes obtenida del sistema SIA, mostrándolas directamente en la ruleta o mediante tooltip. El sistema debe enviar automáticamente SMS a los pacientes con el mensaje: 'Su tratamiento crónico está próximo a su vencimiento: solicite cita con el profesional médico para prolongar la prescripción de sus tratamientos.' Los usuarios pueden marcar tratamientos como revisados. Las opciones disponibles en la ruleta varían según el perfil del usuario. Enfermería visualiza solo 'Marcar como revisado'. Farmacia y Servicios Centrales ven opciones adicionales y no pueden marcar como revisado. Médicos ven 'Marcar como revisado' y acceso completo a citas médicas pendientes.",
+          "tablas": [
+            {
+              "titulo": "Perfiles y acceso funcional a citas en avisos crónicos",
+              "cabeceras": [
+                "Perfil",
+                "Acceso a herramienta",
+                "Visualiza citas en listado",
+                "Recibe notificaciones con cita",
+                "Puede accionar según cita"
+              ],
+              "filas": [
+                [
+                  "Médico de primaria",
+                  "Sí - desde Utilidades de prescripción",
+                  "Sí - citas médicas y de enfermería",
+                  "Sí (notificaciones en app)",
+                  "Sí - decide continuación según cita programada"
+                ],
+                [
+                  "Enfermería",
+                  "Sí - acceso configurable",
+                  "Sí - citas de enfermería",
+                  "Sí (notificaciones en app)",
+                  "Sí - realiza seguimiento si hay cita de enfermería"
+                ],
+                [
+                  "Farmacia/Servicios Centrales",
+                  "Sí - consulta",
+                  "Sí - visualiza citas del paciente",
+                  "No (reciben información de medicamentos)",
+                  "Sí - valida dispensación si cita existe"
+                ],
+                [
+                  "Paciente",
+                  "No - acceso via app",
+                  "Sí - visualiza sus citas",
+                  "Sí - SMS y notificaciones push",
+                  "Sí - sabe cuándo tiene cita para renovar"
+                ],
+                [
+                  "UFPE (Unidad Farmacéutica)",
+                  "Sí - consulta",
+                  "Sí - visualiza citas del paciente",
+                  "Sí (avisos de vencimiento)",
+                  "Sí - coordina con cita programada"
+                ]
+              ]
+            },
+            {
+              "titulo": "Casos de uso funcionales principales",
+              "cabeceras": [
+                "Caso de uso",
+                "Actor",
+                "Descripción funcional",
+                "Resultado visible"
+              ],
+              "filas": [
+                [
+                  "CU1 - Listar en RELE sin cita",
+                  "Médico/Enfermería/Farmacia",
+                  "Se consulta listado de crónicos próximos a vencer. El sistema filtra y muestra pacientes sin cita médica programada",
+                  "Listado de pacientes sin cita con opción de gestionar su tratamiento de forma diferida"
+                ],
+                [
+                  "CU2 - Listar en RELE con cita médica",
+                  "Médico/Farmacia",
+                  "Se consulta listado de crónicos próximos a vencer. Se visualizan pacientes con cita médica programada",
+                  "Listado destaca pacientes con cita médica, facilitando seguimiento coordinado"
+                ],
+                [
+                  "CU3 - Listar en RELE con cita enfermería",
+                  "Enfermería/Farmacia",
+                  "Se consulta listado de crónicos próximos a vencer. Se visualizan pacientes con cita de enfermería programada",
+                  "Listado destaca pacientes con cita de enfermería para tratamientos indicables por este perfil"
+                ],
+                [
+                  "CU4 - Aviso próximo vencimiento",
+                  "Sistema automatizado",
+                  "El sistema genera aviso cuando falta poco para vencer un tratamiento crónico (60 días configurable)",
+                  "Aviso disponible en el sistema para ser consultado por profesionales"
+                ],
+                [
+                  "CU5 - Notificación paciente crónico próximo vencimiento",
+                  "Sistema/Paciente",
+                  "El paciente recibe notificación push en app cuando su tratamiento está próximo a vencer",
+                  "Notificación en app GVA+Salut con información de vencimiento"
+                ],
+                [
+                  "CU6 - Notificación enfermería tratamiento próximo vencimiento",
+                  "Sistema/Enfermería",
+                  "Enfermería recibe notificación de tratamientos crónicos próximos a vencer indicables por su perfil",
+                  "Notificación en app con cita de enfermería asociada si existe"
+                ],
+                [
+                  "CU7 - Notificación médico tratamiento próximo vencimiento",
+                  "Sistema/Médico",
+                  "Médico recibe notificación de tratamientos crónicos próximos a vencer de sus pacientes",
+                  "Notificación en app con cita médica asociada si existe"
+                ],
+                [
+                  "CU8 - Notificación UFPE tratamiento próximo vencimiento",
+                  "Sistema/UFPE",
+                  "UFPE recibe notificación de tratamientos próximos a vencer para seguimiento farmacéutico",
+                  "Notificación en app con información de cita si existe"
+                ],
+                [
+                  "CU9 - SMS paciente tratamiento próximo vencimiento",
+                  "Sistema/Paciente",
+                  "El paciente recibe SMS recordando vencimiento próximo, incluyendo información de cita programada",
+                  "SMS recibido en móvil del paciente con detalles de cita"
+                ],
+                [
+                  "CU10 - SMS enfermería tratamiento próximo vencimiento",
+                  "Sistema/Enfermería",
+                  "Enfermería recibe SMS de tratamientos próximos a vencer con cita de enfermería",
+                  "SMS recibido con información de cita"
+                ],
+                [
+                  "CU11 - SMS médico tratamiento próximo vencimiento",
+                  "Sistema/Médico",
+                  "Médico recibe SMS de tratamientos próximos a vencer con cita médica asociada",
+                  "SMS recibido con información de cita"
+                ],
+                [
+                  "CU12 - SMS UFPE tratamiento próximo vencimiento",
+                  "Sistema/UFPE",
+                  "UFPE recibe SMS de tratamientos próximos a vencer",
+                  "SMS recibido con información de cita si existe"
+                ],
+                [
+                  "CU13 - Revisar tratamientos y citas enfermería",
+                  "Enfermería",
+                  "Enfermería accede a historia clínica del paciente en modo edición y revisa tratamientos crónicos y sus citas programadas. Puede marcar paciente como revisado",
+                  "Tratamientos y citas integrados en historia. Opción de multi-continuación o selección de crónicos"
+                ],
+                [
+                  "CU14 - Revisar tratamientos y citas farmacia",
+                  "Farmacia/Servicios Centrales",
+                  "Farmacia consulta tratamientos crónicos del paciente y sus citas asociadas para validar dispensación",
+                  "Visualización de citas junto a medicamentos para confirmar que hay cita para renovar"
+                ],
+                [
+                  "CU15 - Revisar tratamientos y citas médico",
+                  "Médico",
+                  "Médico accede a historia clínica en edición y revisa tratamientos crónicos próximos a vencer junto con citas programadas del paciente",
+                  "Información integrada de medicamentos y citas para decidir continuación de tratamiento"
+                ]
+              ]
+            },
+            {
+              "titulo": "Impacto en flujos de trabajo clínico por perfil",
+              "cabeceras": [
+                "Perfil",
+                "Cambio en flujo actual",
+                "Beneficio funcional",
+                "Consideraciones para soporte"
+              ],
+              "filas": [
+                [
+                  "Médico de Primaria",
+                  "Antes: consulta crónicos próximos a vencer sin información de citas. Ahora: visualiza citas médicas y de enfermería programadas",
+                  "Puede tomar decisiones de continuación de tratamiento sabiendo si el paciente tiene cita. Reduce llamadas para citar si ya hay cita programada",
+                  "Soporte debe informar que aparecen citas de SIA integradas. Si no ve citas, verificar que el paciente las tiene programadas en SIA"
+                ],
+                [
+                  "Enfermería",
+                  "Antes: gestión manual de tratamientos indicables. Ahora: accede a lista con citas de enfermería asociadas",
+                  "Identifica rápidamente pacientes con tratamientos crónicos indicables que tienen cita de enfermería programada. Facilita coordinación",
+                  "Soporte debe explicar que solo aparecen citas de enfermería cuando el tratamiento es indicable por este perfil"
+                ],
+                [
+                  "Farmacia/Servicios Centrales",
+                  "Antes: dispensa sin información de citas. Ahora: visualiza citas del paciente antes de dispensar",
+                  "Puede validar que existe cita programada para justificar renovación de crónico. Reduce dispensaciones sin cita",
+                  "Soporte debe indicar dónde aparece la información de citas en la consulta de medicamentos"
+                ],
+                [
+                  "UFPE",
+                  "Antes: seguimiento farmacéutico sin contexto de citas. Ahora: recibe avisos y puede consultar citas",
+                  "Coordina mejor el seguimiento con la cita clínica programada. Puede alinear intervención farmacéutica con visita del paciente",
+                  "Soporte debe informar que recibe notificaciones con citas incluidas"
+                ],
+                [
+                  "Paciente",
+                  "Antes: aviso de vencimiento sin información de cuándo renovar. Ahora: recibe SMS y notificación con cita programada",
+                  "Conoce exactamente cuándo tiene cita para renovar su medicación. Reduce confusión sobre fechas de renovación",
+                  "Soporte CAU recibe consultas de pacientes sobre citas mostradas en avisos. Debe poder confirmar citas en SIA"
+                ]
+              ]
+            },
+            {
+              "titulo": "Perfiles, permisos y acceso funcional",
+              "cabeceras": [
+                "Perfil de usuario",
+                "Acceso a listado",
+                "Opciones disponibles en menú de paciente",
+                "Acceso a historia clínica",
+                "Opción 'Marcar como revisado'",
+                "Visualización resultado marcaje"
+              ],
+              "filas": [
+                [
+                  "Médico",
+                  "Sí - Filtra por CUPO del médico logado",
+                  "Ver tratamientos, Historia clínica (si habilitado en gestor seguridad), Marcar como revisado",
+                  "Sí - Modo edición (si habilitado en gestor seguridad). Visualiza alerta de tratamientos próximos a vencer",
+                  "Sí - Si está activada variable de configuración (valor positivo)",
+                  "Paciente desaparece de su listado de trabajo durante días configurados. Permanece visible en listado de enfermería"
+                ],
+                [
+                  "Enfermería",
+                  "Sí - Filtra por CUPO del médico logado",
+                  "Ver tratamientos, Marcar como revisado",
+                  "No - Sin acceso",
+                  "Sí - Si está activada variable de configuración (valor positivo)",
+                  "Paciente desaparece de su listado de trabajo durante días configurados. Permanece visible en listado de médico"
+                ],
+                [
+                  "Coordinador médico",
+                  "Sí - Opción 'Cupos del centro' (si tiene permiso específico en gestor seguridad)",
+                  "Ver tratamientos, Historia clínica, Marcar como revisado",
+                  "Sí - Modo edición (si habilitado en gestor seguridad)",
+                  "Sí - Si está activada variable de configuración (valor positivo)",
+                  "Igual que médico. Supervisa pacientes de todos los CUPOS del centro"
+                ]
+              ]
+            },
+            {
+              "titulo": "Opciones de filtrado en listado",
+              "cabeceras": [
+                "Opción de filtro",
+                "Descripción funcional",
+                "Quién ve esta opción",
+                "Resultado"
+              ],
+              "filas": [
+                [
+                  "'Crónicos próximos a su vencimiento'",
+                  "Filtra pacientes con tratamientos que superan días configurados de duración OR tipo tratamiento = Crónico, Y fecha fin < fecha hoy + margen de días",
+                  "Todos (médico, enfermería, coordinador)",
+                  "Listado de pacientes cuyos tratamientos vencen próximamente, agrupados por CUPO"
+                ],
+                [
+                  "'Cupo del médico' / 'Cupos del centro'",
+                  "Opción de alcance. 'Cupo del médico' es predeterminada. 'Cupos del centro' solo visible para coordinadores con permiso específico",
+                  "'Cupo del médico': todos. 'Cupos del centro': solo coordinadores autorizados",
+                  "Cambia alcance del filtro: solo pacientes del CUPO logado vs. todos los CUPOS del centro"
+                ],
+                [
+                  "'Crónicos vigentes'",
+                  "Filtra pacientes con tratamientos crónicos vigentes dentro de rango de fechas indicado",
+                  "Todos",
+                  "Listado de pacientes con tratamientos crónicos activos (sin necesidad de estar próximos a vencer)"
+                ],
+                [
+                  "'Pacientes revisados'",
+                  "Nuevo filtro que muestra pacientes marcados como revisados",
+                  "Todos (visible cuando está marcado 'Crónicos próximos a su vencimiento')",
+                  "Incluye en listado los pacientes que han sido marcados como revisados (que normalmente están ocultos)"
+                ]
+              ]
+            },
+            {
+              "titulo": "Detalle de información de cada tratamiento crónico",
+              "cabeceras": [
+                "Campo visible",
+                "Ubicación",
+                "Información que proporciona"
+              ],
+              "filas": [
+                [
+                  "Fecha de inicio y fin del tratamiento",
+                  "Lista de tratamientos del paciente",
+                  "Periodo en el que el tratamiento está prescrito"
+                ],
+                [
+                  "Código/Codificador del diagnóstico",
+                  "Lista de tratamientos del paciente",
+                  "Clasificación diagnóstica asociada al tratamiento"
+                ],
+                [
+                  "Descripción del tratamiento prescrito",
+                  "Lista de tratamientos del paciente",
+                  "Nombre y detalles del medicamento/tratamiento"
+                ],
+                [
+                  "Icono tasa de adhesión",
+                  "Lista de tratamientos del paciente",
+                  "Indicador visual del cumplimiento del paciente con el tratamiento"
+                ],
+                [
+                  "Tooltip con datos adicionales",
+                  "Al posicionar cursor sobre cada tratamiento",
+                  "Información complementaria del tratamiento (campos no especificados en documento)"
+                ]
+              ]
+            },
+            {
+              "titulo": "Funcionalidad de 'Marcar como revisado'",
+              "cabeceras": [
+                "Aspecto",
+                "Descripción"
+              ],
+              "filas": [
+                [
+                  "Cuándo aparece la opción",
+                  "Solo cuando se marcan ambos filtros: 'Crónicos próximos a su vencimiento' + 'Cupo del médico' (o 'Cupos del centro' para coordinador). Variable de configuración debe tener valor positivo."
+                ],
+                [
+                  "Quién puede marcar",
+                  "Médico y enfermería"
+                ],
+                [
+                  "Duración del marcaje",
+                  "Número de días indicado en variable de configuración (por defecto 30 días)"
+                ],
+                [
+                  "Efecto cuando médico marca como revisado",
+                  "Paciente desaparece del listado de trabajo del médico durante el período configurado. Continúa visible en listado de enfermería. Recibe opción adicional 'El paciente no tiene que solicitar cita para renovar tratamientos' para evitar notificaciones"
+                ],
+                [
+                  "Efecto cuando enfermería marca como revisado",
+                  "Paciente desaparece del listado de trabajo de enfermería durante el período configurado. Continúa visible en listado del médico. Recibe opción adicional 'El paciente no tiene que solicitar cita para renovar tratamientos' para evitar notificaciones"
+                ],
+                [
+                  "Indicador visual",
+                  "Check verde en columna 'Revisado' del listado"
+                ],
+                [
+                  "Opción inversa",
+                  "'Marcar como no revisado' - permite revertir el marcaje manualmente. Visible cuando se activa filtro 'Pacientes revisados'"
+                ]
+              ]
+            },
+            {
+              "titulo": "Opcionalidad 'El paciente no tiene que solicitar cita'",
+              "cabeceras": [
+                "Parámetro",
+                "Descripción"
+              ],
+              "filas": [
+                [
+                  "Cuándo se ofrece",
+                  "Cuando médico o enfermería marca paciente como revisado"
+                ],
+                [
+                  "Efecto de marcaje",
+                  "Paciente no recibe notificaciones (APP GVA+Salut ni SMS) indicando que sus tratamientos crónicos están próximos a vencer y que debe solicitar cita"
+                ],
+                [
+                  "Alcance de supresión",
+                  "No se envía notificación al paciente ni a Farmacia"
+                ],
+                [
+                  "Criterio aplicado",
+                  "Fecha máxima de revisión (más reciente entre revisión médico y revisión enfermería) debe ser posterior a hoy, Y opción marcada como verdadera"
+                ],
+                [
+                  "Impacto en otros listados",
+                  "Aviso no se muestra en listado de RELE (sistema relacionado)"
+                ]
+              ]
+            },
+            {
+              "titulo": "Flujo de notificación automática a pacientes",
+              "cabeceras": [
+                "Componente",
+                "Descripción funcional"
+              ],
+              "filas": [
+                [
+                  "Proceso automático",
+                  "Sistema GAIAWS ejecuta proceso programable que identifica pacientes cuyos tratamientos crónicos están próximos a vencer"
+                ],
+                [
+                  "Canales de notificación",
+                  "APP GVA+Salut (notificación push sin necesidad de abrir app) + SMS"
+                ],
+                [
+                  "Contenido de notificación",
+                  "Aviso de próximo vencimiento de tratamiento crónico, instrucción al paciente de contactar con centro de salud para solicitar cita de renovación"
+                ],
+                [
+                  "Importancia del canal",
+                  "Notificación pasiva - información llega al paciente sin que tenga que buscarla activamente"
+                ],
+                [
+                  "Condiciones de no envío",
+                  "Si paciente marcado como revisado con opción 'no tiene que solicitar cita' activa, y fecha de revisión es posterior a hoy"
+                ]
+              ]
+            },
+            {
+              "titulo": "Canales de notificación por perfil de usuario",
+              "cabeceras": [
+                "Perfil",
+                "Canal",
+                "Requisito previo",
+                "Acción visible para el usuario",
+                "Requisito de activación"
+              ],
+              "filas": [
+                [
+                  "Paciente",
+                  "Notificación push GVA+Salut",
+                  "Dispositivo registrado, último acceso 120 días",
+                  "Notificación en bandeja, opción de gestionar preferencia de recepción",
+                  "Tarea programada diaria en GAIAWS"
+                ],
+                [
+                  "Paciente",
+                  "SMS",
+                  "Teléfono móvil registrado en SIP (campos TEL1/TEL2/TEL3 que empiecen por 6 o 7)",
+                  "Mensaje de texto en móvil sin app",
+                  "Tarea programada diaria en GAIAWS"
+                ],
+                [
+                  "Paciente",
+                  "Aviso en app GVA+Salut",
+                  "Abrir apartado tratamientos activos",
+                  "Banner visual con título y texto de vencimiento próximo",
+                  "Automático al acceder a la app"
+                ],
+                [
+                  "Farmacéutico",
+                  "Alerta en RELE",
+                  "Invocar servicio ListarDispensaciones",
+                  "Código alerta 31 en pantalla de dispensaciones",
+                  "Automático al consultar dispensaciones"
+                ]
+              ]
+            },
+            {
+              "titulo": "Gestión de preferencias del paciente en GVA+Salut",
+              "cabeceras": [
+                "Acción del usuario",
+                "Resultado visible",
+                "Impacto funcional"
+              ],
+              "filas": [
+                [
+                  "Deslizar notificación a la derecha",
+                  "Aparecen iconos de acción (engranaje y otro)"
+                ],
+                [
+                  "Pulsar engranaje en notificación",
+                  "Menú de opciones: continuar recibiendo / desactivar notificaciones",
+                  "Preferencia almacenada, notificaciones futuras respetan la selección"
+                ],
+                [
+                  "Pulsar notificación",
+                  "Abre app GVA+Salut",
+                  "Permite acceso directo al gestor de tratamientos"
+                ]
+              ]
+            },
+            {
+              "titulo": "Lógica de envío de notificaciones SMS/App según tipo de tratamiento crónico y citas programadas",
+              "cabeceras": [
+                "Tipo de tratamiento crónico",
+                "Condición de cita",
+                "¿Se envía notificación?",
+                "Citas que se validan"
+              ],
+              "filas": [
+                [
+                  "Enfermería solamente",
+                  "SIN cita programada antes del vencimiento",
+                  "SÍ",
+                  "Cita médica o cita de enfermería"
+                ],
+                [
+                  "Enfermería solamente",
+                  "CON al menos una cita programada antes del vencimiento",
+                  "NO",
+                  "Cita médica o cita de enfermería"
+                ],
+                [
+                  "No enfermería, no UFPE",
+                  "SIN cita médica antes del vencimiento",
+                  "SÍ",
+                  "Cita de especializada o cita médica"
+                ],
+                [
+                  "No enfermería, no UFPE",
+                  "CON al menos una cita médica antes del vencimiento",
+                  "NO",
+                  "Cita de especializada o cita médica"
+                ],
+                [
+                  "Dispensación en UFPE",
+                  "CON cita de especializada antes del vencimiento",
+                  "NO",
+                  "Cita de especializada solamente"
+                ],
+                [
+                  "Dispensación en UFPE",
+                  "SIN cita de especializada antes del vencimiento",
+                  "SÍ",
+                  "Cita de especializada solamente"
+                ]
+              ]
+            },
+            {
+              "titulo": "Información de citas mostrada en tooltip sobre el icono de cita",
+              "cabeceras": [
+                "Campo",
+                "Descripción",
+                "Aplicable a"
+              ],
+              "filas": [
+                [
+                  "Fecha y hora",
+                  "Fecha y hora exacta de la cita más cercana",
+                  "Todas las citas"
+                ],
+                [
+                  "Tipo de cita",
+                  "PRESENCIAL / TELEFÓNICA / VIDEOCONSULTA / DOMICILIO / NO PRESENCIAL",
+                  "Todas las citas"
+                ],
+                [
+                  "Localización",
+                  "Centro o localidad donde se realiza la cita",
+                  "Todas las citas"
+                ],
+                [
+                  "Nivel asistencial",
+                  "Indica si es de primaria o de especializada",
+                  "Citas médicas"
+                ],
+                [
+                  "Servicio",
+                  "Servicio clínico asociado a la cita",
+                  "Todas las citas"
+                ]
+              ]
+            },
+            {
+              "titulo": "Permisos de visualización de citas por perfil de usuario",
+              "cabeceras": [
+                "Perfil de usuario",
+                "Acceso a citas de primaria",
+                "Acceso a citas de especializada",
+                "Acceso a citas de enfermería",
+                "Ubicación de visualización"
+              ],
+              "filas": [
+                [
+                  "Farmacéutico/Personal de farmacia",
+                  "Sí",
+                  "Sí",
+                  "Sí",
+                  "Pantalla de crónicos y pantalla de confirmación de revisión"
+                ],
+                [
+                  "Personal médico",
+                  "Sí",
+                  "Sí",
+                  "Sí",
+                  "Pantalla de crónicos y pantalla de confirmación de revisión"
+                ],
+                [
+                  "Personal de enfermería",
+                  "Sí",
+                  "Sí",
+                  "Sí",
+                  "Pantalla de crónicos y pantalla de confirmación de revisión"
+                ]
+              ]
+            },
+            {
+              "titulo": "Lógica de Generación de Avisos por Tipo de Tratamiento",
+              "cabeceras": [
+                "Tipo de Tratamiento",
+                "¿Tiene Cita Antes de Vencimiento?",
+                "Tipo de Cita Requerida",
+                "¿Mostrar Alerta en RELE?",
+                "¿Mostrar Aviso en APP?",
+                "Acción para Farmacia"
+              ],
+              "filas": [
+                [
+                  "Enfermería",
+                  "No",
+                  "Médico primaria o Enfermería",
+                  "Sí",
+                  "Sí",
+                  "Notificar paciente para que contacte con centro de salud"
+                ],
+                [
+                  "Enfermería",
+                  "Sí",
+                  "Médico primaria o Enfermería",
+                  "No",
+                  "Sí",
+                  "No generar alerta; paciente tiene cita programada"
+                ],
+                [
+                  "No Enfermería",
+                  "No",
+                  "Especializada o Médico primaria",
+                  "Sí",
+                  "Sí",
+                  "Notificar paciente para que contacte con centro de salud"
+                ],
+                [
+                  "No Enfermería",
+                  "Sí",
+                  "Especializada o Médico primaria",
+                  "No",
+                  "Sí",
+                  "No generar alerta; paciente tiene cita programada"
+                ]
+              ]
+            },
+            {
+              "titulo": "Casos de Uso por Perfil de Usuario",
+              "cabeceras": [
+                "Caso de Uso",
+                "Perfil Actor",
+                "Precondición",
+                "Resultado Esperado",
+                "Impacto Funcional"
+              ],
+              "filas": [
+                [
+                  "CU1: Listar en RELE sin cita",
+                  "Oficina de Farmacia",
+                  "Tratamiento crónico próximo a vencimiento, paciente sin cita",
+                  "Aparece alerta en campo de alertas informando que paciente debe contactar centro de salud",
+                  "Farmacia recibe notificación clara para gestionar contacto con paciente"
+                ],
+                [
+                  "CU2: Listar en RELE con cita médica",
+                  "Oficina de Farmacia",
+                  "Tratamiento crónico próximo a vencimiento, paciente con cita médica anterior a vencimiento",
+                  "NO aparece alerta en RELE",
+                  "Farmacia no genera aviso porque paciente tiene cita programada para renovación"
+                ],
+                [
+                  "CU3: Listar en RELE con cita enfermería",
+                  "Oficina de Farmacia",
+                  "Tratamiento crónico de enfermería próximo a vencimiento, paciente con cita enfermería anterior a vencimiento",
+                  "NO aparece alerta en RELE",
+                  "Farmacia no genera aviso porque paciente tiene cita de enfermería programada"
+                ],
+                [
+                  "CU4: Aviso en APP",
+                  "Paciente (APP GVA+Salut)",
+                  "Tratamiento crónico próximo a vencimiento, independiente de citas",
+                  "Marca visual en listado de tratamientos; aviso con título y descripción en detalle",
+                  "Paciente visualiza claramente qué tratamientos vencen pronto aunque tenga cita"
+                ],
+                [
+                  "CU5: Notificación push",
+                  "Paciente (APP GVA+Salut)",
+                  "Tratamiento crónico próximo a vencimiento, sin cita programada",
+                  "Notificación automática cuando se ejecuta proceso de detección",
+                  "Paciente recibe alertas proactivas para gestionar renovación sin esperar a entrar en APP"
+                ]
+              ]
+            },
+            {
+              "titulo": "Matriz de Notificación por Tipo de Tratamiento y Cita",
+              "cabeceras": [
+                "Tipo Tratamiento",
+                "Tiene Cita Previa",
+                "Acción",
+                "Canal"
+              ],
+              "filas": [
+                [
+                  "Enfermería",
+                  "Sí (enfermería o médica)",
+                  "NO enviar notificación",
+                  "N/A"
+                ],
+                [
+                  "Enfermería",
+                  "No",
+                  "Enviar notificación",
+                  "APP o SMS"
+                ],
+                [
+                  "Médico (primaria/especializada)",
+                  "Sí (médica primaria o especializada)",
+                  "NO enviar notificación",
+                  "N/A"
+                ],
+                [
+                  "Médico",
+                  "No",
+                  "Enviar notificación",
+                  "APP o SMS"
+                ],
+                [
+                  "UFPE",
+                  "Sí (especializada)",
+                  "NO enviar notificación",
+                  "N/A"
+                ],
+                [
+                  "UFPE",
+                  "No",
+                  "Enviar notificación",
+                  "APP o SMS"
+                ]
+              ]
+            },
+            {
+              "titulo": "Casos de Uso y Comportamiento del Paciente",
+              "cabeceras": [
+                "Actor",
+                "Precondición",
+                "Acción",
+                "Resultado"
+              ],
+              "filas": [
+                [
+                  "Paciente usuario APP GVA+Salut",
+                  "APP instalada, tratamiento crónico próximo a vencer, sin cita",
+                  "Sistema ejecuta detección en GAIAWS",
+                  "Recibe notificación push en APP"
+                ],
+                [
+                  "Paciente usuario APP GVA+Salut",
+                  "APP instalada, tratamiento crónico próximo a vencer, CON cita anterior al vencimiento",
+                  "Sistema ejecuta detección en GAIAWS",
+                  "NO recibe notificación (cita agendada)"
+                ],
+                [
+                  "Paciente sin APP pero con teléfono en SIP",
+                  "Teléfono registrado, tratamiento crónico próximo a vencer, sin cita",
+                  "Sistema ejecuta detección en GAIAWS",
+                  "Recibe SMS: 'Su tratamiento crónico está próximo a su vencimiento: solicite cita con el profesional médico para prolongar la prescripción de sus tratamientos.'"
+                ],
+                [
+                  "Paciente sin APP pero con teléfono en SIP",
+                  "Teléfono registrado, tratamiento crónico próximo a vencer, CON cita anterior al vencimiento",
+                  "Sistema ejecuta detección en GAIAWS",
+                  "NO recibe SMS (cita agendada)"
+                ],
+                [
+                  "Paciente ya notificado",
+                  "Última notificación dentro del plazo permitido",
+                  "Sistema ejecuta detección en GAIAWS",
+                  "NO recibe notificación/SMS (reiteration bloqueada por auditoría)"
+                ]
+              ]
+            },
+            {
+              "titulo": "Criterios para envío/supresión de SMS de recordatorio",
+              "cabeceras": [
+                "Condición",
+                "Tiene cita médica especializada",
+                "Tratamiento próximo a vencimiento",
+                "SMS enviado"
+              ],
+              "filas": [
+                [
+                  "Paciente con cita y tratamiento próximo",
+                  "Sí (fecha anterior al fin del tratamiento)",
+                  "Sí",
+                  "NO"
+                ],
+                [
+                  "Paciente sin cita y tratamiento próximo",
+                  "No",
+                  "Sí",
+                  "Sí (mensaje: 'Su tratamiento crónico está próximo a su vencimiento: solicite cita con el profesional médico para prolongar la prescripción')"
+                ]
+              ]
+            },
+            {
+              "titulo": "Acceso a información de citas por perfil de usuario",
+              "cabeceras": [
+                "Perfil",
+                "Visibilidad de citas",
+                "Acción sobre alertas",
+                "Caso de uso"
+              ],
+              "filas": [
+                [
+                  "Médico",
+                  "Citas médicas y de enfermería pendientes, ordenadas por fecha/hora",
+                  "Puede marcar checkbox para suprimir alerta de renovación de tratamiento",
+                  "Evalúa si paciente tiene cita próxima antes de autorizar notificación"
+                ],
+                [
+                  "Enfermería",
+                  "Citas pendientes propias",
+                  "No aplicable en este contexto",
+                  "Visualiza su propia agenda"
+                ]
+              ]
+            },
+            {
+              "titulo": "Canales y comportamiento de alertas de renovación de tratamiento crónico",
+              "cabeceras": [
+                "Canal de notificación",
+                "Destinatario",
+                "Contenido",
+                "Condiciones de envío",
+                "Idioma"
+              ],
+              "filas": [
+                [
+                  "SMS",
+                  "Dispositivo móvil del paciente",
+                  "Aviso de tratamiento próximo a vencimiento con solicitud de cita médica",
+                  "Envío directo vía servicio SMSSERV",
+                  "Configurado por usuario (castellano/valenciano)"
+                ],
+                [
+                  "Notificación Push (App GVA+Salut)",
+                  "Dispositivos registrados del paciente con último acceso entre 0-120 días",
+                  "Titulo y texto del aviso de tratamiento crónico",
+                  "Último acceso válido <120 días; checkbox de supresión respetado",
+                  "Configurado por usuario en último acceso a aplicación"
+                ]
+              ]
+            },
+            {
+              "titulo": "Perfiles y acciones funcionales",
+              "cabeceras": [
+                "Perfil",
+                "Qué ve",
+                "Cuándo ve la alerta",
+                "Acción posible"
+              ],
+              "filas": [
+                [
+                  "Usuario Farmacia (RELE)",
+                  "Alerta en campo alertas al listar tratamientos",
+                  "Paciente sin cita anterior al vencimiento",
+                  "Gestiona dispensación, sugiere cita al paciente"
+                ],
+                [
+                  "Paciente (APP GVA+Salut)",
+                  "Tratamiento con icono de aviso en listado; detalle con texto 'Próximo a su vencimiento'",
+                  "Tratamiento crónico sin cita programada y próximo a vencer",
+                  "Solicita cita, renueva receta, consulta farmacéutico"
+                ],
+                [
+                  "Paciente (RELE simulador)",
+                  "Alerta en respuesta de listado de tratamientos",
+                  "Mismo que usuario farmacia (sin cita previa)",
+                  "N/A - información consultada por farmacia"
+                ]
+              ]
+            },
+            {
+              "titulo": "Casos de uso y comportamiento esperado",
+              "cabeceras": [
+                "Caso",
+                "Perfil",
+                "Escenario",
+                "Alerta generada",
+                "Notificación enviada"
+              ],
+              "filas": [
+                [
+                  "1",
+                  "Farmacia (RELE)",
+                  "Paciente con crónico próximo a vencer SIN cita",
+                  "SÍ - aparece en alertas",
+                  "Según filtro SIP (APP y/o SMS)"
+                ],
+                [
+                  "2",
+                  "Farmacia (RELE)",
+                  "Paciente con crónico próximo a vencer CON cita médica anterior a vencimiento",
+                  "NO - no se genera alerta",
+                  "NO se envía notificación"
+                ],
+                [
+                  "3",
+                  "Farmacia (RELE)",
+                  "Paciente con crónico enfermería próximo a vencer CON cita enfermería anterior a vencimiento",
+                  "NO - no se genera alerta",
+                  "NO se envía notificación"
+                ],
+                [
+                  "4",
+                  "Paciente (APP)",
+                  "Crónico próximo a vencer SIN cita anterior",
+                  "SÍ - icono de aviso visible en listado",
+                  "Push APP + SMS según configuración"
+                ],
+                [
+                  "5",
+                  "Paciente (APP)",
+                  "Crónico próximo a vencer CON cita anterior",
+                  "NO - sin icono de aviso",
+                  "NO se envía notificación"
+                ]
+              ]
+            },
+            {
+              "titulo": "Configuración de canales de notificación por proveedor sanitario (SIP)",
+              "cabeceras": [
+                "Configuración",
+                "Valores posibles",
+                "Significado funcional",
+                "Impacto en usuario"
+              ],
+              "filas": [
+                [
+                  "Filtro SIP para APP y SMS",
+                  "S = enviar a todos; otro valor = lista específica de SIPs",
+                  "Controla a qué centros/proveedores se envían notificaciones APP+SMS",
+                  "Pacientes de ciertos centros reciben notificaciones; otros no"
+                ],
+                [
+                  "Filtro SIP para SMS solo",
+                  "S = enviar a todos; N = no enviar a nadie; otro valor = lista de SIPs",
+                  "Permite desactivar SMS mientras mantiene notificaciones APP",
+                  "Mayor control sobre canal SMS vs APP para cada proveedor"
+                ]
+              ]
+            },
+            {
+              "titulo": "Parámetros funcionales de alerta",
+              "cabeceras": [
+                "Parámetro",
+                "Descripción funcional",
+                "Impacto en usuario"
+              ],
+              "filas": [
+                [
+                  "Margen de días para alerta",
+                  "Número de días antes del vencimiento que se activa la alerta (ej: 1 día)",
+                  "Define cuándo el paciente y farmacia ven el aviso; mayor margen = más tiempo para reaccionar"
+                ],
+                [
+                  "Días futuros para recuperar citas",
+                  "Período en días (ej: 365) en el que se buscan citas programadas para validar si existe seguimiento",
+                  "Determina qué citas cuentan como 'válidas' para evitar alerta; rango más amplio evita más alertas"
+                ],
+                [
+                  "Servicios descartados",
+                  "Códigos de servicios a excluir (ej: TSO, ACL) que NO generan alertas aunque tengan crónico próximo a vencer",
+                  "Ciertos servicios clínicos no requieren alerta; reduce ruido de notificaciones"
+                ]
+              ]
+            },
+            {
+              "titulo": "Reglas de envío de notificaciones por tipo de tratamiento",
+              "cabeceras": [
+                "Tipo de tratamiento",
+                "Condición 1: Sin cita",
+                "Condición 2: Con cita anterior a vencimiento",
+                "¿Se envía notificación?",
+                "Mensaje al paciente"
+              ],
+              "filas": [
+                [
+                  "Tratamiento crónico general (no enfermería, no UFPE)",
+                  "Paciente sin cita programada",
+                  "N/A",
+                  "SÍ",
+                  "Tratamiento crónico próximo a su vencimiento: solicite cita con el profesional médico para prolongar prescripción"
+                ],
+                [
+                  "Tratamiento crónico general (no enfermería, no UFPE)",
+                  "N/A",
+                  "Paciente con cita médica anterior al vencimiento",
+                  "NO",
+                  "Sin notificación (se asume renovación en cita)"
+                ],
+                [
+                  "Tratamiento de enfermería",
+                  "Paciente sin cita programada",
+                  "N/A",
+                  "SÍ",
+                  "Tratamiento crónico próximo a su vencimiento: solicite cita con el profesional médico para prolongar prescripción"
+                ],
+                [
+                  "Tratamiento de enfermería",
+                  "N/A",
+                  "Paciente con cita enfermería o médica anterior al vencimiento",
+                  "NO",
+                  "Sin notificación"
+                ],
+                [
+                  "Tratamiento UFPE (especializado)",
+                  "Paciente sin cita programada",
+                  "N/A",
+                  "SÍ",
+                  "Tratamiento crónico próximo a su vencimiento: solicite cita con el profesional médico para prolongar prescripción"
+                ],
+                [
+                  "Tratamiento UFPE (especializado)",
+                  "N/A",
+                  "Paciente con cita especializada anterior al vencimiento",
+                  "NO",
+                  "Sin notificación"
+                ]
+              ]
+            },
+            {
+              "titulo": "Canales y requisitos de notificación",
+              "cabeceras": [
+                "Canal",
+                "Requisito previo del paciente",
+                "Contenido",
+                "Detalles funcionales"
+              ],
+              "filas": [
+                [
+                  "Notificación push APP",
+                  "APP GVA+Salut instalada en dispositivo",
+                  "Tratamiento crónico próximo a su vencimiento: solicite cita con el profesional médico para prolongar prescripción",
+                  "Se recibe en el dispositivo móvil; depende de que el proceso de envío se ejecute correctamente"
+                ],
+                [
+                  "SMS",
+                  "Teléfono móvil registrado en el sistema de pacientes",
+                  "Su tratamiento crónico está próximo a su vencimiento: solicite cita con el profesional médico para prolongar la prescripción de sus tratamientos.",
+                  "Se aplica control antiduplicado: si el paciente ya recibió SMS dentro del plazo establecido, no se envía de nuevo; cada envío queda auditado"
+                ]
+              ]
+            },
+            {
+              "titulo": "Permisos funcionales por perfil para Tratamientos Crónicos",
+              "cabeceras": [
+                "Perfil",
+                "Acceso pantalla",
+                "Visualiza citas",
+                "Puede marcar como revisado",
+                "Opciones en ruleta",
+                "Casos de uso"
+              ],
+              "filas": [
+                [
+                  "Enfermería",
+                  "Sí (con permiso)",
+                  "Sí - citas de enfermería y médicas pendientes",
+                  "Sí",
+                  "Solo 'Marcar como revisado'",
+                  "Revisar crónicos prescritos por enfermería próximos a vencer, coordinar con paciente para cita"
+                ],
+                [
+                  "Farmacéutico / Servicios Centrales",
+                  "Sí (con permiso)",
+                  "Sí - información de cita más cercana (tooltip)",
+                  "No",
+                  "Opciones adicionales (sin 'Marcar como revisado')",
+                  "Validar dispensación de crónicos, visualizar estado de citas para gestión"
+                ],
+                [
+                  "Médico",
+                  "Sí (con permiso)",
+                  "Sí - citas médicas de primaria y especializada pendientes",
+                  "Sí",
+                  "Solo 'Marcar como revisado'",
+                  "Revisar crónicos no prescritos por enfermería, programar renovación de prescripción"
+                ]
+              ]
+            },
+            {
+              "titulo": "Flujos de trabajo por perfil - Tratamientos Crónicos",
+              "cabeceras": [
+                "Perfil",
+                "Flujo de trabajo",
+                "Información visible",
+                "Acción principal"
+              ],
+              "filas": [
+                [
+                  "Enfermería",
+                  "1) Accede a Utilidades Prescripción → Tratamientos Crónicos 2) Filtra por 'Crónicos próximos a vencimiento' (30 días) 3) Visualiza lista de pacientes 4) Consulta citas pendientes del paciente 5) Marca como revisado para seguimiento",
+                  "Nombre paciente, fármaco, días para vencimiento, citas de enfermería y médicas pendientes",
+                  "Marcar tratamiento como revisado después de valoración"
+                ],
+                [
+                  "Farmacéutico / SC",
+                  "1) Accede a Utilidades Prescripción → Tratamientos Crónicos 2) Filtra por 'Crónicos próximos a vencimiento' (30 días) 3) Visualiza lista de pacientes 4) Consulta información de cita más cercana (tooltip) 5) Acciona opciones adicionales según necesidad",
+                  "Nombre paciente, fármaco, días para vencimiento, información de cita más cercana (tooltip), estado de dispensación",
+                  "Validar dispensación, consultar disponibilidad de cita próxima del paciente"
+                ],
+                [
+                  "Médico",
+                  "1) Accede a Utilidades Prescripción → Tratamientos Crónicos 2) Filtra por 'Crónicos próximos a vencimiento' (30 días) 3) Visualiza lista de pacientes 4) Consulta citas médicas pendientes 5) Marca como revisado y prepara renovación de prescripción",
+                  "Nombre paciente, fármaco, días para vencimiento, citas médicas pendientes (primaria y especializada)",
+                  "Marcar como revisado y renovar prescripción del tratamiento crónico"
+                ]
+              ]
+            }
+          ],
+          "configuracion": {
+            "permisos": "El acceso a la herramienta de tratamientos crónicos con información de citas es configurable por perfil:\n\n- Médico de primaria: acceso por defecto a cupo propio. Acceso a 'Cupos del centro', 'Cupos por centro del departamento' y 'Cupos del departamento' es configurable a través del gestor de seguridad\n- Enfermería: acceso según permisos de la aplicación. Visualiza citas de enfermería cuando tratamiento es indicable por este perfil\n- Farmacia/Servicios Centrales: acceso de consulta a la herramienta\n- UFPE: acceso a avisos y notificaciones con citas integradas\n- Paciente: visualiza citas en notificaciones push y SMS en app GVA+Salut\n\nLa funcionalidad de integración de citas es activable/desactivable exclusivamente para una lista de Servicios de Información de Paciente (SIP) mediante variable de configuración.",
+            "variables": []
+          },
+          "impacto_produccion": "IMPACTO VISIBLE EN USUARIOS:\n\n1. MÉDICOS: Al abrir la herramienta de tratamientos crónicos próximos a vencimiento, verán información de citas médicas y de enfermería del paciente integrada en el listado. Esto cambia el aspecto visual de la pantalla e implica que tendrán información adicional para tomar decisiones clínicas.\n\n2. ENFERMERÍA: Accede a listados donde aparecen citas de enfermería asociadas a tratamientos crónicos indicables, facilitando su gestión de trabajo.\n\n3. FARMACIA: Cuando consulten medicamentos crónicos de un paciente, verán información de sus citas programadas, lo cual afecta al flujo de validación antes de dispensar.\n\n4. PACIENTES: Recibirán SMS y notificaciones push en la app GVA+Salut que incluyen información sobre sus citas programadas cuando sus tratamientos crónicos están próximos a vencer. El contenido de las notificaciones es diferente (más detallado con cita) cuando el paciente tiene cita programada.\n\nIMPACTO PARA EQUIPO CAU:\n\n- Aumento de consultas sobre por qué aparecen/no aparecen citas en avisos de crónicos\n- Necesidad de entender cómo se relacionan SIA (citas) con GAIA (medicamentos)\n- Consultas de pacientes sobre citas mostradas en SMS/app\n- Posibles validaciones si hay inconsistencias entre citas en SIA y lo que aparece en avisos\n- Contacto con soporte SIA para validar programación de citas\n\nIMPACTO TÉCNICO/OPERACIONAL:\n\n- La funcionalidad solo está activa para ciertos Servicios de Información de Paciente (SIP) configurables\n- Se requiere integración con servicios de SIA para consultar citas\n- Notificaciones y SMS incluyen información nueva (citas) que debe ser correctamente formateada\n- El filtro de 60 días para consideración de vencimiento sigue siendo configurable",
+          "component": "MPRE3",
+          "req_date": "2026-03-27",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572909/x1nuyqgpzzrs31p1lgiu.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572910/mzxem3ao01gdofevlchd.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572911/dlcnnqyd5jsea9f8alfq.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572913/ppb3hfkur3yim2qtxwqx.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572913/zvwdrtlubwf8zhp7u5qq.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572914/htzw1t9ihmdraevvnvcj.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572914/c3l3mvqkzrgrdjydxsrp.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572915/dzzzsvqluyusiizj7cpu.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572916/szunezqeg0sxpppg7nla.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572916/wwm9wggn69kclyk4cou3.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572917/smrdvhzvgyuv83a2kiyf.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572918/gjy2wsi36xwtviu3pihp.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572919/seiqgwwyj60joaevz1c8.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572919/ngglieqv3tihai4dnrlz.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572920/fptuy1gvzv3fa4edjxgz.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572920/fm6dx64rzwpcyde4drmu.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572921/cahw9x0olo06wb4j4fhb.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572921/c7t62oixlnd6qcuyv46x.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572922/vvzmhh9qkb0rv0o8sw2v.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572922/kfffxauhybaqrd2spz6k.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572923/jmsseb3gb1zza1k0ykbu.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572923/u1laygyvojjssudsyakr.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572924/yehutvegd7pmi4ctzao4.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572925/tt5ka2gnwwed0jek4lzj.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572925/cctlqtx7djojk9jpn8ig.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572926/fflc5cooh8xdvz6c9e9q.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572927/zmw55cwaqb6022p6zdad.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572927/elegwggf3cyuep04lye6.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572928/zx5332tizblar5ptsmwv.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572929/y4pmi9hq6ru2ps1xfqf0.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572929/zwsvclkmju9ohz9vamkl.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572930/lwnlruxx1u60gndjbknz.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572930/rj65ttfgzx6lykzl99no.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572931/glzhobkc8q6lnxl7jbwe.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572932/cprblolz9nwdbm3qvo1r.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572932/gla9ggv1bk2ze0s3ljae.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572933/bfuic8uzff8rwo6f3hev.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572933/ysctjaikzx6jdnlohtgg.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572934/i2irs5xlkajude4rk5in.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572934/pyg0uirdlcv1gdopwgog.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572935/hy0cjbwle6reuptr4n4j.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572935/v6sv73fvzjzddkdaip0b.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572936/isvdiyju02zkmkrggv7s.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572937/lpp4y6pwsbumx2mgtkfu.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572937/ydpdxrxo9keefdzvzriy.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572938/pq7tubjfhsoszipyxhwm.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572938/hrxjm27qwqifn7ncboiq.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572939/nxqgguy0bfslb2mhlejr.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572939/k5feebayovudb9ycilbi.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572940/xnw43mgo0v3rl6y2b2qa.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572940/rhhtym9fxrw3gqvakqmg.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572941/rlyq1ewamqlfvqa2lffo.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572941/v7atkmebonwpyatlg8fj.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572942/ycnekgbzmqouei62pyp5.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572942/tzbbdior202yj0leumzn.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572943/lz5gbk5hrsbvhnzvyh3a.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572944/mcvah7ahowpdvg3teojp.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780572944/gbr3lfd2beqjnl9cz3ec.png"
+          ]
+        }
+      ]
+    }
+  ]
 }
