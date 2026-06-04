@@ -48,14 +48,50 @@ header{height:52px;display:flex;align-items:center;gap:10px;padding:0 20px;borde
 .dep-card .dc-version{font-size:13px;font-weight:500;color:var(--text);}
 .dep-card .dc-meta{font-size:11px;color:var(--text3);margin-top:4px;line-height:1.5;}
 .dep-card .dc-files{font-size:11px;color:var(--text2);margin-top:4px;font-family:var(--mono);}
-.dep-card .dc-del{
-  position:absolute;top:10px;right:10px;
-  font-size:12px;color:var(--text3);cursor:pointer;
-  padding:3px 8px;border-radius:4px;border:1px solid var(--border2);background:var(--surface);
-  transition:all 0.15s;
-}
-.dep-card .dc-del:hover{color:var(--red);border-color:var(--red-border);background:var(--red-bg);}
+.dep-card .dc-actions{display:flex;gap:6px;margin-top:10px;}
+.dep-card .dc-btn{font-size:11px;cursor:pointer;padding:3px 9px;border-radius:4px;border:1px solid var(--border2);background:var(--surface);transition:all 0.15s;color:var(--text2);}
+.dep-card .dc-btn:hover{background:var(--surface2);}
+.dep-card .dc-btn.del:hover{color:var(--red);border-color:var(--red-border);background:var(--red-bg);}
+.dep-card .dc-btn.edit:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-bg);}
 .dep-empty{padding:24px;text-align:center;font-size:13px;color:var(--text3);}
+
+/* edit modal */
+#edit-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:60;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;}
+#edit-modal.on{display:flex;}
+.em-box{background:var(--surface);border-radius:var(--radius-lg);padding:0;max-width:720px;width:100%;border:1px solid var(--border2);margin:auto;}
+.em-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.em-title{font-size:15px;font-weight:600;color:var(--text);}
+.em-close{font-size:20px;cursor:pointer;color:var(--text3);background:none;border:none;line-height:1;}
+.em-close:hover{color:var(--text);}
+.em-body{padding:20px 24px;max-height:80vh;overflow-y:auto;}
+.em-body::-webkit-scrollbar{width:4px;}
+.em-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+.em-section{margin-bottom:20px;}
+.em-section-title{font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.em-req-header{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface2);border-radius:var(--radius);margin-bottom:10px;cursor:pointer;border:1px solid var(--border);}
+.em-req-header:hover{background:var(--accent-bg);border-color:var(--accent);}
+.em-req-id{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;}
+.em-req-title{font-size:13px;color:var(--text);flex:1;}
+.em-req-comp{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--surface);border:1px solid var(--border2);color:var(--text2);}
+/* req edit panel */
+.em-req-panel{display:none;padding:14px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;background:var(--surface);}
+.em-req-panel.open{display:block;}
+.em-field{margin-bottom:12px;}
+.em-field label{display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em;}
+.em-field textarea{width:100%;padding:8px 10px;font-size:13px;font-family:var(--font);background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);outline:none;resize:vertical;line-height:1.6;}
+.em-field textarea:focus{border-color:var(--accent);}
+.em-field input[type=text]{width:100%;padding:7px 10px;font-size:13px;font-family:var(--font);background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);outline:none;}
+.em-field input:focus{border-color:var(--accent);}
+/* image gallery in edit */
+.em-img-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+.em-img-wrap{position:relative;width:100px;height:68px;flex-shrink:0;}
+.em-img-wrap img{width:100%;height:100%;object-fit:cover;border-radius:var(--radius);border:1px solid var(--border2);}
+.em-img-del{position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:var(--red);color:white;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;line-height:1;opacity:0.9;}
+.em-img-del:hover{opacity:1;transform:scale(1.1);}
+.em-save-btn{display:flex;align-items:center;gap:6px;padding:7px 16px;font-size:13px;font-weight:500;font-family:var(--font);background:var(--accent);color:white;border:none;border-radius:var(--radius);cursor:pointer;margin-top:4px;}
+.em-save-btn:hover{opacity:0.88;}
+.em-save-btn:disabled{opacity:0.5;cursor:default;}
+.em-save-status{font-size:12px;color:var(--green);margin-left:8px;}
 
 /* RIGHT PANEL */
 #right-panel{flex:1;overflow-y:auto;padding:32px 40px;}
@@ -228,6 +264,17 @@ input[readonly]{opacity:0.55;cursor:default;}
         <button class="submit-btn" id="submit-btn" onclick="submitAll()">Procesar y publicar</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Edit modal -->
+<div id="edit-modal">
+  <div class="em-box">
+    <div class="em-header">
+      <div class="em-title" id="em-title">Editar despliegue</div>
+      <button class="em-close" onclick="closeEdit()">&#215;</button>
+    </div>
+    <div class="em-body" id="em-body"></div>
   </div>
 </div>
 
@@ -489,24 +536,47 @@ function buildPromptSingle(chunk, chunkIdx, totalChunks) {
   const metaLine = isFirst ? 'Extrae el meta (title, version, app).' : 'Para "meta" devuelve campos vacíos.';
   const instruccion = isFirst
     ? 'Estás analizando UN ÚNICO requerimiento. Extrae toda la información relevante en UN SOLO objeto de requerimiento.'
-    : `Este es el fragmento ${chunkIdx+1}/${totalChunks} del mismo requerimiento. Extrae información adicional que no hayas visto antes (situación actual, descripción, tablas, impacto). Devuelve requirements con UN SOLO objeto enriquecido o requirements:[] si no hay info nueva.`;
-  return `Eres experto en documentación de requerimientos sanitarios (GAIA/SIA). ${instruccion} ${metaLine}
+    : `Este es el fragmento ${chunkIdx+1}/${totalChunks} del mismo requerimiento. Extrae información adicional (situación actual, descripción, tablas funcionales, impacto). Devuelve UN SOLO objeto enriquecido o requirements:[] si no hay info nueva.`;
+  return `Eres experto en documentación de requerimientos sanitarios (GAIA/SIA) para equipos de soporte CAU. ${instruccion} ${metaLine}
+
+IMPORTANTE — Incluir SOLO información funcional orientada al usuario y al soporte:
+- Qué cambia para el usuario final (médico, enfermería, farmacia, paciente)
+- Cómo afecta al flujo de trabajo clínico
+- Perfiles y permisos funcionales (quién puede hacer qué)
+- Casos de uso y comportamiento según perfil
+- Impacto visible en producción
+
+EXCLUIR completamente (no mencionar):
+- Nombres de variables de configuración técnicas, parámetros de BBDD
+- Endpoints de servicios REST/SOAP, URLs técnicas
+- Nombres de vistas SQL, tablas de BBDD, DTOs, clases Java
+- Diagramas de clases, estructuras de ficheros JS
+- Detalles de integración técnica entre sistemas
+
+Para las tablas: incluir SOLO tablas funcionales (perfiles/permisos, casos de uso, flujos de usuario). Excluir tablas técnicas de BBDD, parámetros de configuración, estructuras de servicios.
+
 IMPORTANTE: Responde ÚNICAMENTE con JSON válido, sin texto previo ni bloques markdown.
-{"meta":{"title":"","version":"","app":""},"requirements":[{"id":"REQ-01","title":"título descriptivo del requerimiento","resumen":"resumen ejecutivo completo orientado a soporte CAU — puede ser varios párrafos si la funcionalidad es compleja. Explica qué cambia, para qué sirve, cómo afecta al usuario y qué debe saber el equipo de soporte","situacion_actual":"descripción de la situación previa al cambio","descripcion":"descripción técnica y funcional completa del cambio implementado","tablas":[{"titulo":"","cabeceras":[],"filas":[]}],"configuracion":{"permisos":"","variables":[{"nombre":"","descripcion":""}]},"impacto_produccion":""}]}
+{"meta":{"title":"","version":"","app":""},"requirements":[{"id":"REQ-01","title":"título descriptivo sin corchetes técnicos","resumen":"resumen ejecutivo orientado a soporte CAU — explica qué cambia funcionalmente, para qué sirve, cómo afecta al usuario y qué debe saber el equipo de soporte. Puede ser varios párrafos si la funcionalidad es compleja","situacion_actual":"descripción funcional de la situación previa al cambio","descripcion":"descripción funcional completa del cambio para el usuario final","tablas":[{"titulo":"","cabeceras":[],"filas":[]}],"configuracion":{"permisos":"descripción funcional de permisos por perfil, o vacío","variables":[]},"impacto_produccion":"impacto visible en producción para usuarios y soporte"}]}
 FRAGMENTO ${chunkIdx+1}/${totalChunks}:
-${chunk.slice(0, 7000)}`;
-}
+${chunk.slice(0, 7000)}`;}
 
 function buildPromptSummary(chunk, chunkIdx, totalChunks) {
   const isFirst = chunkIdx === 0;
   const metaLine = isFirst ? 'Extrae también el meta (title,version,app).' : 'Para "meta" devuelve campos vacíos.';
-  return `Eres experto en documentación de despliegues sanitarios (GAIA/SIA). Extrae TODOS los requerimientos del fragmento ${chunkIdx+1}/${totalChunks}. ${metaLine}
+  return `Eres experto en documentación de despliegues sanitarios (GAIA/SIA) para equipos de soporte CAU. Extrae TODOS los requerimientos del fragmento ${chunkIdx+1}/${totalChunks}. ${metaLine}
+
+IMPORTANTE — Incluir SOLO información funcional orientada al usuario y al soporte:
+- Qué cambia para el usuario final, cómo afecta al flujo de trabajo clínico
+- Perfiles y permisos funcionales, casos de uso, comportamiento según perfil
+
+EXCLUIR completamente: variables técnicas de configuración, endpoints, tablas BBDD, DTOs, clases Java, URLs técnicas.
+
 IMPORTANTE: Responde ÚNICAMENTE con JSON válido, sin texto previo ni bloques markdown.
-{"meta":{"title":"","version":"","app":""},"requirements":[{"id":"REQ-XX","title":"título corto","resumen":"resumen ejecutivo 3-5 líneas para soporte CAU: qué cambia, dónde, impacto","situacion_actual":"situación previa","descripcion":"descripción del cambio","tablas":[{"titulo":"","cabeceras":[],"filas":[]}],"configuracion":{"permisos":"","variables":[{"nombre":"","descripcion":""}]},"impacto_produccion":""}]}
+{"meta":{"title":"","version":"","app":""},"requirements":[{"id":"REQ-XX","title":"título sin corchetes técnicos","resumen":"resumen ejecutivo 3-5 líneas funcionales para soporte CAU","situacion_actual":"situación previa funcional","descripcion":"descripción funcional del cambio","tablas":[{"titulo":"","cabeceras":[],"filas":[]}],"configuracion":{"permisos":"permisos funcionales por perfil","variables":[]},"impacto_produccion":"impacto visible en producción"}]}
 Si no hay requerimientos completos devuelve requirements:[].
 FRAGMENTO:
-${chunk.slice(0, 7000)}`;
-}
+${chunk.slice(0, 7000)}`;}
+
 
 async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
@@ -809,6 +879,129 @@ async function submitAll(){
   }
 }
 
+// ── Edit deployment ──
+let editDep = null;
+
+async function openEdit(depId) {
+  // Fetch full deployment data
+  const resp = await fetch('/api/deployments?full=1');
+  const data = await resp.json();
+  editDep = (data.deployments || []).find(d => d.id === depId);
+  if (!editDep) return;
+
+  document.getElementById('em-title').textContent = `Editar · ${editDep.app} ${editDep.version}`;
+  document.getElementById('edit-modal').className = 'on';
+  renderEditModal();
+}
+
+function closeEdit() {
+  document.getElementById('edit-modal').className = '';
+  editDep = null;
+}
+
+function renderEditModal() {
+  if (!editDep) return;
+  const reqs = editDep.requirements || [];
+  let html = '<div class="em-section"><div class="em-section-title">Requerimientos (' + reqs.length + ')</div>';
+
+  reqs.forEach((r, idx) => {
+    const imgs = (r.images || []).filter(Boolean);
+    const imgHtml = imgs.length ? imgs.map((url, iIdx) =>
+      '<div class="em-img-wrap">' +
+        '<img src="' + url + '" loading="lazy">' +
+        '<button class="em-img-del" title="Eliminar imagen" onclick="deleteImage(\'' + editDep.id + '\',' + idx + ',\'' + url.replace(/'/g,"\\'") + '\')" >&#215;</button>' +
+      '</div>'
+    ).join('') : '<span style="font-size:12px;color:var(--text3)">Sin imágenes</span>';
+
+    html += '<div class="em-req-header" onclick="toggleReqPanel(' + idx + ')">' +
+      '<span class="em-req-id">' + r.id + '</span>' +
+      '<span class="em-req-title">' + (r.title || '') + '</span>' +
+      (r.component ? '<span class="em-req-comp">' + r.component + '</span>' : '') +
+      '</div>' +
+      '<div class="em-req-panel" id="emp-' + idx + '">' +
+        '<div class="em-field"><label>Título</label>' +
+          '<input type="text" id="ef-title-' + idx + '" value="' + (r.title || '').replace(/"/g,'&quot;') + '"></div>' +
+        '<div class="em-field"><label>Resumen CAU</label>' +
+          '<textarea id="ef-resumen-' + idx + '" rows="4">' + (r.resumen || '') + '</textarea></div>' +
+        '<div class="em-field"><label>Situación actual</label>' +
+          '<textarea id="ef-situacion-' + idx + '" rows="3">' + (r.situacion_actual || '') + '</textarea></div>' +
+        '<div class="em-field"><label>Descripción del cambio</label>' +
+          '<textarea id="ef-descripcion-' + idx + '" rows="5">' + (r.descripcion || '') + '</textarea></div>' +
+        '<div class="em-field"><label>Impacto en producción</label>' +
+          '<textarea id="ef-impacto-' + idx + '" rows="2">' + (r.impacto_produccion || '') + '</textarea></div>' +
+        '<div class="em-field"><label>Imágenes (' + imgs.length + ')</label>' +
+          '<div class="em-img-grid">' + imgHtml + '</div></div>' +
+        '<div style="display:flex;align-items:center">' +
+          '<button class="em-save-btn" onclick="saveReq(\'' + editDep.id + '\',' + idx + ',this)">&#10003; Guardar cambios</button>' +
+          '<span class="em-save-status" id="ess-' + idx + '"></span>' +
+        '</div>' +
+      '</div>';
+  });
+
+  html += '</div>';
+  document.getElementById('em-body').innerHTML = html;
+}
+
+function toggleReqPanel(idx) {
+  const panel = document.getElementById('emp-' + idx);
+  if (panel) panel.classList.toggle('open');
+}
+
+async function saveReq(depId, reqIdx, btn) {
+  btn.disabled = true;
+  const fields = {
+    title: document.getElementById('ef-title-' + reqIdx)?.value || '',
+    resumen: document.getElementById('ef-resumen-' + reqIdx)?.value || '',
+    situacion_actual: document.getElementById('ef-situacion-' + reqIdx)?.value || '',
+    descripcion: document.getElementById('ef-descripcion-' + reqIdx)?.value || '',
+    impacto_produccion: document.getElementById('ef-impacto-' + reqIdx)?.value || ''
+  };
+  try {
+    const resp = await fetch('/api/edit', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'edit_req', depId, reqIdx, fields })
+    });
+    const result = await resp.json();
+    const status = document.getElementById('ess-' + reqIdx);
+    if (resp.ok && result.ok) {
+      status.textContent = '&#10003; Guardado';
+      status.style.color = 'var(--green)';
+      // Update local copy
+      if (editDep && editDep.requirements[reqIdx]) {
+        Object.assign(editDep.requirements[reqIdx], fields);
+      }
+    } else {
+      status.textContent = 'Error: ' + (result.error || 'desconocido');
+      status.style.color = 'var(--red)';
+    }
+    setTimeout(() => { if(status) status.textContent = ''; }, 3000);
+  } catch(e) {
+    console.error('saveReq error:', e);
+  }
+  btn.disabled = false;
+}
+
+async function deleteImage(depId, reqIdx, imageUrl) {
+  if (!confirm('¿Eliminar esta imagen? Se borrará de Cloudinary.')) return;
+  try {
+    const resp = await fetch('/api/edit', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete_image', depId, reqIdx, imageUrl })
+    });
+    const result = await resp.json();
+    if (resp.ok && result.ok) {
+      if (editDep && editDep.requirements[reqIdx]) {
+        editDep.requirements[reqIdx].images = (editDep.requirements[reqIdx].images || []).filter(u => u !== imageUrl);
+      }
+      renderEditModal();
+    } else {
+      alert('Error al eliminar imagen: ' + (result.error || 'desconocido'));
+    }
+  } catch(e) {
+    alert('Error: ' + e.message);
+  }
+}
+
 // ── Deployment list ──
 async function loadDeployments(){
   const list=document.getElementById('dep-list');
@@ -819,11 +1012,14 @@ async function loadDeployments(){
     if(!deps.length){list.innerHTML='<div class="dep-empty">No hay despliegues publicados.</div>';return;}
     list.innerHTML=deps.map(d=>`
       <div class="dep-card">
-        <button class="dc-del" onclick="confirmDelete('${d.id}','${d.app} ${d.version}')">🗑 Borrar</button>
         <div class="dc-app">${d.app}</div>
         <div class="dc-version">${d.version}</div>
         <div class="dc-meta">${d.author} · ${d.date} · ${d.reqCount} requerimientos</div>
         <div class="dc-files">${(d.files||[]).join(', ')}</div>
+        <div class="dc-actions">
+          <button class="dc-btn edit" onclick="openEdit('${d.id}')">&#9998; Editar</button>
+          <button class="dc-btn del" onclick="confirmDelete('${d.id}','${d.app} ${d.version}')">&#128465; Borrar</button>
+        </div>
       </div>`).join('');
   }catch(e){list.innerHTML=`<div class="dep-empty">Error cargando: ${e.message}</div>`;}
 }

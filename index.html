@@ -99,12 +99,13 @@ table.dt tr:hover td{background:var(--surface2);}
 .gallery-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
 .gallery-thumb{width:120px;height:80px;border-radius:var(--radius);border:1px solid var(--border2);object-fit:cover;cursor:pointer;transition:transform 0.15s,border-color 0.15s;background:var(--surface2);}
 .gallery-thumb:hover{transform:scale(1.04);border-color:var(--accent);}
-.nav-footer{display:flex;gap:10px;margin-top:32px;padding-top:20px;border-top:1px solid var(--border);}
-.nav-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;font-size:13px;font-family:var(--font);cursor:pointer;color:var(--text2);border:1px solid var(--border2);background:var(--surface);border-radius:var(--radius);transition:background 0.15s;max-width:48%;overflow:hidden;}
+/* nav top */
+.nav-top{display:flex;gap:8px;margin-bottom:20px;}
+.nav-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;font-size:12px;font-family:var(--font);cursor:pointer;color:var(--text2);border:1px solid var(--border2);background:var(--surface);border-radius:var(--radius);transition:background 0.15s;max-width:44%;overflow:hidden;}
 .nav-btn:hover:not([disabled]){background:var(--surface2);}
 .nav-btn[disabled]{opacity:0.35;cursor:default;pointer-events:none;}
 .nav-btn.next{margin-left:auto;justify-content:flex-end;}
-.nav-btn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nav-btn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;}
 #lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:100;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
 #lightbox.on{display:flex;}
 #lb-img{max-width:90vw;max-height:80vh;border-radius:var(--radius);object-fit:contain;}
@@ -303,7 +304,7 @@ function renderSidebar(filter) {
       var dateHtml = r.req_date ? '<div class="ri-date">' + r.req_date + '</div>' : '';
       itemsHtml += '<div class="req-item' + active + '" id="ritem-' + r._idx + '" onclick="selectReq(' + r._idx + ')">' +
         '<div class="ri-id">' + r.id + '</div>' +
-        '<div class="ri-name">' + r.title + '</div>' +
+        '<div class="ri-name">' + esc(cleanTitle(r.title)) + '</div>' +
         dateHtml +
         '</div>';
     });
@@ -329,6 +330,11 @@ function toggleGroup(header) {
   items.classList.toggle('open', !open);
 }
 
+function cleanTitle(title) {
+  // Remove bracket prefixes: [GVMEGAIA-27207] GAIA-523 [MPRE3] → real title
+  return (title || '').replace(/^(\[[^\]]*\]\s*)+(GAIA-\d+\s*|SIA-\d+\s*)?/i, '').trim() || title || '';
+}
+
 function selectReq(idx) {
   currentIdx = idx;
   document.querySelectorAll('.req-item').forEach(function(el){ el.classList.remove('active'); });
@@ -339,11 +345,27 @@ function selectReq(idx) {
   var panel = document.getElementById('content');
   panel.className = '';
   var comp = r.component || 'Sin componente';
+  var displayTitle = cleanTitle(r.title);
+
+  // Nav — contextual within component (at TOP)
+  var compReqs = currentReqs.filter(function(x){ return (x.component || 'Sin componente') === comp; });
+  var pos = compReqs.findIndex(function(x){ return x._idx === idx; });
+  var prev = compReqs[pos - 1], next = compReqs[pos + 1];
+  var prevLabel = prev ? (cleanTitle(prev.title)) : 'Anterior';
+  var nextLabel = next ? (cleanTitle(next.title)) : 'Siguiente';
 
   var html = '<div class="ci">';
+  // Nav top
+  html += '<div class="nav-top">' +
+    '<button class="nav-btn"' + (prev ? '' : ' disabled') + ' onclick="selectReq(' + (prev ? prev._idx : -1) + ')">' +
+      '&#8592; <span>' + esc(prevLabel) + '</span></button>' +
+    '<button class="nav-btn next"' + (next ? '' : ' disabled') + ' onclick="selectReq(' + (next ? next._idx : -1) + ')">' +
+      '<span>' + esc(nextLabel) + '</span> &#8594;</button>' +
+    '</div>';
+
   // Header
   var dateTagHtml = r.req_date ? '<span class="date-tag">&#128197; ' + r.req_date + '</span>' : '';
-  html += '<div class="dh"><div class="dh-id">' + r.id + '</div><div class="dh-title">' + esc(r.title) + '</div>' +
+  html += '<div class="dh"><div class="dh-id">' + r.id + '</div><div class="dh-title">' + esc(displayTitle) + '</div>' +
     '<div class="dh-tags"><span class="comp-tag">' + esc(comp) + '</span>' + dateTagHtml + '</div></div>';
 
   // Resumen
@@ -390,19 +412,6 @@ function selectReq(idx) {
     }).join('');
     html += mkSec('&#128444;', 'Capturas (' + imgs.length + ')', '<div class="gallery-strip">' + thumbs + '</div>');
   }
-
-  // Nav — contextual within component
-  var compReqs = currentReqs.filter(function(x){ return (x.component || 'Sin componente') === comp; });
-  var pos = compReqs.findIndex(function(x){ return x._idx === idx; });
-  var prev = compReqs[pos - 1], next = compReqs[pos + 1];
-  var prevLabel = prev ? (prev.id + ' \u2014 ' + trunc(prev.title, 26)) : 'Anterior';
-  var nextLabel = next ? (trunc(next.title, 26) + ' \u2014 ' + next.id) : 'Siguiente';
-  html += '<div class="nav-footer">' +
-    '<button class="nav-btn"' + (prev ? '' : ' disabled') + ' onclick="selectReq(' + (prev ? prev._idx : -1) + ')">' +
-      '&#8592; <span>' + esc(prevLabel) + '</span></button>' +
-    '<button class="nav-btn next"' + (next ? '' : ' disabled') + ' onclick="selectReq(' + (next ? next._idx : -1) + ')">' +
-      '<span>' + esc(nextLabel) + '</span> &#8594;</button>' +
-    '</div>';
 
   html += '</div>';
   panel.innerHTML = html;
