@@ -1,3 +1,1106 @@
 {
-  "deployments": []
+  "deployments": [
+    {
+      "id": "dep_1780561968818",
+      "app": "GAIA",
+      "version": "GAIA E4.2.4",
+      "date": "2026-06-04",
+      "author": "David Gil",
+      "files": [
+        "[GAIA][2023-29] GAIA-523 - [GVMEGAIA-27207] [MPRE3] Citas de SIA en avisos cronicos _v3.docx"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "[GVMEGAIA-27207] GAIA-523 [MPRE3] Citas de SIA en avisos crónicos",
+          "resumen": "Se implementa una mejora en la herramienta de tratamientos crónicos próximos a su vencimiento para incluir información de citas programadas del paciente en SIA. Esta funcionalidad permite a médicos de primaria, enfermería y otros profesionales sanitarios visualizar simultáneamente los tratamientos crónicos próximos a vencer y las citas médicas o de enfermería asociadas al paciente. El cambio afecta la visualización en avisos crónicos en la APP GVA+Salut y en la herramienta de utilidades de prescripción. El equipo de soporte debe conocer que la funcionalidad se activa mediante variable de configuración exclusiva para determinadas SIPs, que existen diferentes flujos según si el paciente tiene cita médica, de enfermería o ninguna, y que se envían notificaciones y SMS diferenciados según el tipo de profesional y cita asociada.",
+          "situacion_actual": "Actualmente, la herramienta de tratamientos crónicos próximos a su vencimiento (accesible desde Utilidades de prescripción) permite al médico de primaria localizar pacientes de su cupo con tratamientos crónicos próximos a vencer (dentro de 60 días configurables). La herramienta proporciona filtros como 'Cupo del médico', 'Cupos del centro', 'Cupos por centro del departamento' y 'Cupos del departamento'. Sin embargo, no incluye información sobre citas programadas del paciente en SIA, lo que limita la información disponible para la toma de decisiones clínicas.",
+          "descripcion": "Se implementa la integración de información de citas de SIA en la herramienta de avisos de tratamientos crónicos próximos a su vencimiento. La funcionalidad permite: 1) Listar en RELE (Registro de Elemento) sin cita, 2) Listar en RELE pacientes con cita médica, 3) Listar en RELE pacientes con cita de enfermería. Se crean múltiples casos de uso que incluyen notificaciones y envío de SMS diferenciados según el tipo de cita (médica, enfermería o UFPE). Se implementan notificaciones en la APP GVA+Salut alertando al paciente sobre tratamientos crónicos próximos a vencer con información contextuada sobre la existencia de citas. Se añade funcionalidad de revisión de tratamientos crónicos y citas para enfermería, farmacia/servicios centrales y médicos. La información de citas se obtiene integrando datos de SIA con los tratamientos crónicos del paciente, permitiendo una vista consolidada. Se introduce una nueva variable de configuración para activar esta funcionalidad exclusivamente para una lista específica de SIPs, asegurando un despliegue gradual y controlado.\nSe desarrolla módulo de gestión de tratamientos crónicos próximos a vencimiento con las siguientes funcionalidades: (1) Identificación automática de tratamientos crónicos mediante cláusula SQL que evalúa tipotratamiento='C' o duración >= POSOL_DIAS_CRONICO y fecha fin < fecha actual + margenDiasVencimiento; (2) Listado de pacientes agrupados por CUPO mostrando titular del CUPO; (3) Para cada paciente: opción 'Ver tratamientos' en ruleta que visualiza fecha inicio/fin, código diagnóstico, descripción y tasa adhesión con tooltip informativo; (4) Opción 'Historia clínica' en modo edición para usuarios autorizados en gestor de seguridad, mostrando alerta de tratamientos próximos a vencimiento y permitiendo prolongar crónicos; (5) Filtro 'Crónicos' para visualizar tratamientos crónicos vigentes en rango de fechas (solo CUPO del usuario logado); (6) Herramienta para coordinador médico: radio botón 'Cupos del centro' con permiso específico (Tratamientos crónicos-Cupos del centro) en gestor de seguridad, listando pacientes agrupados por CUPO con datos del titular obtenidos por NIF; (7) Opción 'Marcar como revisado' para perfiles enfermería y médico (visible cuando CRONICOS_DIAS_REVISION>0): al marcar enfermería, paciente desaparece de lista enfermería durante X días pero permanece en lista médico; al marcar médico, desaparece de lista médico pero permanece en enfermería; (8) Checkbox 'El paciente no recibirá alerta para solicitar cita' que suprime notificaciones SMS/App cuando fecha máxima revisión > hoy y checkbox marcado; (9) Filtro para visualizar pacientes revisados con opción 'Marcar como no revisado'; (10) Notificación automática en APP GVA+Salut para pacientes con tratamientos próximos a vencimiento (proceso programable en GAIAWS) alertando para solicitar cita renovación, sin requerer app abierta; (11) Integración con FIREBASE registrado en SIAREST.\nSe implementa un sistema de notificaciones programadas en GAIAWS que se ejecuta diariamente a hora configurable. El sistema localiza pacientes con tratamientos próximos a vencer según criterios establecidos e invoca dos flujos paralelos: (1) Flujo Push: GAIAWS invoca WS en SIAREST que envía notificaciones a todos los dispositivos del usuario cuyo registro sea válido y último acceso esté entre 0 y 120 días (configurable). Las notificaciones se envían en idioma del último acceso del usuario, se añaden a la cola de notificaciones de otras aplicaciones instaladas, y permiten al usuario gestionar preferencias (continuar/silenciar) mediante opciones contextuales al deslizar. (2) Flujo SMS: GAIAWS invoca RHAPSODY para enviar SMS a teléfono móvil extraído de campos USU_TEL1, USU_TEL2, USU_TEL3 de tabla US_SIP.TA_USU_SIA (se selecciona primer campo no nulo que inicie con 6 o 7). Ambos flujos incluyen plazo configurable entre notificaciones a un mismo paciente y tablas de auditoría. En app GVA+Salut se añade aviso visual con título 'Próximo a su vencimiento' y texto descriptivo del tratamiento. En RELE se añade alerta (código 31) visible al invocar ListarDispensaciones cuando fecha fin tratamiento < fecha última receta + RELE.TRAT_CRON_VENCIMIENTO_DIAS (30 días por defecto).\nSe implementa la obtención de citas pendientes del paciente desde la vista US_SIA.CITAPENDGAIA, que integra citas de primaria, especializada y enfermería. En la pantalla de crónicos se añade una columna Cita desglosada en tres subcolumnas (primaria, especializada, enfermería) que muestra un icono cuando el paciente tiene cita. Al posicionar el cursor sobre el icono se despliega un tooltip con: fecha y hora, tipo (PRESENCIAL, TELEFONICA, VIDEOCONSULTA, DOMICILIO, NO PRESENCIAL), localización, nivel (primaria o especializada) y servicio. Las citas aparecen también en la pantalla de confirmación de revisión del paciente. La lógica de envío de notificaciones opera según estos criterios: (1) Tratamientos crónicos de enfermería sin cita → envía SMS/notificación; con cita → no envía. (2) Tratamientos crónicos no enfermería/UFPE sin cita médica → envía; con cita médica → no envía. (3) Tratamientos UFPE sin cita especializada → envía; con cita especializada → no envía. Se aplica margen configurable entre fecha de cita y vencimiento de tratamiento.\nSe desarrolla un sistema de avisos y notificaciones en dos módulos:\n\n1. MÓDULO RELE (Oficina de Farmacia):\n- Al listar dispensaciones en RELE, se evalúa si la fecha de fin del tratamiento es anterior a (fecha de receta del último envase + 30 días)\n- Se aplica lógica condicional basada en tipo de tratamiento y existencia de cita:\n  * Tratamientos de enfermería: Se verifica si hay cita médica de primaria o cita de enfermería\n  * Tratamientos no de enfermería: Se verifica si hay cita de especializada o cita médica de primaria\n- Se muestra aviso solo si NO hay cita programada antes del vencimiento\n- Se aplica margen configurable entre fecha de cita y vencimiento\n\n2. MÓDULO APP GVA+Salut (Paciente):\n- En el listado de tratamientos de Farmacia: El tratamiento próximo a vencimiento aparece marcado con un aviso visual\n- En el detalle del tratamiento: Se muestra aviso con título 'Próximo a su vencimiento' y texto 'Tratamiento crónico próximo a su fecha vencimiento'\n- Este aviso se muestra independientemente de si el paciente tiene cita\n- Se genera notificación push automática mediante tarea en GAIAWS para pacientes sin cita y con tratamientos próximos a vencer\n\nCriterio de activación: Fecha de fin de tratamiento < (Fecha de receta último envase + RELE.TRAT_CRON_VENCIMIENTO_DIAS)\nSe implementa un sistema de detección y notificación automática en GAIAWS que identifica tratamientos crónicos próximos a vencer y envía alertas a través de dos canales: (1) Notificaciones push via SIAREST para pacientes con APP instalada, (2) SMS via RHAPSODY para pacientes con teléfono informado en SIP. El sistema diferencia entre tres tipos de tratamientos: enfermería (CU5,CU6,CU10), médico/primaria-especializada (CU7,CU11) y UFPE (CU8). La lógica de envío incluye excepciones: NO notificar si existe cita previa al vencimiento, NO reenviar si ya se notificó dentro del plazo establecido. Cada notificación/SMS se registra en tabla de auditoría para control de duplicados. Mensaje SMS estándar: 'Su tratamiento crónico está próximo a su vencimiento: solicite cita con el profesional médico para prolongar la prescripción de sus tratamientos.'\nSe implementa un sistema de gestión integrada de tratamientos crónicos y citas que: (1) Previene el envío de SMS de alerta cuando el paciente tiene una cita médica de especializada programada antes del vencimiento del tratamiento crónico. (2) Proporciona una pantalla centralizada en MPRE3 (Utilidades de Prescripción > Tratamientos crónicos) accesible a Enfermería, Farmacia, Servicios Centrales y Médicos. (3) Implementa la variable de configuración CRONICOS_DIAS_REVISION (valor por defecto 30 días) que controla la visibilidad de la opción 'Marcar como revisado' - si el valor es negativo o igual a 0, la opción no aparece. (4) Aplica filtros 'Crónicos próximos a su vencimiento' que muestran solo tratamientos prescribibles por el perfil del usuario. (5) Muestra información de citas pendientes del paciente de SIA en diferentes formatos según el perfil: Enfermería y Médicos ven el mensaje de confirmación con citas al marcar como revisado; Farmacia/SC ven un tooltip con la cita más cercana. (6) Permite marcar pacientes como revisados, desapareciendo del listado de trabajo. (7) Incluye checkbox 'El paciente no recibirá una alerta (SMS/App GVASALUT) para que solicite cita por renovación de tratamiento' visible en la confirmación.\nSe desarrolla una funcionalidad de alertas de vencimiento de tratamientos crónicos mediante dos integraciones: 1) Servicio SMSSERV vía Rhapsody (POST a https://rhap2.san.gva.es:59712/servicioSMS en producción) para envío de SMS a dispositivos móviles; 2) Servicio SIAREST de notificaciones PUSH (SOAP a https://svsiscv.san.gva.es/sia-rest/soap/notificaciones en producción) para envío a APP GVA+Salut. Se crea vista us_sia.vw_citapendgaia en SIA con permisos para ROGAIAOP_OPER, ROMPRE_ADM, ROGAIAWS_ADM, RORELE_ADM. Las notificaciones PUSH se envían en idioma configurado por el usuario y únicamente a dispositivos cuyo último acceso sea menor a 120 días (variable sam.ws.notipush.max.dias.envio=120). El flujo valida activación del servicio web, cumplimiento WSDL, código de notificación en tabla maestra y filtrado de dispositivos válidos. Se añade nuevo DTO CitaPaciente.js para gestionar citas de pacientes. Médico tiene visibilidad de citas médicas y de enfermería ordenadas por fecha/hora, información crítica para decidir si marcar el check 'El paciente no recibirá una alerta'.\nSe crean 5 nuevas variables de configuración en la tabla US_BDMA.CONFPROPERTIES:\n\n1. SERVICIOS_DESCARTADOS_CITAS: Lista de códigos de servicio (ej: TSO,ACL) que se excluyen al buscar citas del paciente.\n\n2. CRONICOS_MARGEN_MSG_CITA: Número de días de margen para determinar si se envía notificación al paciente aunque tenga cita programada. Valor por defecto: 1 día.\n\n3. CRONICOS_DIAS_CITAS_FUTURAS: Número de días en el futuro para recuperar citas de pacientes. Requiere reinicio. Valor por defecto: 365 días. Versión: 05.04.02.\n\n4. GAIAWS.TRATAMIENTO_CRONICO_FILTRO_SIP: Filtro por SIP para envío de mensajes crónicos a APP y SMS. Valores: 'S'=enviar a todos, otro valor=lista específica de SIP. Versión GAIAWS 03.04.01.\n\n5. GAIAWS.TRATAMIENTO_CRONICO_FILTRO_SMS_SIP: Filtro específico por SIP para envío por SMS. Valores: 'S'=enviar a todos, 'N'=no enviar a ninguno, otro valor=lista específica de SIP. Versión GAIAWS 03.04.01.\nSe desarrolla mecanismo automático que ejecuta proceso GAIAWS para: 1) Identificar pacientes con tratamientos crónicos próximos a vencimiento sin cita médica/enfermería programada antes de esa fecha; 2) Enviar notificación push en APP GVA+Salut con mensaje 'Tratamiento crónico próximo a su vencimiento: solicite cita con el profesional médico para prolongar prescripción'; 3) Enviar SMS a teléfono registrado en SIP con mensaje 'Su tratamiento crónico está próximo a su vencimiento: solicite cita con el profesional médico para prolongar la prescripción de sus tratamientos'; 4) Registrar todos los envíos en tabla de auditoría; 5) Implementar control de frecuencia para evitar múltiples SMS en cortos plazos. Lógica condicional: notificación se GENERA solo si paciente sin cita; NO se genera si paciente tiene cita anterior al vencimiento del primer tratamiento.\nSe implementa un módulo de revisión de tratamientos crónicos con las siguientes características: (1) Variable de configuración CRONICOS_DIAS_REVISION=30 que define el rango de días previos al vencimiento para mostrar tratamientos como 'próximos a vencimiento'. (2) Pantalla de Utilidades de Prescripción con filtro 'Crónicos próximos a su vencimiento' activado por defecto. (3) Diferenciación de roles con permisos específicos: Enfermería (solo 'Marcar como revisado'), Farmacia/SC (opciones múltiples sin restricción), Médico (opciones múltiples). (4) Integración con SIA para visualizar citas pendientes asociadas a cada paciente. (5) Tooltip informativo que muestra la cita más cercana al paciente. (6) Proceso GAIAWS que envía SMS a través de RHAPSODY con mensaje: 'Su tratamiento crónico está próximo a su vencimiento: solicite cita con el profesional médico para prolongar la prescripción de sus tratamientos.' (7) Búsqueda de pacientes con ruleta de acciones contextual según perfil.",
+          "tablas": [
+            {
+              "titulo": "Vistas y tablas de datos utilizadas",
+              "cabeceras": [
+                "Vista/Tabla",
+                "Campo",
+                "Descripción"
+              ],
+              "filas": [
+                [
+                  "US_SIP.VTA_USU_SIA",
+                  "USU_CODI",
+                  "SIP del paciente"
+                ],
+                [
+                  "US_SIP.VTA_USU_SIA",
+                  "CLM_CODI",
+                  "Clave médica del paciente"
+                ],
+                [
+                  "US_BDMA.CPA",
+                  "-",
+                  "Tabla que permite obtener la clave médica asociada a un CPA"
+                ],
+                [
+                  "US_BDMA.VW_SIP_CLC",
+                  "CEN_CODI",
+                  "Código del centro para filtrar claves médicas"
+                ],
+                [
+                  "US_BDMA.VW_SIP_CLM",
+                  "-",
+                  "Vista para obtener NIF del titular del CUPO"
+                ],
+                [
+                  "US_BDMA.VW_SIP_PRO_NSIP",
+                  "-",
+                  "Vista para obtener nombres y apellidos de profesionales"
+                ]
+              ]
+            },
+            {
+              "titulo": "Filtros disponibles en la herramienta de tratamientos crónicos",
+              "cabeceras": [
+                "Filtro",
+                "Descripción",
+                "Accesibilidad"
+              ],
+              "filas": [
+                [
+                  "Crónicos próximos a su vencimiento",
+                  "Localiza pacientes con tratamientos próximos a vencer (fecha fin < fecha actual + MPRE3.TRAT_CRON_VENCIMIENTO_DIAS)",
+                  "Todos los usuarios"
+                ],
+                [
+                  "Crónicos",
+                  "Localiza pacientes con tratamientos crónicos activos",
+                  "Todos los usuarios"
+                ],
+                [
+                  "Cupo del médico",
+                  "Pacientes del CUPO asociado al CPA del usuario logado",
+                  "Todos los usuarios"
+                ],
+                [
+                  "Cupos del centro",
+                  "Pacientes de CUPOS del centro del usuario logado",
+                  "Configurable (gestor de seguridad)"
+                ],
+                [
+                  "Cupos por centro del departamento",
+                  "Pacientes de CUPOS del centro elegido en desplegable",
+                  "Configurable (gestor de seguridad)"
+                ],
+                [
+                  "Cupos del departamento",
+                  "Pacientes de CUPOS de zona o centro elegidos",
+                  "Configurable"
+                ]
+              ]
+            },
+            {
+              "titulo": "Criterio de identificación de tratamientos crónicos próximos a vencimiento",
+              "cabeceras": [
+                "Condición",
+                "Descripción",
+                "Parámetro de configuración"
+              ],
+              "filas": [
+                [
+                  "Tipo de tratamiento = 'C' O duración >= días configurados",
+                  "Identifica tratamientos crónicos por tipo explícito o por duración",
+                  "POSOL_DIAS_CRONICO"
+                ],
+                [
+                  "Fecha fin tratamiento < Hoy + margen días vencimiento",
+                  "Filtra crónicos próximos a vencer dentro del margen",
+                  "margenDiasVencimiento"
+                ]
+              ]
+            },
+            {
+              "titulo": "Información mostrada en lista de tratamientos del paciente",
+              "cabeceras": [
+                "Campo",
+                "Descripción"
+              ],
+              "filas": [
+                [
+                  "Fecha inicio",
+                  "Fecha de inicio del tratamiento"
+                ],
+                [
+                  "Fecha fin",
+                  "Fecha de finalización del tratamiento"
+                ],
+                [
+                  "Código/codificador diagnóstico",
+                  "Identificador del diagnóstico asociado"
+                ],
+                [
+                  "Descripción tratamiento prescrito",
+                  "Texto descriptivo del tratamiento"
+                ],
+                [
+                  "Tasa adhesión",
+                  "Icono indicador de adhesión del paciente"
+                ]
+              ]
+            },
+            {
+              "titulo": "Comportamiento de marcado como revisado por perfil",
+              "cabeceras": [
+                "Perfil",
+                "Acción",
+                "Desaparece de lista",
+                "Permanece visible en",
+                "Duración"
+              ],
+              "filas": [
+                [
+                  "Enfermería",
+                  "Marca paciente como revisado",
+                  "Lista trabajo enfermería",
+                  "Lista trabajo médico",
+                  "CRONICOS_DIAS_REVISION días"
+                ],
+                [
+                  "Médico",
+                  "Marca paciente como revisado",
+                  "Lista trabajo médico",
+                  "Lista trabajo enfermería",
+                  "CRONICOS_DIAS_REVISION días"
+                ]
+              ]
+            },
+            {
+              "titulo": "Lógica de selección de teléfono móvil para SMS desde SIP",
+              "cabeceras": [
+                "Orden",
+                "Condición",
+                "Acción"
+              ],
+              "filas": [
+                [
+                  "1",
+                  "USU_TEL1 no nulo Y (inicia con 6 O inicia con 7)",
+                  "Usar USU_TEL1 para SMS"
+                ],
+                [
+                  "2",
+                  "USU_TEL2 no nulo Y (inicia con 6 O inicia con 7)",
+                  "Usar USU_TEL2 para SMS"
+                ],
+                [
+                  "3",
+                  "USU_TEL3 no nulo Y (inicia con 6 O inicia con 7)",
+                  "Usar USU_TEL3 para SMS"
+                ],
+                [
+                  "4",
+                  "Ninguna condición anterior cumplida",
+                  "No enviar SMS - móvil no identificado"
+                ]
+              ]
+            },
+            {
+              "titulo": "Criterios de envío de notificaciones push",
+              "cabeceras": [
+                "Parámetro",
+                "Valor por defecto",
+                "Descripción",
+                "Configurable"
+              ],
+              "filas": [
+                [
+                  "Días desde último acceso (mínimo)",
+                  "0",
+                  "Límite inferior de días desde último acceso para enviar notificación",
+                  "No especificado"
+                ],
+                [
+                  "Días desde último acceso (máximo)",
+                  "120",
+                  "Límite superior de días desde último acceso para enviar notificación",
+                  "Sí"
+                ],
+                [
+                  "Plazo entre notificaciones",
+                  "Configurable",
+                  "Intervalo mínimo entre notificaciones a un mismo paciente",
+                  "Sí"
+                ]
+              ]
+            },
+            {
+              "titulo": "Configuración de alertas en RELE",
+              "cabeceras": [
+                "Parámetro",
+                "Valor",
+                "Descripción"
+              ],
+              "filas": [
+                [
+                  "Código de alerta",
+                  "31",
+                  "Código identificador de alerta de vencimiento próximo en RELE"
+                ],
+                [
+                  "RELE.TRAT_CRON_VENCIMIENTO_DIAS",
+                  "30",
+                  "Días desde última receta para marcar tratamiento como próximo a vencer"
+                ],
+                [
+                  "Condición de activación",
+                  "fecha_fin_tratamiento < fecha_última_receta + RELE.TRAT_CRON_VENCIMIENTO_DIAS",
+                  "Trigger de visualización de alerta en ListarDispensaciones"
+                ]
+              ]
+            },
+            {
+              "titulo": "Consulta de Citas Pendientes del Paciente",
+              "cabeceras": [
+                "Campo",
+                "Descripción"
+              ],
+              "filas": [
+                [
+                  "SIP",
+                  "Identificador del paciente"
+                ],
+                [
+                  "FECHA",
+                  "Fecha de la cita"
+                ],
+                [
+                  "HORA",
+                  "Hora de la cita"
+                ],
+                [
+                  "CENTRO_CRC",
+                  "Centro CRC de la cita"
+                ],
+                [
+                  "CENTRO",
+                  "Centro sanitario"
+                ],
+                [
+                  "COD_SERVICIO",
+                  "Código del servicio"
+                ],
+                [
+                  "SERVICIO",
+                  "Nombre del servicio"
+                ],
+                [
+                  "TIPO",
+                  "Tipo de cita (PRESENCIAL, TELEFONICA, VIDEOCONSULTA, DOMICILIO, NO PRESENCIAL)"
+                ]
+              ]
+            },
+            {
+              "titulo": "Lógica de Avisos en RELE según Tipo de Tratamiento y Disponibilidad de Cita",
+              "cabeceras": [
+                "Tipo Tratamiento",
+                "Tiene Cita Válida",
+                "Aviso en RELE",
+                "Citas Validadas"
+              ],
+              "filas": [
+                [
+                  "Enfermería",
+                  "No",
+                  "Sí",
+                  "Cita médica primaria o cita enfermería"
+                ],
+                [
+                  "Enfermería",
+                  "Sí",
+                  "No",
+                  "Cita médica primaria o cita enfermería"
+                ],
+                [
+                  "No enfermería",
+                  "No",
+                  "Sí",
+                  "Cita especializada o cita médica primaria"
+                ],
+                [
+                  "No enfermería",
+                  "Sí",
+                  "No",
+                  "Cita especializada o cita médica primaria"
+                ]
+              ]
+            },
+            {
+              "titulo": "Contenido del Aviso en APP GVA+Salut",
+              "cabeceras": [
+                "Elemento",
+                "Contenido"
+              ],
+              "filas": [
+                [
+                  "Título",
+                  "Próximo a su vencimiento"
+                ],
+                [
+                  "Texto",
+                  "Tratamiento crónico próximo a su fecha vencimiento"
+                ],
+                [
+                  "Ubicación Listado",
+                  "Marca visual en tratamiento"
+                ],
+                [
+                  "Ubicación Detalle",
+                  "Aviso completo en pantalla de detalle"
+                ],
+                [
+                  "Condición Visualización",
+                  "Siempre (independiente de cita)"
+                ]
+              ]
+            },
+            {
+              "titulo": "Matriz de Casos de Uso - Notificaciones y SMS por tipo de tratamiento",
+              "cabeceras": [
+                "Caso de Uso",
+                "Tipo de Tratamiento",
+                "Canal",
+                "Precondiciones Clave",
+                "Acción Principal",
+                "Sistema Involucrado"
+              ],
+              "filas": [
+                [
+                  "CU5",
+                  "Tratamiento crónico general",
+                  "Notificación Push",
+                  "APP instalada, sin cita previa",
+                  "Envía notificación al dispositivo",
+                  "GAIAWS - SIAREST"
+                ],
+                [
+                  "CU6",
+                  "Tratamiento crónico enfermería",
+                  "Notificación Push",
+                  "APP instalada, con cita de enfermería/médica",
+                  "NO envía notificación",
+                  "GAIAWS - SIAREST"
+                ],
+                [
+                  "CU7",
+                  "Tratamiento crónico médico",
+                  "Notificación Push",
+                  "APP instalada, con cita primaria/especializada",
+                  "NO envía notificación",
+                  "GAIAWS - SIAREST"
+                ],
+                [
+                  "CU8",
+                  "Tratamiento crónico UFPE",
+                  "Notificación Push",
+                  "APP instalada, con cita especializada",
+                  "NO envía notificación",
+                  "GAIAWS - SIAREST"
+                ],
+                [
+                  "CU9",
+                  "Tratamiento crónico general",
+                  "SMS",
+                  "Teléfono en SIP, sin cita previa",
+                  "Envía SMS al dispositivo",
+                  "GAIAWS - RHAPSODY"
+                ],
+                [
+                  "CU10",
+                  "Tratamiento crónico enfermería",
+                  "SMS",
+                  "Teléfono en SIP, con cita de enfermería/médica",
+                  "NO envía SMS",
+                  "GAIAWS - RHAPSODY"
+                ],
+                [
+                  "CU11",
+                  "Tratamiento crónico médico",
+                  "SMS",
+                  "Teléfono en SIP, con cita primaria/especializada",
+                  "NO envía SMS",
+                  "GAIAWS - RHAPSODY"
+                ]
+              ]
+            },
+            {
+              "titulo": "Excepciones - Control de Duplicados",
+              "cabeceras": [
+                "Excepción",
+                "Condición",
+                "Acción",
+                "Medio de Control"
+              ],
+              "filas": [
+                [
+                  "Notificación duplicada",
+                  "Paciente ya notificado dentro del plazo establecido",
+                  "No enviar nueva notificación",
+                  "Tabla de auditoría"
+                ],
+                [
+                  "SMS duplicado",
+                  "Paciente ya recibió SMS dentro del plazo establecido",
+                  "No enviar nuevo SMS",
+                  "Tabla de auditoría"
+                ]
+              ]
+            },
+            {
+              "titulo": "Permisos y Funcionalidades por Perfil",
+              "cabeceras": [
+                "Perfil",
+                "Caso de Uso",
+                "Opción Marcar Revisado",
+                "Visibilidad de Citas",
+                "Tratamientos Visibles",
+                "Precondición Variable"
+              ],
+              "filas": [
+                [
+                  "Enfermería",
+                  "CU13",
+                  "Sí",
+                  "Todas (enfermería y médicas)",
+                  "Crónicos próximos prescribibles por Enfermería",
+                  "CRONICOS_DIAS_REVISION > 0"
+                ],
+                [
+                  "Farmacia/Servicios Centrales",
+                  "CU14",
+                  "No",
+                  "Tooltip cita más cercana",
+                  "Todos los crónicos próximos",
+                  "N/A"
+                ],
+                [
+                  "Médico",
+                  "CU15",
+                  "Sí",
+                  "Citas médicas (primaria o especializada)",
+                  "Crónicos próximos no prescribibles por Enfermería",
+                  "CRONICOS_DIAS_REVISION > 0"
+                ]
+              ]
+            },
+            {
+              "titulo": "Precondiciones por Caso de Uso",
+              "cabeceras": [
+                "Caso de Uso",
+                "Precondiciones Técnicas",
+                "Precondiciones Funcionales"
+              ],
+              "filas": [
+                [
+                  "CU12 - SMS Tratamiento Crónico UFPE",
+                  "Teléfono móvil informado en SIP; Proceso GAIAWS ejecutándose con RHAPSODY",
+                  "Solo tratamientos crónicos UFPE próximos a vencimiento; Paciente con cita médica especializada con fecha anterior al fin del primer tratamiento"
+                ],
+                [
+                  "CU13 - Enfermería",
+                  "Acceso pantalla MPRE3; Variable CRONICOS_DIAS_REVISION configurada",
+                  "Tratamiento crónico próximo prescribible por Enfermería; Citas de enfermería o médicas pendientes en SIA"
+                ],
+                [
+                  "CU14 - Farmacia/SC",
+                  "Acceso pantalla MPRE3",
+                  "Tratamiento crónico próximo a vencimiento; Citas pendientes registradas en SIA"
+                ],
+                [
+                  "CU15 - Médico",
+                  "Acceso pantalla MPRE3; Variable CRONICOS_DIAS_REVISION configurada",
+                  "Tratamiento crónico próximo no prescribible por Enfermería; Cita médica primaria o especializada pendiente en SIA"
+                ]
+              ]
+            },
+            {
+              "titulo": "Estructura Integración SMS (SMSSERV)",
+              "cabeceras": [
+                "Elemento",
+                "Descripción"
+              ],
+              "filas": [
+                [
+                  "Servicio",
+                  "SMSSERV - Envío SMS a dispositivos móviles"
+                ],
+                [
+                  "Tecnología",
+                  "POST vía Rhapsody"
+                ],
+                [
+                  "Endpoint TEST",
+                  "https://rhatest.san.gva.es:59712/servicioSMS"
+                ],
+                [
+                  "Endpoint PRODUCCIÓN",
+                  "https://rhap2.san.gva.es:59712/servicioSMS"
+                ],
+                [
+                  "Estado",
+                  "En producción"
+                ],
+                [
+                  "Puente",
+                  "Rhapsody hacia Plataforma Autonómica Interoperabilidad (PAI)"
+                ]
+              ]
+            },
+            {
+              "titulo": "Estructura Integración Notificaciones PUSH (SIAREST)",
+              "cabeceras": [
+                "Elemento",
+                "Descripción"
+              ],
+              "filas": [
+                [
+                  "Servicio",
+                  "Notificaciones PUSH a APP GVA+Salut"
+                ],
+                [
+                  "Tecnología",
+                  "SOAP"
+                ],
+                [
+                  "Endpoint TEST",
+                  "https://svsiscvtest.san.gva.es/sia-rest/soap/notificaciones"
+                ],
+                [
+                  "Endpoint PRODUCCIÓN",
+                  "https://svsiscv.san.gva.es/sia-rest/soap/notificaciones"
+                ],
+                [
+                  "Securización",
+                  "Certificados digitales X509v3 + TLSv1.1/HTTPS"
+                ],
+                [
+                  "Autenticación",
+                  "Certificados de componente del servidor"
+                ],
+                [
+                  "Estado",
+                  "Implementado en producción"
+                ],
+                [
+                  "Consumo Rhapsody",
+                  "NO"
+                ]
+              ]
+            },
+            {
+              "titulo": "Filtrado de Dispositivos para Notificaciones PUSH",
+              "cabeceras": [
+                "Criterio",
+                "Valor/Descripción"
+              ],
+              "filas": [
+                [
+                  "Registro válido",
+                  "Dispositivos registrados en BBDD SIAREST"
+                ],
+                [
+                  "Último acceso máximo",
+                  "120 días (variable: sam.ws.notipush.max.dias.envio)"
+                ],
+                [
+                  "Última aplicación accedida",
+                  "GVAMESSALUT"
+                ],
+                [
+                  "Idioma notificación",
+                  "Configurado en último acceso del usuario"
+                ]
+              ]
+            },
+            {
+              "titulo": "Flujo de Procesamiento Notificaciones",
+              "cabeceras": [
+                "Paso",
+                "Acción",
+                "Resultado Negativo"
+              ],
+              "filas": [
+                [
+                  "1",
+                  "Validar servicio web activo (variable configuración)",
+                  "Retorna KO, no prosigue"
+                ],
+                [
+                  "2",
+                  "Validar objeto entrada cumple WSDL y restricciones",
+                  "Retorna KO, no prosigue"
+                ],
+                [
+                  "3",
+                  "Validar código notificación en tabla maestra tipos",
+                  "Retorna KO, no prosigue"
+                ],
+                [
+                  "4",
+                  "Por cada SIP: obtener dispositivos válidos (último acceso < 120 días)",
+                  "Excluir dispositivo"
+                ],
+                [
+                  "5",
+                  "Enviar notificación a dispositivos válidos en idioma usuario",
+                  "Log de error"
+                ]
+              ]
+            },
+            {
+              "titulo": "Variables de Configuración Nuevas",
+              "cabeceras": [
+                "Código",
+                "Descripción",
+                "Tipo",
+                "Valor Defecto",
+                "Necesita Reinicio",
+                "Observaciones"
+              ],
+              "filas": [
+                [
+                  "SERVICIOS_DESCARTADOS_CITAS",
+                  "Códigos de servicio descartados para citas de paciente",
+                  "C",
+                  "TSO,ACL",
+                  "N",
+                  "Códigos separados por coma"
+                ],
+                [
+                  "CRONICOS_MARGEN_MSG_CITA",
+                  "Número de días de margen para decidir envío de notificación",
+                  "N",
+                  "1",
+                  "N",
+                  "Aunque el paciente tenga cita programada"
+                ],
+                [
+                  "CRONICOS_DIAS_CITAS_FUTURAS",
+                  "Días para recuperar citas futuras de pacientes",
+                  "N",
+                  "365",
+                  "S",
+                  "Propiedad privada. Versión 05.04.02"
+                ],
+                [
+                  "GAIAWS.TRATAMIENTO_CRONICO_FILTRO_SIP",
+                  "Filtro por SIP para envío crónicos APP y SMS",
+                  "S",
+                  "S",
+                  "N",
+                  "Valores: S=todos, otro=lista SIP. GAIAWS 03.04.01"
+                ],
+                [
+                  "GAIAWS.TRATAMIENTO_CRONICO_FILTRO_SMS_SIP",
+                  "Filtro por SIP para envío crónicos por SMS",
+                  "S",
+                  "N",
+                  "N",
+                  "Valores: S=todos, N=ninguno, otro=lista SIP. GAIAWS 03.04.01"
+                ]
+              ]
+            },
+            {
+              "titulo": "Dependencias y Permisos Requeridos",
+              "cabeceras": [
+                "Componente",
+                "Dependencia",
+                "Permisos",
+                "Observaciones"
+              ],
+              "filas": [
+                [
+                  "SIA",
+                  "Vista us_sia.vw_citapendgaia",
+                  "ROGAIAOP_OPER, ROMPRE_ADM, ROGAIAWS_ADM, RORELE_ADM",
+                  "Obtener datos de citas de pacientes"
+                ],
+                [
+                  "BI",
+                  "N/A",
+                  "N/A",
+                  "Sin impacto"
+                ],
+                [
+                  "ENS/ENI",
+                  "N/A",
+                  "N/A",
+                  "Sin afectación al cumplimiento"
+                ]
+              ]
+            },
+            {
+              "titulo": "Matriz de casos - Notificaciones por tipo de tratamiento",
+              "cabeceras": [
+                "Caso",
+                "Canal",
+                "Tipo tratamiento",
+                "Condición cita",
+                "Resultado esperado"
+              ],
+              "filas": [
+                [
+                  "5",
+                  "APP",
+                  "Crónico (sin especificar tipo)",
+                  "Sin cita",
+                  "Genera notificación"
+                ],
+                [
+                  "6",
+                  "APP",
+                  "Enfermería crónico",
+                  "Con cita enf./médica anterior",
+                  "NO genera notificación"
+                ],
+                [
+                  "7",
+                  "APP",
+                  "Médico (no enfermería, no UFPE)",
+                  "Con cita médica primaria/especializada anterior",
+                  "NO genera notificación"
+                ],
+                [
+                  "8",
+                  "APP",
+                  "UFPE",
+                  "Con cita especializada anterior",
+                  "NO genera notificación"
+                ],
+                [
+                  "9",
+                  "SMS",
+                  "Crónico (sin especificar tipo)",
+                  "Sin cita",
+                  "Envía SMS"
+                ],
+                [
+                  "10",
+                  "SMS",
+                  "Enfermería crónico",
+                  "Con cita enf./médica anterior",
+                  "NO envía SMS"
+                ],
+                [
+                  "11",
+                  "SMS",
+                  "Médico (no enfermería, no UFPE)",
+                  "Con cita médica primaria/especializada anterior",
+                  "NO envía SMS"
+                ],
+                [
+                  "12",
+                  "SMS",
+                  "UFPE",
+                  "Con cita especializada anterior",
+                  "NO envía SMS"
+                ]
+              ]
+            },
+            {
+              "titulo": "Precondiciones por canal",
+              "cabeceras": [
+                "Canal",
+                "Precondiciones paciente",
+                "Sistema requerido"
+              ],
+              "filas": [
+                [
+                  "APP",
+                  "Usuario APP GVA+Salut, APP instalada en dispositivo, tratamiento crónico próximo a vencimiento",
+                  "GAIAWS + SIAREST"
+                ],
+                [
+                  "SMS",
+                  "Teléfono móvil informado en SIP, tratamiento crónico próximo a vencimiento",
+                  "GAIAWS + RHAPSODY"
+                ]
+              ]
+            },
+            {
+              "titulo": "Diferenciación de Opciones por Perfil en Ruleta de Acciones",
+              "cabeceras": [
+                "Perfil",
+                "Permiso Requerido",
+                "Opciones Visibles en Ruleta",
+                "Visualiza Citas",
+                "Tooltip Cita Cercana"
+              ],
+              "filas": [
+                [
+                  "Enfermería",
+                  "Tratamientos crónicos",
+                  "Marcar como revisado",
+                  "Sí",
+                  "No"
+                ],
+                [
+                  "Farmacia/Servicios Centrales",
+                  "Tratamientos crónicos",
+                  "Múltiples opciones",
+                  "Sí",
+                  "Sí"
+                ],
+                [
+                  "Médico",
+                  "Tratamientos crónicos",
+                  "Marcar como revisado, opciones múltiples",
+                  "Sí",
+                  "No"
+                ]
+              ]
+            },
+            {
+              "titulo": "Casos de Prueba y Precondiciones",
+              "cabeceras": [
+                "Caso",
+                "Descripción",
+                "Perfil Usuario",
+                "Precondiciones Paciente",
+                "Validación Principal"
+              ],
+              "filas": [
+                [
+                  "13",
+                  "Tratamientos crónicos y citas - Enfermería",
+                  "Enfermería",
+                  "Tratamiento crónico próximo a vencimiento prescribible por Enfermería; cita pendiente",
+                  "Solo opción 'Marcar como revisado' visible en ruleta"
+                ],
+                [
+                  "14",
+                  "Tratamientos crónicos y citas - Farmacia/SC",
+                  "Farmacéutico o Servicios Centrales",
+                  "Tratamiento crónico próximo a vencimiento; citas pendientes en SIA",
+                  "Múltiples opciones visibles; tooltip con cita más cercana"
+                ],
+                [
+                  "15",
+                  "Tratamientos crónicos y citas - Médico",
+                  "Médico",
+                  "Tratamiento crónico próximo a vencimiento (no enfermería); cita médica primaria o especializada en SIA",
+                  "Opción 'Marcar como revisado' visible; información de citas mostrada"
+                ]
+              ]
+            }
+          ],
+          "configuracion": {
+            "permisos": "Los permisos se gestionan a través del gestor de seguridad para controlar acceso a: opciones de filtro 'Cupos del centro', 'Cupos por centro del departamento', y funcionalidad de citas en avisos crónicos. Se definen permisos diferenciados para médicos, enfermería, farmacia/servicios centrales y UFPE.",
+            "variables": [
+              {
+                "nombre": "MPRE3.TRAT_CRON_VENCIMIENTO_DIAS",
+                "descripcion": "Variable configurable que define el número de días para considerar un tratamiento crónico próximo a su vencimiento (valor por defecto: 60 días). Se utiliza en el cálculo: fecha fin tratamiento < fecha actual + valor de esta variable."
+              },
+              {
+                "nombre": "MPRE3.CITAS_SIA_AVISOS_CRONICOS_HABILITADO",
+                "descripcion": "Nueva variable de configuración que activa/desactiva la funcionalidad de citas de SIA en avisos crónicos exclusivamente para una lista específica de SIPs definida."
+              },
+              {
+                "nombre": "MPRE3.CITAS_SIA_AVISOS_CRONICOS_SIPS",
+                "descripcion": "Lista de SIPs para los cuales está habilitada la funcionalidad de citas de SIA en avisos crónicos. Permite un despliegue gradual y controlado de la funcionalidad."
+              },
+              {
+                "nombre": "POSOL_DIAS_CRONICO",
+                "descripcion": "Número de días de duración mínima para considerar un tratamiento como crónico"
+              },
+              {
+                "nombre": "margenDiasVencimiento",
+                "descripcion": "Número de días de margen para identificar tratamientos próximos a vencimiento (fecha fin < hoy + margen)"
+              },
+              {
+                "nombre": "CRONICOS_DIAS_REVISION",
+                "descripcion": "Número de días durante los cuales un paciente marcado como revisado no aparece en la lista de trabajo del perfil que lo marcó. Por defecto 30 días. Si es ≤0, no se muestra opción 'Marcar como revisado'"
+              },
+              {
+                "nombre": "DIAS_ULTIMO_ACCESO_MAX",
+                "descripcion": "Número máximo de días desde último acceso para enviar notificación push (valor por defecto: 120)"
+              },
+              {
+                "nombre": "PLAZO_ENTRE_NOTIFICACIONES",
+                "descripcion": "Intervalo configurable en días entre notificaciones a un mismo paciente para evitar saturación"
+              },
+              {
+                "nombre": "RELE.TRAT_CRON_VENCIMIENTO_DIAS",
+                "descripcion": "Número de días desde última receta para considerar tratamiento próximo a vencer en RELE (valor por defecto: 30)"
+              },
+              {
+                "nombre": "HORA_EJECUCION_TAREA_PROGRAMADA",
+                "descripcion": "Hora diaria de ejecución de la tarea programada en GAIAWS para notificaciones"
+              },
+              {
+                "nombre": "IDIOMA_NOTIFICACION",
+                "descripcion": "Idioma configurado por usuario en último acceso a GVA+Salut (se utiliza para título y texto de notificación)"
+              },
+              {
+                "nombre": "CRONICOS_DIAS_CITAS_FUTURAS",
+                "descripcion": "Ventana temporal en días para mostrar citas futuras. Valor por defecto: 365 días"
+              },
+              {
+                "nombre": "CRONICOS_MARGEN_MSG_CITA",
+                "descripcion": "Margen en días entre fecha de cita y fecha de vencimiento del tratamiento crónico para suprimir notificaciones. Valor por defecto: 3 días"
+              },
+              {
+                "nombre": "GAIAWS.TRATAMIENTO_CRONICO_FILTRO_SIP",
+                "descripcion": "Variable para activar funcionalidad de notificaciones exclusivamente para lista concreta de SIP de paciente"
+              },
+              {
+                "nombre": "GAIAWS.TRATAMIENTO_CRONICO_FILTRO_SMS_SIP",
+                "descripcion": "Variable para activar funcionalidad de envío SMS exclusivamente para lista concreta de SIP de paciente"
+              },
+              {
+                "nombre": "SERVICIOS_DESCARTADOS_CITAS",
+                "descripcion": "Lista de códigos de servicios separados por comas que se excluyen del proceso de citas pendientes"
+              },
+              {
+                "nombre": "RELE.TRAT_CRON_VENCIMIENTO_DIAS",
+                "descripcion": "Número de días que se suma a la fecha de receta del último envase dispensable para determinar si un tratamiento está próximo a vencimiento. Valor por defecto: 30 días. Configurable por administración."
+              },
+              {
+                "nombre": "CRONICOS_MARGEN_MSG_CITA",
+                "descripcion": "Margen en días que se suma a la fecha de fin del tratamiento para evaluar si existe una cita válida. Cuando la fecha de cita es anterior a (fecha fin tratamiento + margen), NO se muestra el aviso en RELE. Valor por defecto: 1 día. Configurable por administración."
+              },
+              {
+                "nombre": "PLAZO_NOTIFICACION",
+                "descripcion": "Período mínimo en días que debe transcurrir entre notificaciones al mismo paciente para evitar duplicados"
+              },
+              {
+                "nombre": "DIAS_ANTICIPACION_VENCIMIENTO",
+                "descripcion": "Número de días antes del vencimiento del tratamiento que dispara la notificación/SMS"
+              },
+              {
+                "nombre": "MENSAJE_SMS_STANDAR",
+                "descripcion": "'Su tratamiento crónico está próximo a su vencimiento: solicite cita con el profesional médico para prolongar la prescripción de sus tratamientos.'"
+              },
+              {
+                "nombre": "CRONICOS_DIAS_REVISION",
+                "descripcion": "Variable de configuración que define el número de días de anticipación para mostrar tratamientos crónicos próximos a vencimiento. Valor por defecto: 30 días. Si el valor es negativo o igual a 0, la opción 'Marcar como revisado' no se visualiza en la interfaz."
+              },
+              {
+                "nombre": "sam.ws.notipush.max.dias.envio",
+                "descripcion": "Número máximo de días desde último acceso del dispositivo para recibir notificación PUSH (valor: 120)"
+              },
+              {
+                "nombre": "Variable activación servicio web",
+                "descripcion": "Controla si el servicio de notificaciones PUSH está activo"
+              },
+              {
+                "nombre": "SERVICIOS_DESCARTADOS_CITAS",
+                "descripcion": "Códigos de servicio (separados por coma) que se descartan al buscar citas de pacientes. Ejemplo: TSO,ACL"
+              },
+              {
+                "nombre": "CRONICOS_MARGEN_MSG_CITA",
+                "descripcion": "Margen en días para enviar notificación aunque paciente tenga cita. Valor por defecto: 1 día"
+              },
+              {
+                "nombre": "CRONICOS_DIAS_CITAS_FUTURAS",
+                "descripcion": "Rango de días futuros para recuperar citas. Valor por defecto: 365 días. Requiere reinicio de aplicación"
+              },
+              {
+                "nombre": "GAIAWS.TRATAMIENTO_CRONICO_FILTRO_SIP",
+                "descripcion": "Controla envío a APP y SMS. 'S' para todos los SIP, otro valor para lista específica de SIP"
+              },
+              {
+                "nombre": "GAIAWS.TRATAMIENTO_CRONICO_FILTRO_SMS_SIP",
+                "descripcion": "Controla envío específico por SMS. 'S' para todos, 'N' para ninguno, otro valor para lista específica de SIP"
+              },
+              {
+                "nombre": "PLAZO_VENCIMIENTO",
+                "descripcion": "Días antes del vencimiento para considerar tratamiento como 'próximo a vencimiento'"
+              },
+              {
+                "nombre": "INTERVALO_REENVIO_SMS",
+                "descripcion": "Plazo mínimo entre envíos SMS al mismo paciente para evitar duplicados"
+              },
+              {
+                "nombre": "MENSAJE_NOTIFICACION_APP",
+                "descripcion": "Texto: 'Tratamiento crónico próximo a su vencimiento: solicite cita con el profesional médico para prolongar prescripción'"
+              },
+              {
+                "nombre": "MENSAJE_SMS",
+                "descripcion": "Texto: 'Su tratamiento crónico está próximo a su vencimiento: solicite cita con el profesional médico para prolongar la prescripción de sus tratamientos.'"
+              },
+              {
+                "nombre": "TABLA_AUDITORIA",
+                "descripcion": "Tabla donde se registran todas las notificaciones y SMS enviados con timestamp y resultado"
+              },
+              {
+                "nombre": "CRONICOS_DIAS_REVISION",
+                "descripcion": "Número de días previos al vencimiento para identificar tratamientos crónicos como 'próximos a vencimiento'. Valor recomendado: 30 días."
+              }
+            ]
+          },
+          "impacto_produccion": "IMPACTO EN OTRAS APLICACIONES: La funcionalidad requiere integración con SIA para obtener información de citas del paciente. CUMPLIMIENTO ENS/ENI: El desarrollo cumple con normas de Esquema Nacional de Seguridad (ENS) y Esquema Nacional de Interoperabilidad (ENI). CAMBIOS EN INTERFAZ DE USUARIO: Se modifica la APP GVA+Salut para mostrar avisos de próximo vencimiento con información de citas asociadas. Se actualiza la pantalla de utilidades de prescripción para mostrar información de citas médicas y de enfermería. CAMBIOS EN DATOS: Se añaden nuevas variables de configuración y se extienden vistas existentes para incluir información de citas. IMPACTO EN NOTIFICACIONES: Se implementan nuevos flujos de notificación y SMS diferenciados según tipo de cita (médica, enfermería, UFPE), lo que incrementa la complejidad de la gestión de notificaciones. CAMBIOS EN FICHEROS EXT JS: Se requiere actualización de múltiples ficheros ExtJS para soportar la nueva funcionalidad de visualización de citas. La funcionalidad está controlada mediante variable de configuración para activación selectiva por SIP, minimizando riesgo inicial de impacto.",
+          "component": "MPRE3",
+          "req_date": "2026-03-27",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562172/vqzfrfmmyoonhydogkla.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562172/cpyy53x96dnmfs52lsz5.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562173/aq29hwgkfsxy0digm7l4.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562174/odwpe82neixs6k1opsio.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562174/odffmrdwhkijkhpqrnk7.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562175/nvoqvffahoaxijyh4f07.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562175/zqvinkqptaj608vnw3zf.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562176/j5wc4exbyoub55jpmg8m.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562176/zafqi1lfaekpxxkmelk7.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562177/iqghmwd4cxe52ofzrlcc.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562178/z6rny2abmeuiy9dsk6sa.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562178/ulntyrsmnpxpbkubv5mz.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562179/w6rxeqvdlzwdccgemdb6.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562179/zpavfjrzo6y8op12thrb.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562180/bz8nj1ipaii0sqpmo0e8.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562180/czkezdlgq1h8dvfvivgy.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562181/wrkgvwrz23mosreuuxrn.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562181/mmlfii1fedolfqcp35nx.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562182/hfcvnnv4dgejhh3oyig3.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562183/i3wmgga3fpwtclvmy6gk.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562183/twiwm1vgobylad0b2aod.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562184/zi5i2st2ewh6p9xmtqpt.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562185/cvsesnimba6rz7skkfy4.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562185/nqfeqj98jb9bqwyngcma.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562186/f8p8bbg9rvg0mlwco7sd.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562186/fwt5d2ewqemrzzh2xa9j.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562187/lj75gmvf8iawxmtxv62i.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562187/uckudsiequam11cuphiq.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562188/ubhve06komfims3pyqeq.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562189/ac3ebzmulzvstxvwdsni.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562190/qlxqzx8ukh8oqa19ijy6.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562191/tdpt44taqoppkygb4m2v.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562191/tgqsokr2ztkmkwfizcdk.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562192/yms9qttqsnrnvlokyd0k.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562192/ubp40h7tuox8at9fk4tb.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562193/ehjn0vkvvnitxoinezhd.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562193/uinhufi370djfdhpjbb6.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562194/wye6cut2nz45woityiib.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562195/qlufterj2qlixlq1ozfc.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562195/odkoqdlapt1z91gfu7lj.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562196/mteikennppmuoofyvzha.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562196/vyntzhuyihfxldfavxp9.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562197/xodngcsymykawpffsjam.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562197/ygwjqyitknhstcbzn9bb.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562198/uhgwlefvjsy8zunetss2.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562199/eelgcmfvwldgzorvqahn.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562199/isggmzpyalwdfsd2y5lu.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562200/xt5k2cf4ihe32y7vkck5.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562200/nz4l0zxmvk5vcq11bwvw.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562201/hrnbfgpbrl4oglyurblf.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562201/ufsxs1x7bmdlnrjtmfxo.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562202/edekxvrgelfgwuh5z9ts.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562203/hwsgyg17we0pwa3ee1qn.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562203/zbt4mjuy0gxfym6cikcl.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562204/gdkajl5gilq8vrh7nsxi.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562204/i8nvfbqifxujwjcsuh48.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562205/wfcvlxlpld2kx1mzlje5.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780562205/suuqxckkhudlkmse7fcr.png"
+          ]
+        }
+      ]
+    }
+  ]
 }
