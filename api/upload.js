@@ -1,41 +1,45 @@
 export const config = { api: { bodyParser: { sizeLimit: '10mb' } } };
 
-async function getGitHubFile(repo, token) {
-  const response = await fetch(
-    `https://api.github.com/repos/${repo}/contents/data/deployments.json`,
-    { headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' } }
-  );
-  if (!response.ok) return { content: { deployments: [] }, sha: null };
-  const file = await response.json();
-  return {
-    content: JSON.parse(Buffer.from(file.content, 'base64').toString('utf8')),
-    sha: file.sha
-  };
+const GH_BASE = 'https://api.github.com';
+
+async function ghGet(repo, token, path) {
+  const r = await fetch(`${GH_BASE}/repos/${repo}/contents/${path}`, {
+    headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' }
+  });
+  if (!r.ok) return null;
+  return r.json();
 }
 
-async function saveGitHubFile(repo, token, content, sha, message) {
+async function ghPut(repo, token, path, content, sha, message) {
   const body = {
     message,
-    content: Buffer.from(JSON.stringify(content, null, 2)).toString('base64')
+    content: Buffer.from(content).toString('base64')
   };
   if (sha) body.sha = sha;
-  const response = await fetch(
-    `https://api.github.com/repos/${repo}/contents/data/deployments.json`,
-    {
-      method: 'PUT',
-      headers: {
-        Authorization: `token ${token}`,
-        Accept: 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body)
-    }
-  );
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error('GitHub save error: ' + err);
+  const r = await fetch(`${GH_BASE}/repos/${repo}/contents/${path}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `token ${token}`,
+      Accept: 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error('GitHub PUT failed: ' + path + ' — ' + await r.text());
+  return r.json();
+}
+
+async function getDeploymentsDB(repo, token) {
+  const file = await ghGet(repo, token, 'data/deployments.json');
+  if (!file) return { content: { deployments: [] }, sha: null };
+  try {
+    return {
+      content: JSON.parse(Buffer.from(file.content, 'base64').toString('utf8')),
+      sha: file.sha
+    };
+  } catch(e) {
+    return { content: { deployments: [] }, sha: file.sha };
   }
-  return true;
 }
 
 export default async function handler(req, res) {
@@ -49,22 +53,42 @@ export default async function handler(req, res) {
   if (!GITHUB_TOKEN || !GITHUB_REPO) return res.status(500).json({ error: 'Faltan variables de entorno' });
 
   try {
-    const { app, version, author, date, files, requirements, depId } = req.body;
+    const { app, version, author, date, files, requirements, depId, rawTexts } = req.body;
     if (!app || !version || !author || !requirements?.length) {
       return res.status(400).json({ error: 'Faltan campos obligatorios' });
     }
 
     const finalDepId = depId || `dep_${Date.now()}`;
 
-    // Strip any residual base64 (safety net — should already be URLs)
+    // 1. Save raw texts to data/raw/<depId>_<safeFilename>.txt
+    if (rawTexts && rawTexts.length) {
+      for (const { filename, raw_text } of rawTexts) {
+        if (!raw_text) continue;
+        const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 80);
+        const rawPath = `data/raw/${finalDepId}_${safeName}.txt`;
+        try {
+          // Check if exists (for merge case)
+          const existing = await ghGet(GITHUB_REPO, GITHUB_TOKEN, rawPath);
+          await ghPut(GITHUB_REPO, GITHUB_TOKEN, rawPath,
+            raw_text, existing?.sha || null,
+            `Raw text: ${app} ${version} - ${filename}`
+          );
+        } catch(e) {
+          console.error('Raw text save error:', e.message);
+          // Non-fatal — continue
+        }
+      }
+    }
+
+    // 2. Strip any residual base64 from requirements (safety net)
     const cleanReqs = requirements.map(r => ({
       ...r,
       images: (r.images || []).filter(v => typeof v === 'string' && v.startsWith('http'))
     }));
 
-    const { content: db, sha } = await getGitHubFile(GITHUB_REPO, GITHUB_TOKEN);
+    // 3. Load deployments.json and merge/add
+    const { content: db, sha } = await getDeploymentsDB(GITHUB_REPO, GITHUB_TOKEN);
 
-    // Merge if same app+version exists
     const existingIdx = db.deployments.findIndex(d => d.app === app && d.version === version);
     if (existingIdx >= 0) {
       const existing = db.deployments[existingIdx];
@@ -83,8 +107,10 @@ export default async function handler(req, res) {
       });
     }
 
-    await saveGitHubFile(GITHUB_REPO, GITHUB_TOKEN, db, sha,
-      `Deploy: ${app} ${version} (${(files || []).join(', ')})`);
+    await ghPut(GITHUB_REPO, GITHUB_TOKEN, 'data/deployments.json',
+      JSON.stringify(db, null, 2), sha,
+      `Deploy: ${app} ${version} (${(files || []).join(', ')})`
+    );
 
     return res.status(200).json({ ok: true, depId: finalDepId, reqCount: cleanReqs.length });
   } catch (err) {
