@@ -82,12 +82,31 @@ header{height:52px;display:flex;align-items:center;gap:10px;padding:0 20px;borde
 .em-field textarea:focus{border-color:var(--accent);}
 .em-field input[type=text]{width:100%;padding:7px 10px;font-size:13px;font-family:var(--font);background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);outline:none;}
 .em-field input:focus{border-color:var(--accent);}
-/* image gallery in edit */
-.em-img-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
-.em-img-wrap{position:relative;width:100px;height:68px;flex-shrink:0;}
-.em-img-wrap img{width:100%;height:100%;object-fit:cover;border-radius:var(--radius);border:1px solid var(--border2);}
-.em-img-del{position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:var(--red);color:white;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;line-height:1;opacity:0.9;}
-.em-img-del:hover{opacity:1;transform:scale(1.1);}
+/* image gallery in edit — multi-select */
+.em-img-grid{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+.em-img-item{position:relative;width:110px;flex-shrink:0;cursor:pointer;user-select:none;}
+.em-img-item input[type=checkbox]{
+  position:absolute;top:5px;left:5px;z-index:2;
+  width:16px;height:16px;cursor:pointer;
+  accent-color:var(--accent);
+}
+.em-img-item img{
+  width:110px;height:74px;object-fit:cover;
+  border-radius:var(--radius);border:2px solid transparent;
+  transition:border-color 0.15s,opacity 0.15s;display:block;
+}
+.em-img-item.selected img{border-color:var(--accent);opacity:0.85;}
+.em-img-item:hover img{border-color:var(--border2);}
+.em-img-actions{display:flex;align-items:center;gap:10px;margin-top:8px;min-height:30px;}
+.em-del-sel-btn{
+  display:none;align-items:center;gap:5px;
+  padding:6px 12px;font-size:12px;font-weight:500;font-family:var(--font);
+  background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);
+  border-radius:var(--radius);cursor:pointer;
+}
+.em-del-sel-btn.visible{display:flex;}
+.em-del-sel-btn:hover{opacity:0.85;}
+.em-sel-count{font-size:12px;color:var(--text3);}
 .em-save-btn{display:flex;align-items:center;gap:6px;padding:7px 16px;font-size:13px;font-weight:500;font-family:var(--font);background:var(--accent);color:white;border:none;border-radius:var(--radius);cursor:pointer;margin-top:4px;}
 .em-save-btn:hover{opacity:0.88;}
 .em-save-btn:disabled{opacity:0.5;cursor:default;}
@@ -891,6 +910,7 @@ async function openEdit(depId) {
 
   document.getElementById('em-title').textContent = `Editar · ${editDep.app} ${editDep.version}`;
   document.getElementById('edit-modal').className = 'on';
+  imgSelection = {};
   renderEditModal();
 }
 
@@ -906,12 +926,22 @@ function renderEditModal() {
 
   reqs.forEach((r, idx) => {
     const imgs = (r.images || []).filter(Boolean);
-    const imgHtml = imgs.length ? imgs.map((url, iIdx) =>
-      '<div class="em-img-wrap">' +
-        '<img src="' + url + '" loading="lazy">' +
-        '<button class="em-img-del" title="Eliminar imagen" onclick="deleteImage(\'' + editDep.id + '\',' + idx + ',\'' + url.replace(/'/g,"\\'") + '\')" >&#215;</button>' +
-      '</div>'
-    ).join('') : '<span style="font-size:12px;color:var(--text3)">Sin imágenes</span>';
+    const imgHtml = imgs.length
+      ? '<div class="em-img-grid" id="img-grid-' + idx + '">' +
+          imgs.map((url, iIdx) =>
+            '<div class="em-img-item" id="img-item-' + idx + '-' + iIdx + '" onclick="toggleImgSelect(' + idx + ',' + iIdx + ')">' +
+              '<input type="checkbox" id="img-cb-' + idx + '-' + iIdx + '" onclick="event.stopPropagation();toggleImgSelect(' + idx + ',' + iIdx + ')">' +
+              '<img src="' + url + '" loading="lazy" draggable="false">' +
+            '</div>'
+          ).join('') +
+        '</div>' +
+        '<div class="em-img-actions">' +
+          '<button class="em-del-sel-btn" id="del-sel-btn-' + idx + '" onclick="deleteSelectedImages(\'' + editDep.id + '\',' + idx + ')">' +
+            '&#128465; Eliminar seleccionadas (<span id="sel-count-' + idx + '">0</span>)' +
+          '</button>' +
+          '<span class="em-sel-count" id="img-total-' + idx + '">' + imgs.length + ' imagen' + (imgs.length !== 1 ? 'es' : '') + '</span>' +
+        '</div>'
+      : '<span style="font-size:12px;color:var(--text3)">Sin imágenes</span>';
 
     html += '<div class="em-req-header" onclick="toggleReqPanel(' + idx + ')">' +
       '<span class="em-req-id">' + r.id + '</span>' +
@@ -981,24 +1011,57 @@ async function saveReq(depId, reqIdx, btn) {
   btn.disabled = false;
 }
 
-async function deleteImage(depId, reqIdx, imageUrl) {
-  if (!confirm('¿Eliminar esta imagen? Se borrará de Cloudinary.')) return;
+// Image selection state: { reqIdx: Set<imgIdx> }
+var imgSelection = {};
+
+function toggleImgSelect(reqIdx, imgIdx) {
+  if (!imgSelection[reqIdx]) imgSelection[reqIdx] = new Set();
+  const sel = imgSelection[reqIdx];
+  if (sel.has(imgIdx)) sel.delete(imgIdx); else sel.add(imgIdx);
+  // Update visual
+  const item = document.getElementById('img-item-' + reqIdx + '-' + imgIdx);
+  const cb = document.getElementById('img-cb-' + reqIdx + '-' + imgIdx);
+  if (item) item.classList.toggle('selected', sel.has(imgIdx));
+  if (cb) cb.checked = sel.has(imgIdx);
+  // Update counter and button
+  const count = sel.size;
+  const countEl = document.getElementById('sel-count-' + reqIdx);
+  const btn = document.getElementById('del-sel-btn-' + reqIdx);
+  if (countEl) countEl.textContent = count;
+  if (btn) btn.classList.toggle('visible', count > 0);
+}
+
+async function deleteSelectedImages(depId, reqIdx) {
+  const sel = imgSelection[reqIdx];
+  if (!sel || sel.size === 0) return;
+  const req_item = editDep && editDep.requirements[reqIdx];
+  if (!req_item) return;
+  const allImgs = (req_item.images || []).filter(Boolean);
+  const urlsToDelete = [...sel].map(i => allImgs[i]).filter(Boolean);
+  if (!urlsToDelete.length) return;
+  if (!confirm('¿Eliminar ' + urlsToDelete.length + ' imagen' + (urlsToDelete.length > 1 ? 'es' : '') + '? Se borrarán de Cloudinary.')) return;
+
+  const btn = document.getElementById('del-sel-btn-' + reqIdx);
+  if (btn) { btn.disabled = true; btn.textContent = 'Eliminando...'; }
+
   try {
     const resp = await fetch('/api/edit', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'delete_image', depId, reqIdx, imageUrl })
+      body: JSON.stringify({ action: 'delete_images', depId, reqIdx, imageUrls: urlsToDelete })
     });
     const result = await resp.json();
     if (resp.ok && result.ok) {
-      if (editDep && editDep.requirements[reqIdx]) {
-        editDep.requirements[reqIdx].images = (editDep.requirements[reqIdx].images || []).filter(u => u !== imageUrl);
-      }
+      // Update local copy
+      req_item.images = allImgs.filter(url => !urlsToDelete.includes(url));
+      imgSelection[reqIdx] = new Set();
       renderEditModal();
     } else {
-      alert('Error al eliminar imagen: ' + (result.error || 'desconocido'));
+      alert('Error al eliminar: ' + (result.error || 'desconocido'));
+      if (btn) { btn.disabled = false; }
     }
   } catch(e) {
     alert('Error: ' + e.message);
+    if (btn) { btn.disabled = false; }
   }
 }
 
