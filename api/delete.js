@@ -13,6 +13,26 @@ export default async function handler(req, res) {
 
   const GH_HEADERS = { Authorization: `token ${GITHUB_TOKEN}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' };
 
+  async function ghDeleteFile(path, sha) {
+    await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${path}`, {
+      method: 'DELETE', headers: GH_HEADERS,
+      body: JSON.stringify({ message: `Delete: ${path}`, sha })
+    });
+  }
+
+  async function deleteRawDir(dirPath) {
+    try {
+      const r = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${dirPath}`, { headers: GH_HEADERS });
+      if (!r.ok) return;
+      const items = await r.json();
+      if (!Array.isArray(items)) return;
+      for (const item of items) {
+        if (item.type === 'file') await ghDeleteFile(item.path, item.sha);
+        else if (item.type === 'dir') await deleteRawDir(item.path);
+      }
+    } catch(e) { console.error('deleteRawDir error:', dirPath, e.message); }
+  }
+
   try {
     // 1. Load deployments.json
     const dbResp = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/data/deployments.json`, { headers: GH_HEADERS });
@@ -21,6 +41,9 @@ export default async function handler(req, res) {
     const db = JSON.parse(Buffer.from(dbFile.content, 'base64').toString('utf8'));
     const dep = db.deployments.find(d => d.id === depId);
     if (!dep) return res.status(404).json({ error: 'Despliegue no encontrado' });
+
+    const appSafe = dep.app.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9._\-]/g, '_');
+    const versionSafe = dep.version.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9._\-]/g, '_');
 
     // 2. Delete Cloudinary images
     if (CLOUDINARY_CLOUD_NAME && CLOUDINARY_API_KEY && CLOUDINARY_API_SECRET) {
@@ -39,29 +62,13 @@ export default async function handler(req, res) {
       }
     }
 
-    // 3. Delete data/raw/ files for this deployment
-    try {
-      const rawListResp = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/data/raw`, { headers: GH_HEADERS });
-      if (rawListResp.ok) {
-        const rawFiles = await rawListResp.json();
-        const toDelete = rawFiles.filter(f => f.name.startsWith(depId));
-        for (const f of toDelete) {
-          await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${f.path}`, {
-            method: 'DELETE',
-            headers: GH_HEADERS,
-            body: JSON.stringify({ message: `Delete raw: ${f.name}`, sha: f.sha })
-          });
-        }
-      }
-    } catch(e) {
-      console.error('Raw files delete error:', e.message);
-    }
+    // 3. Delete raw files — data/raw/{app}/{version}/
+    await deleteRawDir(`data/raw/${appSafe}/${versionSafe}`);
 
-    // 4. Remove from deployments.json and save
+    // 4. Remove from deployments.json
     db.deployments = db.deployments.filter(d => d.id !== depId);
     await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/data/deployments.json`, {
-      method: 'PUT',
-      headers: GH_HEADERS,
+      method: 'PUT', headers: GH_HEADERS,
       body: JSON.stringify({
         message: `Delete deployment: ${dep.app} ${dep.version} (${depId})`,
         content: Buffer.from(JSON.stringify(db, null, 2)).toString('base64'),

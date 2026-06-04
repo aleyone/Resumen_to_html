@@ -2,6 +2,15 @@ export const config = { api: { bodyParser: { sizeLimit: '10mb' } } };
 
 const GH_BASE = 'https://api.github.com';
 
+function normalizePathSegment(str) {
+  return String(str || '').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9._\-]/g, '_').slice(0, 80);
+}
+
+function cleanTitle(title) {
+  // Remove bracket prefixes like [GVMEGAIA-27207] GAIA-523 [MPRE3]
+  return (title || '').replace(/^(\[[^\]]*\]\s*)+(GAIA-\d+\s*)?/i, '').trim();
+}
+
 async function ghGet(repo, token, path) {
   const r = await fetch(`${GH_BASE}/repos/${repo}/contents/${path}`, {
     headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' }
@@ -11,18 +20,11 @@ async function ghGet(repo, token, path) {
 }
 
 async function ghPut(repo, token, path, content, sha, message) {
-  const body = {
-    message,
-    content: Buffer.from(content).toString('base64')
-  };
+  const body = { message, content: Buffer.from(content).toString('base64') };
   if (sha) body.sha = sha;
   const r = await fetch(`${GH_BASE}/repos/${repo}/contents/${path}`, {
     method: 'PUT',
-    headers: {
-      Authorization: `token ${token}`,
-      Accept: 'application/vnd.github.v3+json',
-      'Content-Type': 'application/json'
-    },
+    headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
   });
   if (!r.ok) throw new Error('GitHub PUT failed: ' + path + ' — ' + await r.text());
@@ -33,10 +35,7 @@ async function getDeploymentsDB(repo, token) {
   const file = await ghGet(repo, token, 'data/deployments.json');
   if (!file) return { content: { deployments: [] }, sha: null };
   try {
-    return {
-      content: JSON.parse(Buffer.from(file.content, 'base64').toString('utf8')),
-      sha: file.sha
-    };
+    return { content: JSON.parse(Buffer.from(file.content, 'base64').toString('utf8')), sha: file.sha };
   } catch(e) {
     return { content: { deployments: [] }, sha: file.sha };
   }
@@ -59,43 +58,49 @@ export default async function handler(req, res) {
     }
 
     const finalDepId = depId || `dep_${Date.now()}`;
+    const appSafe = normalizePathSegment(app);
+    const versionSafe = normalizePathSegment(version);
 
-    // 1. Save raw texts to data/raw/<depId>_<safeFilename>.txt
+    // 1. Save raw texts to data/raw/{app}/{version}/{component}/{cleanTitle}.txt
     if (rawTexts && rawTexts.length) {
-      for (const { filename, raw_text } of rawTexts) {
+      for (let i = 0; i < rawTexts.length; i++) {
+        const { filename, raw_text } = rawTexts[i];
         if (!raw_text) continue;
-        const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 80);
-        const rawPath = `data/raw/${finalDepId}_${safeName}.txt`;
+
+        // Find matching requirement to get component and clean title
+        const req = requirements[i] || requirements[0];
+        const component = normalizePathSegment(req?.component || 'General');
+        const titleClean = normalizePathSegment(cleanTitle(req?.title || filename));
+        const rawPath = `data/raw/${appSafe}/${versionSafe}/${component}/${titleClean}.txt`;
+
         try {
-          // Check if exists (for merge case)
           const existing = await ghGet(GITHUB_REPO, GITHUB_TOKEN, rawPath);
-          await ghPut(GITHUB_REPO, GITHUB_TOKEN, rawPath,
-            raw_text, existing?.sha || null,
-            `Raw text: ${app} ${version} - ${filename}`
+          await ghPut(GITHUB_REPO, GITHUB_TOKEN, rawPath, raw_text, existing?.sha || null,
+            `Raw: ${app} ${version} - ${component} - ${titleClean}`
           );
+          console.log('Saved raw:', rawPath);
         } catch(e) {
-          console.error('Raw text save error:', e.message);
-          // Non-fatal — continue
+          console.error('Raw text save error:', rawPath, e.message);
         }
       }
     }
 
-    // 2. Strip any residual base64 from requirements (safety net)
+    // 2. Clean titles in requirements + strip raw_text just in case
     const cleanReqs = requirements.map(r => ({
       ...r,
-      images: (r.images || []).filter(v => typeof v === 'string' && v.startsWith('http'))
+      title: cleanTitle(r.title),
+      images: (r.images || []).filter(v => typeof v === 'string' && v.startsWith('http')),
+      raw_text: undefined
     }));
 
-    // 3. Load deployments.json and merge/add
+    // 3. Load and update deployments.json
     const { content: db, sha } = await getDeploymentsDB(GITHUB_REPO, GITHUB_TOKEN);
 
     const existingIdx = db.deployments.findIndex(d => d.app === app && d.version === version);
     if (existingIdx >= 0) {
       const existing = db.deployments[existingIdx];
       const offset = existing.requirements.length;
-      const reindexed = cleanReqs.map((r, i) => ({
-        ...r, id: `REQ-${String(offset + i + 1).padStart(2, '0')}`
-      }));
+      const reindexed = cleanReqs.map((r, i) => ({ ...r, id: `REQ-${String(offset + i + 1).padStart(2, '0')}` }));
       existing.requirements = [...existing.requirements, ...reindexed];
       (files || []).forEach(f => { if (!existing.files.includes(f)) existing.files.push(f); });
     } else {
