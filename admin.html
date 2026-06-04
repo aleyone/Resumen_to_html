@@ -554,44 +554,34 @@ function buildPromptSingle(chunk, chunkIdx, totalChunks) {
   const isFirst = chunkIdx === 0;
   const metaLine = isFirst ? 'Extrae el meta (title, version, app).' : 'Para "meta" devuelve campos vacíos.';
   const instruccion = isFirst
-    ? 'Estás analizando UN ÚNICO requerimiento. Extrae toda la información relevante en UN SOLO objeto de requerimiento.'
-    : `Este es el fragmento ${chunkIdx+1}/${totalChunks} del mismo requerimiento. Extrae información adicional (situación actual, descripción, tablas funcionales, impacto). Devuelve UN SOLO objeto enriquecido o requirements:[] si no hay info nueva.`;
-  return `Eres experto en documentación de requerimientos sanitarios (GAIA/SIA) para equipos de soporte CAU. ${instruccion} ${metaLine}
+    ? 'Estás analizando UN ÚNICO requerimiento. Extrae la información en UN SOLO objeto.'
+    : `Fragmento ${chunkIdx+1}/${totalChunks} del mismo requerimiento. Enriquece situacion_actual y descripcion si hay información nueva. Devuelve UN objeto o requirements:[].`;
+  return `Eres experto en documentación de requerimientos sanitarios para soporte CAU. ${instruccion} ${metaLine}
 
-IMPORTANTE — Incluir SOLO información funcional orientada al usuario y al soporte:
-- Qué cambia para el usuario final (médico, enfermería, farmacia, paciente)
-- Cómo afecta al flujo de trabajo clínico
-- Perfiles y permisos funcionales (quién puede hacer qué)
-- Casos de uso y comportamiento según perfil
-- Impacto visible en producción
+SOLO dos campos de contenido:
+- situacion_actual: qué había antes del cambio, el problema o necesidad que motivó el requerimiento. Máximo 2 párrafos en prosa clara.
+- descripcion: resumen funcional del cambio implementado orientado al equipo de soporte CAU. Qué cambia, cómo afecta al usuario final (médico, enfermería, farmacia, paciente). MÁXIMO 2 PÁRRAFOS. Sin tecnicismos, sin nombres de variables ni endpoints.
 
-EXCLUIR completamente (no mencionar):
-- Nombres de variables de configuración técnicas, parámetros de BBDD
-- Endpoints de servicios REST/SOAP, URLs técnicas
-- Nombres de vistas SQL, tablas de BBDD, DTOs, clases Java
-- Diagramas de clases, estructuras de ficheros JS
-- Detalles de integración técnica entre sistemas
+EXCLUIR: variables de configuración, BBDD, endpoints, DTOs, clases Java, tablas técnicas, permisos técnicos.
 
-Para las tablas: incluir SOLO tablas funcionales (perfiles/permisos, casos de uso, flujos de usuario). Excluir tablas técnicas de BBDD, parámetros de configuración, estructuras de servicios.
-
-IMPORTANTE: Responde ÚNICAMENTE con JSON válido, sin texto previo ni bloques markdown.
-{"meta":{"title":"","version":"","app":""},"requirements":[{"id":"REQ-01","title":"título descriptivo sin corchetes técnicos","resumen":"resumen ejecutivo orientado a soporte CAU — explica qué cambia funcionalmente, para qué sirve, cómo afecta al usuario y qué debe saber el equipo de soporte. Puede ser varios párrafos si la funcionalidad es compleja","situacion_actual":"descripción funcional de la situación previa al cambio","descripcion":"descripción funcional completa del cambio para el usuario final","tablas":[{"titulo":"","cabeceras":[],"filas":[]}],"configuracion":{"permisos":"descripción funcional de permisos por perfil, o vacío","variables":[]},"impacto_produccion":"impacto visible en producción para usuarios y soporte"}]}
+Responde ÚNICAMENTE con JSON válido sin markdown:
+{"meta":{"title":"","version":"","app":""},"requirements":[{"id":"REQ-01","title":"título descriptivo sin corchetes técnicos","situacion_actual":"situación previa en 1-2 párrafos","descripcion":"descripción funcional del cambio en máximo 2 párrafos orientados al CAU"}]}
 FRAGMENTO ${chunkIdx+1}/${totalChunks}:
 ${chunk.slice(0, 7000)}`;}
 
 function buildPromptSummary(chunk, chunkIdx, totalChunks) {
   const isFirst = chunkIdx === 0;
   const metaLine = isFirst ? 'Extrae también el meta (title,version,app).' : 'Para "meta" devuelve campos vacíos.';
-  return `Eres experto en documentación de despliegues sanitarios (GAIA/SIA) para equipos de soporte CAU. Extrae TODOS los requerimientos del fragmento ${chunkIdx+1}/${totalChunks}. ${metaLine}
+  return `Eres experto en documentación de despliegues sanitarios para soporte CAU. Extrae TODOS los requerimientos del fragmento ${chunkIdx+1}/${totalChunks}. ${metaLine}
 
-IMPORTANTE — Incluir SOLO información funcional orientada al usuario y al soporte:
-- Qué cambia para el usuario final, cómo afecta al flujo de trabajo clínico
-- Perfiles y permisos funcionales, casos de uso, comportamiento según perfil
+SOLO dos campos de contenido por requerimiento:
+- situacion_actual: situación previa al cambio, máximo 2 párrafos.
+- descripcion: resumen funcional del cambio en MÁXIMO 2 PÁRRAFOS, sin tecnicismos.
 
-EXCLUIR completamente: variables técnicas de configuración, endpoints, tablas BBDD, DTOs, clases Java, URLs técnicas.
+EXCLUIR: variables técnicas, endpoints, BBDD, DTOs, tablas técnicas.
 
-IMPORTANTE: Responde ÚNICAMENTE con JSON válido, sin texto previo ni bloques markdown.
-{"meta":{"title":"","version":"","app":""},"requirements":[{"id":"REQ-XX","title":"título sin corchetes técnicos","resumen":"resumen ejecutivo 3-5 líneas funcionales para soporte CAU","situacion_actual":"situación previa funcional","descripcion":"descripción funcional del cambio","tablas":[{"titulo":"","cabeceras":[],"filas":[]}],"configuracion":{"permisos":"permisos funcionales por perfil","variables":[]},"impacto_produccion":"impacto visible en producción"}]}
+Responde ÚNICAMENTE con JSON válido sin markdown:
+{"meta":{"title":"","version":"","app":""},"requirements":[{"id":"REQ-XX","title":"título sin corchetes técnicos","situacion_actual":"situación previa 1-2 párrafos","descripcion":"descripción funcional máximo 2 párrafos"}]}
 Si no hay requerimientos completos devuelve requirements:[].
 FRAGMENTO:
 ${chunk.slice(0, 7000)}`;}
@@ -622,18 +612,17 @@ async function parseText(text, app, filename, docType, onProgress) {
           if (!merged) {
             merged = reqs[0];
           } else {
-            // Enrich: append new content to existing fields
-            if (reqs[0].situacion_actual && !merged.situacion_actual) merged.situacion_actual = reqs[0].situacion_actual;
-            if (reqs[0].descripcion) merged.descripcion = (merged.descripcion || '') + '\n' + reqs[0].descripcion;
-            if (reqs[0].impacto_produccion && !merged.impacto_produccion) merged.impacto_produccion = reqs[0].impacto_produccion;
-            if (reqs[0].tablas?.length) merged.tablas = [...(merged.tablas || []), ...reqs[0].tablas].filter(t => t.cabeceras?.length);
-            if (reqs[0].configuracion?.permisos && !merged.configuracion?.permisos) {
-              merged.configuracion = merged.configuracion || {};
-              merged.configuracion.permisos = reqs[0].configuracion.permisos;
+            // Enrich: only situacion_actual and descripcion
+            if (reqs[0].situacion_actual && !merged.situacion_actual) {
+              merged.situacion_actual = reqs[0].situacion_actual;
             }
-            if (reqs[0].configuracion?.variables?.length) {
-              merged.configuracion = merged.configuracion || {};
-              merged.configuracion.variables = [...(merged.configuracion.variables || []), ...reqs[0].configuracion.variables];
+            if (reqs[0].descripcion) {
+              // Append only if new content — avoid repeating same text
+              const existing = (merged.descripcion || '').toLowerCase().slice(0, 100);
+              const incoming = (reqs[0].descripcion || '').toLowerCase().slice(0, 100);
+              if (incoming && existing !== incoming) {
+                merged.descripcion = (merged.descripcion ? merged.descripcion + '\n' : '') + reqs[0].descripcion;
+              }
             }
           }
         }
@@ -836,7 +825,9 @@ async function submitAll(){
       });
 
       if(fi===0)globalMeta=meta;
-      const reqsWithImgs=associateImages(html||'',requirements,images||[]);
+    // Filter images: skip index 0 (usually logo/header), max 10
+    const filteredImages = (images || []).slice(1, 11);
+    const reqsWithImgs = associateImages(html || '', requirements, filteredImages);
       allRequirements=allRequirements.concat(reqsWithImgs);
       // Store raw_text keyed by filename for server-side storage
       allRawTexts.push({ filename: file.name, raw_text: raw_text || '' });

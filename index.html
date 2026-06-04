@@ -83,19 +83,6 @@ select.fs:focus{border-color:var(--accent);}
 .sec-body p{margin-bottom:10px;}
 .sec-body p:last-child{margin-bottom:0;}
 .sec-body code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:1px 6px;border-radius:4px;border:1px solid var(--border2);}
-.tw{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);margin:4px 0;}
-table.dt{width:100%;border-collapse:collapse;font-size:12px;}
-table.dt th{background:var(--surface2);font-weight:600;text-align:left;padding:7px 12px;border-bottom:1px solid var(--border2);color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap;}
-table.dt td{padding:7px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top;line-height:1.5;}
-table.dt tr:last-child td{border-bottom:none;}
-table.dt tr:hover td{background:var(--surface2);}
-.cfg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;}
-.cfg-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 14px;}
-.cfg-card .ck{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;}
-.cfg-card .cv{font-family:var(--mono);font-size:11px;color:var(--text);font-weight:500;word-break:break-all;}
-.cfg-card .cd{font-size:11px;color:var(--text2);margin-top:4px;line-height:1.5;}
-.perm-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;font-size:13px;color:var(--text2);line-height:1.7;}
-.impact-box{background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:var(--radius);padding:14px 18px;font-size:13px;color:var(--warn-text);line-height:1.7;}
 .gallery-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
 .gallery-thumb{width:120px;height:80px;border-radius:var(--radius);border:1px solid var(--border2);object-fit:cover;cursor:pointer;transition:transform 0.15s,border-color 0.15s;background:var(--surface2);}
 .gallery-thumb:hover{transform:scale(1.04);border-color:var(--accent);}
@@ -368,41 +355,9 @@ function selectReq(idx) {
   html += '<div class="dh"><div class="dh-id">' + r.id + '</div><div class="dh-title">' + esc(displayTitle) + '</div>' +
     '<div class="dh-tags"><span class="comp-tag">' + esc(comp) + '</span>' + dateTagHtml + '</div></div>';
 
-  // Resumen
-  if (r.resumen) html += '<div class="resumen-box"><div class="resumen-label">&#128203; Resumen para CAU</div>' + fmtP(r.resumen) + '</div>';
-  // Situacion
+  // Resumen box removed — only situacion_actual and descripcion
   if (r.situacion_actual) html += mkSec('&#128336;', 'Situaci&oacute;n actual', '<div class="sec-body">' + fmtP(r.situacion_actual) + '</div>');
-  // Tablas
-  if (r.tablas && r.tablas.length) {
-    r.tablas.forEach(function(t){
-      if (t.cabeceras && t.cabeceras.length && t.filas && t.filas.length) {
-        html += mkSec('&#128202;', esc(t.titulo || 'Tabla'), mkTable(t));
-      }
-    });
-  }
-  // Descripcion
   if (r.descripcion) html += mkSec('&#128196;', 'Descripci&oacute;n del cambio', '<div class="sec-body">' + fmtP(r.descripcion) + '</div>');
-
-  // Config
-  var cfg = r.configuracion;
-  if (cfg && (cfg.permisos || (cfg.variables && cfg.variables.length))) {
-    var c = '';
-    if (cfg.permisos) {
-      c += '<div style="margin-bottom:14px"><div class="sec-label" style="margin-bottom:8px">&#128274; Permisos</div><div class="perm-box">' + esc(cfg.permisos) + '</div></div>';
-    }
-    if (cfg.variables && cfg.variables.length) {
-      var cards = cfg.variables.map(function(v){
-        var n = typeof v === 'string' ? v.split(':')[0].trim() : (v.nombre || '');
-        var d = typeof v === 'string' ? v.split(':').slice(1).join(':').trim() : (v.descripcion || '');
-        return '<div class="cfg-card"><div class="ck">Variable</div><div class="cv">' + esc(n) + '</div>' + (d ? '<div class="cd">' + esc(d) + '</div>' : '') + '</div>';
-      }).join('');
-      c += '<div><div class="sec-label" style="margin-bottom:8px">&#9881; Variables</div><div class="cfg-grid">' + cards + '</div></div>';
-    }
-    html += '<div class="sec">' + c + '</div>';
-  }
-
-  // Impacto
-  if (r.impacto_produccion) html += mkSec('&#9888;', 'Impacto en producci&oacute;n', '<div class="impact-box">' + fmtP(r.impacto_produccion) + '</div>');
 
   // Images
   var imgs = (r.images || []).filter(Boolean);
