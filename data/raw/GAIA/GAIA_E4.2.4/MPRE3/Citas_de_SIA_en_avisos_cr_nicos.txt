@@ -1,0 +1,981 @@
+[DOCUMENTO]
+[GAIA][2023 29] GAIA 523   [GVMEGAIA 27207] [MPRE3] Citas de SIA en avisos cronicos  v3
+
+SAAS
+GAIA
+GAIA-523 - [GVMEGAIA-27207]
+[MPRE3] Citas de SIA en avisos crónicos
+Código de la versión: Exp2023-29 - E5
+Última actualización: 27/03/2026
+Versión
+Fecha
+Autor/es
+Descripción de la Versión/Cambios
+1.0
+14/01/2026
+INDRA
+Versión inicial
+2.0
+03/03/2026
+INDRA
+Revisión documento con Oficina GAIA
+3.0
+26/03/2026
+INDRA
+Modificación impacto citas especializada en pacientes con tratamiento indicable por enfermería
+Nueva variable de configuración para activar funcionalidad exclusivamente para una lista de SIP
+1	Introducción	5
+2	Requisitos que cubre el análisis	6
+
+[APARTADO] 2.1	GAIA-523	6
+
+[SUBAPARTADO] 2.1.1	Nombre de requisito	6
+
+[SUBAPARTADO] 2.1.2	Situación actual	6
+[SITUACION_ACTUAL]
+
+[SUBAPARTADO] 2.1.3	Descripción del requisito	19
+[DESCRIPCION]
+3	Análisis	27
+
+[APARTADO] 3.1	Casos de uso	27
+
+[SUBAPARTADO] 3.1.1	CU1 – Listar en RELE sin cita	27
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.2	CU2 – Listar en RELE Paciente cita medica	28
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.3	CU3 – Listar en RELE Paciente cita enfermería	29
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.4	CU4 – Aviso Próximo a su vencimiento	30
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.5	CU5 – Notificación paciente tratamiento crónico próximo a su vencimiento	31
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.6	CU6 – Notificación paciente tratamiento crónico próximo a su vencimiento - Enfermería	32
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.7	CU7 – Notificación paciente tratamiento crónico próximo a su vencimiento - Medico	33
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.8	CU8 – Notificación paciente tratamiento crónico próximo a su vencimiento - UFPE	34
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.9	CU9 – Envió SMS paciente tratamiento crónico próximo a su vencimiento	35
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.10	CU10 – Envió SMS paciente tratamiento crónico próximo a su vencimiento - Enfermería	36
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.11	CU11 – Envió SMS paciente tratamiento crónico próximo a su vencimiento - Medico	37
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.12	CU12 – Envió SMS paciente tratamiento crónico próximo a su vencimiento - UFPE	38
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.13	CU13 – Revisar Tratamientos crónicos y citas paciente - Enfermería	39
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.14	CU14 – Tratamientos crónicos y citas paciente – Farmacia/SC	41
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.15	CU15 – Revisar Tratamientos crónicos y citas paciente - Medico	43
+[CASO_DE_USO]
+
+[APARTADO] 5.1	Plan de pruebas funcional	60
+[PLAN_PRUEBAS]
+En el presente documento se recoge el análisis y diseño técnico de los requisitos indicados en el Apartado “2. Requisitos que cubre el análisis”.
+El análisis de estos requisitos se ha realizado utilizando las técnicas que se han considerado como más apropiadas para definir la implementación de las funcionalidades solicitadas.
+El objetivo es realizar unas mejoras en la herramienta de tratamientos crónicos próximos a su vencimiento accesible desde la pantalla de utilidades de prescripción para incluir la información de las citas que tenga programadas el paciente.
+Requisitos que cubre el análisis
+GAIA-523
+Nombre de requisito
+[GVMEGAIA-27207] GAIA-523 [MPRE3] Citas de SIA en avisos crónicos.
+Situación actual
+Acceso a la opción
+La opción ‘Tratamientos crónicos’ está disponible desde la pantalla de ‘Utilidades de prescripción’:
+Herramienta para medico de primaria
+El médico de primaria tiene a su disposición la herramienta para poder localizar los tratamientos crónicos próximos a su vencimiento de los pacientes de su cupo.
+La pantalla ‘Tratamientos crónicos, aparecen las siguientes opciones de filtro:
+Crónicos próximos a su vencimiento
+Crónicos
+Estas dos opciones están accesibles para todos los usuarios que puedan acceder a la pantalla de ‘Tratamientos crónicos’
+Adicionalmente, el usuario dispone de estas opciones de filtro:
+‘Cupo del médico’: para localizar todos los pacientes del CUPO asociado al CPA del usuario que se ha logado. Esta opción esta accesible para todos los usuarios.
+‘Cupos del centro’: el acceso a esta opción es configurable a través el gestor de seguridad y permite localizar todos los pacientes de los CUPO asociado al centro del usuario que se ha logado.
+‘Cupos por centro del departamento’: el acceso a esta opción es configurable a través el gestor de seguridad y permitirá localizar todos los pacientes de los CUPO asociado al centro elegido en el desplegable con la lista de centros del departamento.
+‘Cupos del departamento’: se pueden localizar todos los pacientes de los CUPOS asociado a la zona o centro elegidos.
+Marcando la opción ‘Cupo del médico’ y ‘Crónicos próximos a su vencimiento’, se buscan los pacientes del cupo (se busca la clave medica asociada al CPA del usuario) que tengan algún tratamiento crónico próximo a su vencimiento: fecha de fin tratamiento anterior a fecha actual + 60 días (el valor de 60 días será configurable: 'MPRE3.TRAT_CRON_VENCIMIENTO_DIAS'):
+Los pacientes tienen informado la clave médica (campo CLM_CODI de la vista de SIP US_SIP.VTA_USU_SIA).
+La tabla US_BDMA.CPA permite obtener la clave medica asociada a un CPA.
+Los SIP de los pacientes de un CUPO se extraen de la vista US_SIP.VTA_USU_SIA (Campo USU_CODI: SIP del paciente).
+Filtrando la vista US_BDMA.VW_SIP_CLC por el campo CEN_CODI (código del centro), se obtienen las claves medicas de este centro (identificadores de los CUPOS del centro).
+La vista US_BDMA.VW_SIP_CLM permite obtener el NIF del titular del CUPO (los nombres y apellidos se obtendrán de la vista US_BDMA.VW_SIP_PRO_NSIP)
+Se excluyen los tratamientos corregidos de lista de tratamientos crónicos próximos a su fecha de vencimiento: modificación a futuro (FLAGCORREGIDO)
+Se muestran todos los pacientes que cumplen con los criterios indicados. Los pacientes se agrupan por CUPO y se indica el titular del CUPO.
+Para cada paciente, se puede realizar las siguientes opciones:
+Para cada paciente de la lista se añade la opción “Ver tratamientos” en la ruleta. La lista de tratamientos se mostrará indicando:
+la fecha de inicio y fin del tratamiento,
+código/codificador del diagnóstico,
+la descripción del tratamiento prescrito,
+y un icono indicando la tasa de adhesión del paciente al tratamiento.
+Posicionando el cursor sobre uno de los tratamientos, se muestra un tooltip con los siguientes datos:
+Para los usuarios que tienen habilitado en el gestor de seguridad el acceso en modo edición a la historia clínica, se añadirá la opción en la ruleta.
+Al acceder a la historia clínica del paciente, se muestra la alerta en el visor de tratamientos crónicos próximos a su fecha de vencimiento.
+Desde la historia clínica, el medico puede prolongar los tratamientos crónicos del paciente próximos a su vencimiento.
+Un tratamiento es crónico cuando la duración del tratamiento supera el número de días indicado en la variable de configuración ‘POSOL_DIAS_CRONICO’.
+Los tratamientos crónicos próximos a su vencimiento se identifican con la siguiente clausula:
+CASE WHEN (pt.tipotratamiento = 'C'
+OR pt.fechafintrat - pt.fechainitrat + 1 >= #{diasCronico})
+AND pt.fechafintrat < Trunc(SYSDATE + #{margenDiasVencimiento})
+THEN 'S' ELSE 'N' END AS cronicoVencimiento
+Opción crónicos
+La opción ‘Crónicos’ filtra para devolver la lista de los pacientes que tienen tratamientos crónicos vigentes dentro del rango de fechas indicado. Se muestran únicamente los pacientes del CUPO asociado al CPA del usuario que se ha logado.
+Herramienta para coordinador medico
+A efectos de poder “tutelar” el trabajo de los sus médicos, el coordinador médico puede acceder a la misma utilidad de ‘Tratamientos crónicos y visualizar los tratamientos próximos a su fecha de vencimiento de los pacientes de cupos (CPA) de su centro.
+Para los usuarios de tipo coordinador médico, se añade un radio botón ‘Cupos del centro’ en las opciones de filtro de la pantalla.
+Existe un permiso (Tratamientos crónicos-Cupos del centro) en el gestor de seguridad para definir cuáles serán los usuarios que tendrán accesible esta opción. La lista de pacientes aparece agrupada por CUPO, indicando para cada CUPO el nombre y apellidos del titular.
+Cada CUPO tiene un titular, en base al NIF del titular, se obtienen el nombre y los apellidos del médico (accediendo a la vista de usuarios).
+Marcar paciente como revisado
+Para los usuarios con perfil enfermería y perfil médico, se dispone en el menú de cada paciente de la lista de resultados de una nueva opción “Marcar como revisado”:
+La opción de revisión se muestra sólo cuando se hayan marcado las opciones ‘Crónicos próximos a su vencimiento’ y “Cupo del médico” en el filtro.
+La opción aparece junto a las opciones “Ver tratamientos crónicos” y “Historia clínica” cuando la variable de configuración ‘CRONICOS_DIAS_REVISION’ tiene un valor positivo. La variable indica el número de días durante los cuales de marca el paciente como revisado.
+La variable de configuración CRONICOS_DIAS_REVISION tiene un valor positivo de días (por defecto 30 días). Si el valor de la variable es negativo o igual a 0, no se mostrará la opción “Marcar como revisado”.
+Tanto en la lista de trabajo de enfermería, como en la lista de trabajo del médico se pueden marcar los pacientes como revisados. Cuando enfermería marque un paciente como revisado, el paciente deja de aparecer en la lista de trabajo de enfermería hasta que transcurran los días indicados en la variable de configuración CRONICOS_DIAS_REVISION, pero sigue apareciendo en la lista de trabajo del médico.
+Cuando un médico marque un paciente como revisado, el paciente deja de aparecer en la lista de trabajo del médico hasta que transcurran los días indicados en la variable de configuración CRONICOS_DIAS_REVISION, pero sigue apareciendo en la lista de trabajo de enfermería.
+Ambos perfiles de usuario tienen la posibilidad de indicar que no es necesario que el paciente pida cita para renovar sus tratamientos:
+Al revisar el paciente, la columna revisado aparece el check verde indicando que el paciente se ha revisado:
+Al marcar la opción “El paciente no recibirá una alerta (SMS/App GVASALUT) para que solicite cita por renovación de tratamiento”, el paciente no recibe las notificaciones de la APP, ni el mensaje SMS para indicarle que sus tratamientos crónicos están próximos a vencer y que tiene que solicitar cita.
+Tampoco se muestra el aviso al listar en RELE.
+El criterio que se aplica para descartar los envíos al paciente y a Farmacia es el siguiente: que la fecha máxima de revisión del paciente (fecha de revisión del médico o fecha de revisión de enfermería) sea posterior a la fecha de hoy y que se haya marcado la opción “El paciente no tiene que solicitar cita para renovar sus tratamientos”.
+Se ha creado un nuevo filtro para poder ver revisados:
+El filtro se muestra cuando se marque la opción “Crónicos próximos a su vencimiento”.
+Marcando este check y buscando de nuevo, se muestran todos los pacientes en la lista de trabajo, incluso los marcados como revisados. Para los pacientes revisados, existe la opción de “Marcar como no revisado”:
+Notificación APP GVA+Salut para el paciente
+En GAIAWS, tenemos un proceso que se puede programar para realizar las siguientes tareas:
+Identificar pacientes cuyos tratamientos crónicos están próximos a su fecha de vencimiento y enviar una notificación a la APP GVA+Salut del paciente para notificarle y avisarle que tiene que contactar con el centro de salud para solicitar una cita para renovar sus tratamientos.
+Se ha incorporado una notificación de aviso de próximo vencimiento de tratamiento crónico. El aviso llega al móvil sin necesidad de tener la aplicación abierta. Es importante que esta información se facilite a los ciudadanos, sin que tengan que ser activos en la búsqueda de información.
+En la actualidad, el proyecto de FIREBASE se arranca en SIAREST y los usuarios también están registrados en la BBDD de dicha aplicación, la solución consiste en invocar un WS en SIAREST para que desde GAIAWS se envíen los datos de los pacientes con tratamientos crónicos próximos a vencer y desde SIAREST notificarlas. Las notificaciones se envían sobre todos los dispositivos del usuario cuyo registro sea válido y su fecha del último acceso se encuentre entre el valor configurado (120 días) y el día actual.
+El título y el texto se envían en el idioma configurado por el usuario en el último acceso a la aplicación GVAMESSALUT.
+El mensaje se añade a la lista de notificaciones de las demás aplicaciones que tenga el usuario instaladas.
+Si mantenemos pulsada la notificación mientras deslizamos hacia la derecha, aparecen un par de iconos:
+Pulsando la ruleta se muestran las siguientes opciones al usuario para seguir recibiendo las notificaciones o para dejar de recibirlas:
+Al pinchar sobre la notificación, se nos propone acceder a la APP GVA+Salut:
+Para realizar él envió de las notificaciones a los dispositivos de los usuarios, es necesario crear una nueva tarea programada en GAIAWS (la tarea se puede programar a una hora concreta todos los días, por ejemplo).
+La nueva tarea de GAIAWS tiene que localizar los pacientes que tengan tratamientos próximos a su vencimiento con los criterios establecidos y para cada uno de los pacientes crear un mensaje de notificación para enviar los datos a SIAREST.
+Se establece un plazo configurable entre cada notificación a un paciente para evitar realizar notificaciones diarias que pueden llevar al usuario a silenciar las notificaciones de la APP. Se ha creado la tabla de auditoria para registrar las notificaciones que se realizan a los usuarios.
+Notificación SMS para el paciente
+En GAIAWS, tenemos un proceso que se puede programar para realizar las siguientes tareas:
+Identificar pacientes cuyos tratamientos crónicos están próximos a su fecha de vencimiento y enviar un SMS al dispositivo del paciente para notificarle y avisarle que tiene que contactar con el centro de salud para solicitar una cita para renovar sus tratamientos.
+Se ha incorporado él envió de un mensaje SMS de aviso de próximo vencimiento de tratamiento crónico a los usuarios que tengan informado su teléfono en SIP. El mensaje SMS llega al móvil sin necesidad de tener instalada la aplicación GVA+Salut.
+Para realizar él envió de los mensajes SMS a los teléfonos de los usuarios, es necesario activar la tarea programada en GAIAWS (la tarea se podrá programar a una hora concreta todos los días, por ejemplo).
+La tarea de GAIAWS tiene que localizar los pacientes que tenga tratamientos próximos a su vencimiento con los criterios establecidos y para cada uno de los pacientes generar los datos necesarios para realizar él envió de un mensaje de un mensaje SMS invocando a RHAPSODY. El envío del mensaje solo se hace efectivo para los pacientes que tengan informado su número de teléfono en SIP.
+Tenemos un plazo configurable entre cada envió a un paciente para evitar realizar envíos diarios. Se ha creado una tabla de auditoria para registrar las notificaciones que se realizan a los usuarios.
+Para obtener el teléfono móvil del paciente, extraemos los campos USU_TEL1, USU_TEL2 y USU_TEL3 de la tabla US_SIP.TA_USU_SIA y aplicamos la siguiente lógica para identificar el teléfono móvil del paciente al que queremos enviar el SMS:
+Si Usu_tel1 de SIP es no nulo y empieza por 6 o empieza por 7:  teléfono para envió SMS= Usu_tel1 de SIP
+Si no
+Si Usu_tel2 de SIP es no nulo y empieza por 6 o empieza por 7:  teléfono para envió SMS = Usu_tel2 de SIP
+Si no
+Si Usu_tel3 de SIP es no nulo y empieza por 6 o empieza por 7:  teléfono para envió SMS = Usu_tel3 de SIP
+Si no, no se realiza él envió del SMS ya que no tenemos móvil identificado.
+Aviso en la APP GVA+Salut
+Se añade un aviso en la APP GVA+Salut para informar al paciente si alguno de sus tratamientos crónicos está próximo a su vencimiento. Cuando se cumplan las 2 condiciones indicadas, se muestra un aviso para el tratamiento en cuestión:
+Título del aviso: ‘Próximo a su vencimiento’
+Texto del aviso: ‘Tratamiento próximo a su vencimiento: solicite cita con el profesional médico para prolongar prescripción’
+Notificación en RELE para la farmacia
+El aviso se muestra en RELE al invocar el servicio de listar dispensaciones cuando la fecha de fin del tratamiento sea anterior a la fecha de la receta del último envase dispensable + 30 días (el valor de 30 días será configurable con la siguiente variable: RELE.TRAT_CRON_VENCIMIENTO_DIAS).
+Para los pacientes con tratamientos próximos a su fecha de vencimiento, se añade una alerta al invocar el servicio de ListarDispensaciones desde la oficina de farmacia.
+<pdm xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="relev3">
+<msh>
+<idmessage>1</idmessage>
+<sendingapp>GAIA</sendingapp>
+<receivapp>SICOFC</receivapp>
+<datetime>2025-01-30T16:43:27.003+01:00</datetime>
+</msh>
+<cgd>
+<iddispensacion>1742890</iddispensacion>
+<com1 />
+</cgd>
+<mds>
+<idtratamiento>1717250803952250002</idtratamiento>
+<producto>
+<presentacion>
+<codigo>680</codigo>
+<descripcion>RANITIDINA 300 MG / 14 COMPRIMIDOS</descripcion>
+<preciomenor>3.89</preciomenor>
+<precioreferencia>3.89</precioreferencia>
+<aportacion>3</aportacion>
+<tipoproducto>
+<codigo>1</codigo>
+<descripcion>ESPECIALIDAD FARMACEUTICA</descripcion>
+</tipoproducto>
+</presentacion>
+<especialidad>
+<codigo>657833</codigo>
+<descripcion>RANITIDINA CINFA 300MG 14 COMPRIM RECU EFG</descripcion>
+<pvp>3.89</pvp>
+<preciofacturacion>3.89</preciofacturacion>
+</especialidad>
+</producto>
+<facultativo>
+<telefono>961234567</telefono>
+<nombre>89000036H_NOM 89000036H_APE1</nombre>
+</facultativo>
+<instruccionespaciente>Puede tomarse con o sin alimentos.tomar durante el tiempo dispuesto por el médico.</instruccionespaciente>
+<dosificacion>1 COMPRIMIDO cada 8 horas CRÓNICO</dosificacion>
+<financiacion>9</financiacion>
+<numenvases>5</numenvases>
+<bloqueable>false</bloqueable>
+<leyenda>TSI 003 - CAMPAÑA SANITARIA / EXENTO DE APORTACION</leyenda>
+<fechaproximadispensacion>2025-02-18</fechaproximadispensacion>
+<fechaanteriordispensacion>2024-08-26</fechaanteriordispensacion>
+<financiacionpaciente>1</financiacionpaciente>
+<estupefaciente>false</estupefaciente>
+<cctsi>03</cctsi>
+<caf>T1</caf>
+</mds>
+<alertas>
+<codigoalerta>31</codigoalerta>
+<descripcion>"Atención, El paciente tiene tratamientos crónicos próximos a su fecha de vencimiento. Contacte con su centro de salud para renovar los tratamientos."</descripcion>
+</alertas>
+<ipa>
+<agrupacion>14</agrupacion>
+<fechacorterecetas>2025-02-13</fechacorterecetas>
+<colectivosubvencionado>2</colectivosubvencionado>
+</ipa>
+</pdm>
+La alerta tiene el código ‘31’ y la siguiente descripción:
+<codigoalerta>31</codigoalerta>
+<descripcion>"Atención, El paciente tiene tratamientos crónicos próximos a su fecha de vencimiento. Contacte con su centro de salud para renovar los tratamientos."</descripcion>
+</alertas>
+Al listar en RELE para un paciente que tenga tratamientos crónicos, si sale la alerta de próximo vencimiento, se inserta un registro en la tabla de auditoría. Si volvemos a listar el mismo día para el mismo paciente, se comprueba si hay una alerta registrada para la fecha de hoy y si es el caso no se vuelve a insertar en la auditoria: para un día concreto, solo se inserta una vez en la tabla auditoria que se ha mostrado la alerta a la oficina de Farmacia al listar en RELE (se aplica este criterio para no tener multitud de registros en la tabla auditoria y porque en principio se le comunica al paciente el día que va la farmacia y no cada vez que lista la farmacia).
+Descripción del requisito
+Se crearán dos nuevas variables de configuración para la puesta en marcha de la funcionalidad de envió de notificaciones para una lista concreta de SIP de paciente.
+Esta son las nuevas variables de configuración para activar funcionalidad exclusivamente para una lista de SIP: ‘GAIAWS.TRATAMIENTO_CRONICO_FILTRO_SIP’ y ‘GAIAWS.TRATAMIENTO_CRONICO_FILTRO_SMS_SIP’.
+Obtención de Citas Pendientes del Paciente en la pantalla de crónicos
+NOTA IMPORTANTE: para poder obtener la información de las citas pendientes de un paciente, es requerido que SIA nos cree una vista con las citas de primaria y las citas de especializada (vista US_SIA.CITAPENDGAIA).
+El objetivo es mostrar en el listado de pacientes de la pantalla de crónicos si el paciente tiene una cita o no. Se añadirá una columna Cita (desglosada en 3 subcolumnas: primaria, especializada, enfermería) y se mostrará el icono   cuando el paciente tenga cita:
+Se comprobará si el paciente tiene una cita de enfermería, una cita médica de primaria o de especializada y si es el caso se informará la columna cita correspondiente.
+Posicionando el cursor sobre el icono de cita, se mostrará un tooltip con la información de la cita más cercana del paciente.
+Se indicará:
+Fecha y hora de la cita
+Tipo de cita:
+PRESENCIAL
+TELEFONICA
+VIDEOCONSULTA
+DOMICILIO
+NO PRESENCIAL
+Localización de la cita
+Si la cita es de primaria o de especializada
+El servicio asociado a la cita
+Las citas pendientes del paciente aparecerán en la pantalla de confirmación de la revisión del paciente. Esta información es relevante a la hora de decidir si marcar o no el check “El paciente no recibirá una alerta (SMS/App GVASALUT) para que solicite cita por renovación de tratamiento”:
+Todos los usuarios tendrán visibilidad sobre las citas de enfermería y médicas de primaria o de especializada. Citas de del médico ordenadas por fecha / hora.
+Se creará una nueva variable de configuración ‘CRONICOS_DIAS_CITAS_FUTURAS’ para acotar la ventana temporal de las citas que queremos mostrar. Esta nueva variable de configuración tendrá por defecto el valor de 365 días.
+Esta es la consulta que permitirá recoger la lista de citas pendientes de un paciente:
+SELECT SIP,         FECHA,         HORA,         CENTRO_CRC,         CENTRO,         COD_SERVICIO,         SERVICIO,         TIPO    FROM us_sia.vw_citapendgaia    WHERE SIP = #value#      AND FECHA >= TRUNC(SYSDATE)    AND COD_SERVICIO NOT IN (      SELECT REGEXP_SUBSTR(VALOR, '[^,]+', 1, LEVEL)      FROM (SELECT VALOR FROM US_BDMA.CONFPROPERTIES C WHERE CODIGO = 'SERVICIOS_DESCARTADOS_CITAS')      CONNECT BY REGEXP_SUBSTR(VALOR, '[^,]+', 1, LEVEL) IS NOT NULL    )    ORDER BY FECHA ASC
+La siguiente variable de configuración permitirá descartar los servicios que no interesa tener en cuenta en este proceso:
+Esta es la lista de servicios que tenemos en la vista de citas del paciente:
+Citas Pendientes del Paciente e impacto en envíos de SMS y notificaciones APP
+Adicionalmente, en los envíos de SMS y notificaciones a la APP, se comprobará si el paciente tiene citas programadas para realizar los envíos o no. Se aplicará la siguiente lógica:
+Si el paciente tiene únicamente tratamientos crónicos de enfermería próximos a su fecha de vencimiento y NO tiene cita programada antes de que venza el primer tratamiento, se enviara el SMS/Notificación APP (en este caso se mirara si tiene  una cita médica o una cita de enfermería).
+Si el paciente tiene únicamente tratamientos crónicos de enfermería próximos a su fecha de vencimiento y tiene al menos una cita programada antes de que venza el primer tratamiento, NO se enviara el SMS/Notificación APP (en este caso se mirara si tiene una cita médica o una cita de enfermería).
+Si el paciente tiene tratamientos crónicos que no sean de enfermería, ni de dispensación en UFPE próximos a su fecha de vencimiento y no tiene cita programada en una agenda de medico antes de que venza el primer tratamiento, se enviara el SMS/Notificación APP (en este caso se mirara si tiene una cita de especializada o una cita médica).
+Si el paciente tiene tratamientos crónicos que no sean de enfermería, ni de dispensación en UFPE próximos a su fecha de vencimiento y tiene al menos una cita programada en una agenda de medico antes de que venza el primer tratamiento, NO se enviara el SMS/Notificación APP (en este caso se mirara si tiene una cita de especializada o una cita médica).
+Si el paciente tiene algún tratamiento crónico de dispensación en UFPE próximo a su fecha de vencimiento y tiene al menos una cita de especializada programada antes de que venza el primer tratamiento, NO se enviará el SMS/Notificación APP (en este caso se mirara solo si tiene una cita de especializada).
+Si el paciente tiene algún tratamiento crónico de dispensación en UFPE próximo a su fecha de vencimiento y no tiene una cita de especializada programada antes de que venza el primer tratamiento, se enviará el SMS/Notificación APP (en este caso se mirara solo si tiene una cita de especializada).
+Se creará una variable de configuración para establecer un margen entre la fecha de cita y la fecha de vencimiento del tratamiento crónico: CRONICOS_MARGEN_MSG_CITA Por defecto, el valor de la variable será 3. Ese valor se sumará a la fecha de fin del tratamiento y cuando la fecha de cita sea anterior a la fecha de fin del tratamiento más el margen, no se enviará la notificación/SMS al paciente.
+Se creará la variable de configuración SERVICIOS_DESCARTADOS_CITAS.
+Análisis
+Casos de uso
+
+[CASO_DE_USO] CU1 – Listar en RELE sin cita
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU1 – Listar en RELE sin cita
+Actores
+Oficina de Farmacia
+Referencias
+Precondiciones
+Paciente que tenga pautado un tratamiento catalogado como crónico y próximo a su fecha de vencimiento.
+Paciente sin cita anterior a la fecha de fin del tratamiento
+Postcondiciones
+Descripción
+Se añadirá una alerta en el campo de alertas, informando al paciente que tiene que contactar con su centro de salud para renovar los tratamientos.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+Oficina de Farmacia
+Desde el dispensador de RELE, listar en RELE y comprobar que sale una alerta
+informando al paciente que tiene que contactar con su centro de salud para renovar los tratamientos.
+
+[CASO_DE_USO] CU2 – Listar en RELE Paciente cita medica
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU2 – Listar en RELE cita medica
+Actores
+Oficina de Farmacia
+Referencias
+Precondiciones
+Paciente que tenga pautado solo un tratamiento de oficina de farmacia catalogado como crónico y próximo a su fecha de vencimiento.
+Paciente con cita médica anterior a la fecha de fin del tratamiento
+Postcondiciones
+Descripción
+No se añadirá una alerta en el campo de alertas, informando al paciente que tiene que contactar con su centro de salud para renovar los tratamientos.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+Oficina de Farmacia
+Desde el dispensador de RELE, listar en RELE y comprobar que NO sale una alerta
+informando al paciente que tiene que contactar con su centro de salud para renovar los tratamientos.
+
+[CASO_DE_USO] CU3 – Listar en RELE Paciente cita enfermería
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU3 – Listar en RELE cita enfermería
+Actores
+Oficina de Farmacia
+Referencias
+Precondiciones
+Paciente que tenga pautado solo un tratamiento de indicación de enfermería catalogado como crónico y próximo a su fecha de vencimiento.
+Paciente con cita de enfermería anterior a la fecha de fin del tratamiento
+Postcondiciones
+Descripción
+No se añadirá una alerta en el campo de alertas, informando al paciente que tiene que contactar con su centro de salud para renovar los tratamientos.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+Oficina de Farmacia
+Desde el dispensador de RELE, listar en RELE y comprobar que NO sale una alerta
+informando al paciente que tiene que contactar con su centro de salud para renovar los tratamientos.
+
+[CASO_DE_USO] CU4 – Aviso Próximo a su vencimiento
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU4 – Aviso Próximo a su vencimiento
+Actores
+Paciente usuario de la APP GVA+Salut
+Referencias
+Precondiciones
+Acceder al apartado de Farmacia de la APP.
+Paciente que tenga pautado solo un tratamiento catalogado como crónico y próximo a su fecha de vencimiento.
+Paciente con cita anterior a la fecha de fin del tratamiento
+Postcondiciones
+Descripción
+Cuando un tratamiento crónico está próximo a su fecha de vencimiento, se muestra un aviso en el detalle del tratamiento, aunque el paciente tenga una cita.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+Usuario APP
+Acceder al listado de tratamientos del apartado de Farmacia. En la lista de tratamientos. El tratamiento próximo a su vencimiento aparece con una marca de aviso.
+Consultar el detalle de un tratamiento con un aviso. En el detalle, aparece el aviso con el siguiente contenido:
+Título del aviso: ‘Próximo a su vencimiento’
+Texto del aviso: ‘Tratamiento crónico próximo a su fecha vencimiento’
+
+[CASO_DE_USO] CU5 – Notificación paciente tratamiento crónico próximo a su vencimiento
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU5 – Notificación paciente tratamiento crónico próximo a su vencimiento
+Actores
+Paciente usuario de la APP GVA+Salut
+Referencias
+Precondiciones
+Tener la APP GVA+Salut instalada en el dispositivo.
+Paciente con algún tratamiento crónico cercanos a su fecha de vencimiento
+Paciente sin cita
+Postcondiciones
+Descripción
+Cuando se ejecuta la tarea en GAIAWS de detección de tratamientos próximos a su vencimiento, se genera una notificación de tratamiento crónico está próximo a su fecha de vencimiento.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+Usuario APP
+Esperar que se ejecute el proceso de GAIAWS que realiza el envío de notificaciones a través de SIAREST.
+Si el usuario registrado en la APP GVA+Salut del dispositivo tiene tratamientos crónicos próximos a su vencimiento, le llegara la siguiente notificación a su dispositivo:
+La notificación queda registrada en la tabla de auditoría, para evitar reiteraciones en la notificación.
+Excepciones
+Paso
+Ejecutor
+Acción
+El paciente ya ha sido notificado y no ha pasado el plazo establecido para volver a notificarle. En este caso, no se le envía de nuevo la notificación.
+
+[CASO_DE_USO] CU6 – Notificación paciente tratamiento crónico próximo a su vencimiento - Enfermería
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU6 – Notificación paciente tratamiento crónico próximo a su vencimiento - Enfermería
+Actores
+Paciente usuario de la APP GVA+Salut
+Referencias
+Precondiciones
+Tener la APP GVA+Salut instalada en el dispositivo.
+Paciente con solo tratamientos crónicos de enfermería cercanos a su fecha de vencimiento
+Paciente con cita de enfermería o cita médica con fecha anterior al fin del primer tratamiento
+Postcondiciones
+Descripción
+Cuando se ejecuta la tarea en GAIAWS de detección de tratamientos próximos a su vencimiento, NO se genera una notificación de tratamiento crónico está próximo a su fecha de vencimiento.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+Usuario APP
+Esperar que se ejecute el proceso de GAIAWS que realiza el envío de notificaciones a través de SIAREST.
+El usuario registrado en la APP GVA+Salut del dispositivo tiene tratamientos crónicos próximos a su vencimiento, pero al tener cita, NO le llegara la siguiente notificación a su dispositivo.
+
+[CASO_DE_USO] CU7 – Notificación paciente tratamiento crónico próximo a su vencimiento - Medico
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU7 – Notificación paciente tratamiento crónico próximo a su vencimiento - Medico
+Actores
+Paciente usuario de la APP GVA+Salut
+Referencias
+Precondiciones
+Tener la APP GVA+Salut instalada en el dispositivo.
+Paciente con tratamientos crónicos que no sean de enfermería, ni de UFPE cercanos a su fecha de vencimiento
+Paciente con cita médica de primaria o de especializada con fecha anterior al fin del primer tratamiento
+Postcondiciones
+Descripción
+Cuando se ejecuta la tarea en GAIAWS de detección de tratamientos próximos a su vencimiento, NO se genera una notificación de tratamiento crónico está próximo a su fecha de vencimiento.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+Usuario APP
+Esperar que se ejecute el proceso de GAIAWS que realiza el envío de notificaciones a través de SIAREST.
+El usuario registrado en la APP GVA+Salut del dispositivo tiene tratamientos crónicos próximos a su vencimiento, pero al tener cita, NO le llegara la siguiente notificación a su dispositivo.
+
+[CASO_DE_USO] CU8 – Notificación paciente tratamiento crónico próximo a su vencimiento - UFPE
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU8 – Notificación paciente tratamiento crónico próximo a su vencimiento - UFPE
+Actores
+Paciente usuario de la APP GVA+Salut
+Referencias
+Precondiciones
+Tener la APP GVA+Salut instalada en el dispositivo.
+Paciente con solo tratamientos crónicos de UFPE cercanos a su fecha de vencimiento
+Paciente con cita médica de especializada con fecha anterior al fin del primer tratamiento
+Postcondiciones
+Descripción
+Cuando se ejecuta la tarea en GAIAWS de detección de tratamientos próximos a su vencimiento, NO se genera una notificación de tratamiento crónico está próximo a su fecha de vencimiento.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+Usuario APP
+Esperar que se ejecute el proceso de GAIAWS que realiza el envío de notificaciones a través de SIAREST.
+El usuario registrado en la APP GVA+Salut del dispositivo tiene tratamientos crónicos próximos a su vencimiento, pero al tener cita, NO le llegara la siguiente notificación a su dispositivo.
+
+[CASO_DE_USO] CU9 – Envió SMS paciente tratamiento crónico próximo a su vencimiento
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU9 – Envió SMS paciente tratamiento crónico próximo a su vencimiento
+Actores
+Paciente
+Referencias
+Precondiciones
+Paciente con teléfono móvil informado en SIP.
+Paciente con algún tratamiento crónico cercanos a su fecha de vencimiento
+Paciente sin cita
+Postcondiciones
+Descripción
+Cuando se ejecuta la tarea en GAIAWS de detección de tratamientos próximos a su vencimiento, se envía un SMS al paciente informando que su tratamiento crónico está próximo a su fecha de vencimiento.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+Paciente
+Esperar que se ejecute el proceso de GAIAWS que realiza el envío de SMS a través de RHAPSODY.
+Si el usuario tiene tratamientos crónicos próximos a su vencimiento, le llegara un SMS a su dispositivo con la siguiente información:
+“Su tratamiento crónico está próximo a su vencimiento: solicite cita con el profesional médico para prolongar la prescripción de sus tratamientos.”
+La notificación queda registrada en la tabla de auditoría, para evitar reiteraciones en los envíos de SMS.
+Excepciones
+Paso
+Ejecutor
+Acción
+El paciente ya ha sido notificado y no ha pasado el plazo establecido para volver a enviarle un SMS. En este caso, no se le envía de nuevo el SMS.
+
+[CASO_DE_USO] CU10 – Envió SMS paciente tratamiento crónico próximo a su vencimiento - Enfermería
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU10 – Envió SMS paciente tratamiento crónico próximo a su vencimiento - Enfermería
+Actores
+Paciente
+Referencias
+Precondiciones
+Paciente con teléfono móvil informado en SIP.
+Paciente con solo tratamientos crónicos de enfermería cercanos a su fecha de vencimiento
+Paciente con cita de enfermería o cita médica con fecha anterior al fin del primer tratamiento
+Postcondiciones
+Descripción
+Cuando se ejecuta la tarea en GAIAWS de detección de tratamientos próximos a su vencimiento, al tener el paciente una cita, NO se envía un SMS al paciente informando que su tratamiento crónico está próximo a su fecha de vencimiento.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+Paciente
+Esperar que se ejecute el proceso de GAIAWS que realiza el envío de SMS a través de RHAPSODY.
+Si el usuario tiene tratamientos crónicos próximos a su vencimiento, al tener el paciente una cita, NO le llegara un SMS a su dispositivo con la siguiente información:
+“Su tratamiento crónico está próximo a su vencimiento: solicite cita con el profesional médico para prolongar la prescripción de sus tratamientos.”
+
+[CASO_DE_USO] CU11 – Envió SMS paciente tratamiento crónico próximo a su vencimiento - Medico
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU11 – Envió SMS paciente tratamiento crónico próximo a su vencimiento - Medico
+Actores
+Paciente
+Referencias
+Precondiciones
+Paciente con teléfono móvil informado en SIP.
+Paciente con tratamientos crónicos que no sean de enfermería, ni de UFPE cercanos a su fecha de vencimiento
+Paciente con cita médica de primaria o de especializada con fecha anterior al fin del primer tratamiento
+Postcondiciones
+Descripción
+Cuando se ejecuta la tarea en GAIAWS de detección de tratamientos próximos a su vencimiento, al tener el paciente una cita, NO se envía un SMS al paciente informando que su tratamiento crónico está próximo a su fecha de vencimiento.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+Paciente
+Esperar que se ejecute el proceso de GAIAWS que realiza el envío de SMS a través de RHAPSODY.
+Si el usuario tiene tratamientos crónicos próximos a su vencimiento, al tener el paciente una cita, NO le llegara un SMS a su dispositivo con la siguiente información:
+“Su tratamiento crónico está próximo a su vencimiento: solicite cita con el profesional médico para prolongar la prescripción de sus tratamientos.”
+
+[CASO_DE_USO] CU12 – Envió SMS paciente tratamiento crónico próximo a su vencimiento - UFPE
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU12 – Envió SMS paciente tratamiento crónico próximo a su vencimiento - UFPE
+Actores
+Paciente
+Referencias
+Precondiciones
+Paciente con teléfono móvil informado en SIP.
+Paciente con solo tratamientos crónicos de UFPE cercanos a su fecha de vencimiento
+Paciente con cita médica de especializada con fecha anterior al fin del primer tratamiento
+Postcondiciones
+Descripción
+Cuando se ejecuta la tarea en GAIAWS de detección de tratamientos próximos a su vencimiento, al tener el paciente una cita, NO se envía un SMS al paciente informando que su tratamiento crónico está próximo a su fecha de vencimiento.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+Paciente
+Esperar que se ejecute el proceso de GAIAWS que realiza el envío de SMS a través de RHAPSODY.
+Si el usuario tiene tratamientos crónicos próximos a su vencimiento, al tener el paciente una cita, NO le llegara un SMS a su dispositivo con la siguiente información:
+“Su tratamiento crónico está próximo a su vencimiento: solicite cita con el profesional médico para prolongar la prescripción de sus tratamientos.”
+
+[CASO_DE_USO] CU13 – Revisar Tratamientos crónicos y citas paciente - Enfermería
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU13 – Revisar Tratamientos crónicos y citas paciente - Enfermería
+Actores
+Usuarios con permiso para la opción ‘Tratamientos crónicos’.
+Perfil Enfermería
+Referencias
+Precondiciones
+Acceder a la pantalla de utilidades de prescripción y seleccionar la opción ‘Tratamientos crónicos’ de MPRE3.
+El paciente tiene algún tratamiento crónico próximo a su fecha de vencimiento prescribible por Enfermería.
+La variable de configuración CRONICOS_DIAS_REVISION tiene un valor positivo de días (por defecto 30 días). Si el valor de la variable es negativo o igual a 0, no sale la opción “Marcar como revisado”
+El paciente tiene citas de enfermería o citas médicas pendientes registradas en la vista de SIA.
+Postcondiciones
+Tras marcar el paciente como revisado, el paciente desaparece de la lista de trabajo.
+Descripción
+Se marcan los pacientes como revisados y de esta manera desaparecen del listado de pacientes con tratamientos crónicos próximos a su fecha de vencimiento pendientes de revisar.
+En el mensaje de confirmación aparecen las citas pendientes del paciente registradas en la vista SIA.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+Enfermero
+Desde la pantalla de utilidades de prescripción y seleccionar la opción ‘Tratamientos crónicos’ de MPRE3
+Desplegar los filtros y comprobar que está marcada la opción ‘Crónicos próximos a su vencimiento’
+Realizar una búsqueda de pacientes y comprobar que en la ruleta se visualiza solo la opción ‘Marcar como revisado’
+Comprobar que se muestra la información de cita para cada paciente:
+Comprobar que aparecen las citas pendientes del paciente. Esta información es relevante a la hora de decidir si marcar o no el check “El paciente no recibirá una alerta (SMS/App GVASALUT) para que solicite cita por renovación de tratamiento”:
+Enfermero: tiene visibilidad sobre todas las citas de enfermería y médicas.
+
+[CASO_DE_USO] CU14 – Tratamientos crónicos y citas paciente – Farmacia/SC
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU14 – Tratamientos crónicos y citas paciente – Farmacia/SC
+Actores
+Usuarios con permiso para la opción ‘Tratamientos crónicos’.
+Perfil Farmacéutico o Servicios centrales
+Referencias
+Precondiciones
+Acceder a la pantalla de utilidades de prescripción y seleccionar la opción ‘Tratamientos crónicos’ de MPRE3.
+El paciente tiene algún tratamiento crónico próximo a su fecha de vencimiento.
+El paciente tiene citas pendientes registradas en SIA.
+Postcondiciones
+Descripción
+Se puede visualizar la información de la cita más cercana en el tooltip.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+Enfermero
+Desde la pantalla de utilidades de prescripción y seleccionar la opción ‘Tratamientos crónicos’ de MPRE3
+Desplegar los filtros y comprobar que está marcada la opción ‘Crónicos próximos a su vencimiento’
+Realizar una búsqueda de pacientes y comprobar que en la ruleta NO se visualiza solo la opción ‘Marcar como revisado’
+Comprobar que se muestra la información de cita para cada paciente:
+Comprobar que aparece el tooltip con la información de la cita más cercana:
+
+[CASO_DE_USO] CU15 – Revisar Tratamientos crónicos y citas paciente - Medico
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU15 – Revisar Tratamientos crónicos y citas paciente - Medico
+Actores
+Usuarios con permiso para la opción ‘Tratamientos crónicos’.
+Perfil Medico
+Referencias
+Precondiciones
+Acceder a la pantalla de utilidades de prescripción y seleccionar la opción ‘Tratamientos crónicos’ de MPRE3.
+El paciente tiene algún tratamiento crónico próximo a su fecha de vencimiento que no sea de Enfermería.
+La variable de configuración CRONICOS_DIAS_REVISION tiene un valor positivo de días (por defecto 30 días). Si el valor de la variable es negativo o igual a 0, no sale la opción “Marcar como revisado”
+El paciente tiene alguna cita médica de primaria o de especializada pendiente registrada en la vista de SIA.
+Postcondiciones
+Tras marcar el paciente como revisado, el paciente desaparece de la lista de trabajo.
+Descripción
+Se marcan los pacientes como revisados y de esta manera desaparecen del listado de pacientes con tratamientos crónicos próximos a su fecha de vencimiento pendientes de revisar.
+En el mensaje de confirmación aparecen las citas pendientes del paciente registradas en SIA.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+Enfermero
+Desde la pantalla de utilidades de prescripción y seleccionar la opción ‘Tratamientos crónicos’ de MPRE3
+Desplegar los filtros y comprobar que está marcada la opción ‘Crónicos próximos a su vencimiento’
+Realizar una búsqueda de pacientes y comprobar que en la ruleta se visualiza solo la opción ‘Marcar como revisado’
+Comprobar que se muestra la información de cita para cada paciente:
+Comprobar que aparecen las citas pendientes del paciente. Esta información es relevante a la hora de decidir si marcar o no el check “El paciente no recibirá una alerta (SMS/App GVASALUT) para que solicite cita por renovación de tratamiento”:
+Médico: tiene visibilidad sobre las citas médicas y de enfermería. Las citas aparecen ordenadas por fecha / hora.
+Plan de pruebas funcional
+Caso:
+RELE-Listar Paciente sin cita
+Precondiciones:
+Usuario de Oficina de Farmacia
+Usuario
+Perfil
+Paciente
+• Paciente que tenga pautado un tratamiento crónico y próximo a su fecha de vencimiento.     • Paciente sin cita anterior a la fecha de fin del tratamiento
+Diagnostico
+Medicamento
+Centro
+Pasos a realizar:
+Acceder al simulador de RELE
+Listar tratamientos del paciente de la precondición
+Comprobar que en la respuesta se añade alerta en el campo alertas informando al paciente que tiene tratamientos crónicos próximos a su fecha de vencimiento
+10
+Resultado esperado
+Genera alerta crónicos
+Resultado obtenido
+Caso:
+RELE-Listar Paciente cita médica
+Precondiciones:
+Usuario de Oficina de Farmacia
+Usuario
+Perfil
+Paciente
+• Paciente que tenga pautado solo un tratamiento de oficina de farmacia crónico y próximo a su fecha de vencimiento.      • Paciente con cita médica anterior a la fecha de fin del tratamiento
+Diagnostico
+Medicamento
+Centro
+Pasos a realizar:
+Acceder al simulador de RELE
+Listar tratamientos del paciente de la precondición
+Comprobar que en la respuesta NO se añade alerta en el campo alertas informando al paciente que tiene tratamientos crónicos próximos a su fecha de vencimiento
+10
+Resultado esperado
+No genera alerta crónicos
+Resultado obtenido
+Caso:
+RELE-Listar Paciente cita enfermeria
+Precondiciones:
+Usuario
+Usuario de Oficina de Farmacia
+Perfil
+Paciente
+Diagnostico
+• Paciente que tenga pautado solo un tratamiento crónico de indicación de enfermería  y próximo a su fecha de vencimiento.      • Paciente con cita de enfermería anterior a la fecha de fin del tratamiento
+Medicamento
+Centro
+Pasos a realizar:
+Acceder al simulador de RELE
+Listar tratamientos del paciente de la precondición
+Comprobar que en la respuesta NO se añade alerta en el campo alertas informando al paciente que tiene tratamientos crónicos próximos a su fecha de vencimiento
+10
+Resultado esperado
+No genera alerta crónicos
+Resultado obtenido
+Caso:
+APP- Aviso Próximo a su vencimiento
+Precondiciones:
+Usuario
+Usuario APP
+Perfil
+Paciente
+• Paciente usuario de la APP GVA+Salut  • Paciente que tenga pautado solo un tratamiento catalogado como crónico y próximo a su fecha de vencimiento.    • Paciente con cita anterior a la fecha de fin del tratamiento
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Acceder al listado de tratamientos del apartado de Farmacia
+En la lista de tratamientos. El tratamiento próximo a su vencimiento aparece con una marca de aviso.
+Consultar el detalle de un tratamiento con un aviso. En el detalle, aparece el aviso con el siguiente contenido:     • Título del aviso: ‘Próximo a su vencimiento’    • Texto del aviso: ‘Tratamiento crónico próximo a su fecha vencimiento’
+Resultado esperado
+Resultado obtenido
+Caso:
+APP- Notificación paciente tratamiento crónico próximo a su vencimiento
+Precondiciones:
+Usuario
+Usuario APP
+Perfil
+Paciente
+• Paciente usuario de la APP GVA+Salut  • Tener la APP GVA+Salut instalada en el dispositivo• Paciente que tenga pautado solo un tratamiento catalogado como crónico y próximo a su fecha de vencimiento.    • Paciente sin cita
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Esperar que se ejecute el proceso de GAIAWS que realiza el envío de notificaciones a través de SIAREST.
+Llegará  notificación al dispositivo; “Tratamiento crónico próximo a su vencimiento: solicite cita con el profesional médico para prolongrar prescripción
+Resultado esperado
+Se genera notificación
+Resultado obtenido
+Caso:
+APP- Notificación paciente tratamiento crónico próximo a su vencimiento-Enfermeria
+Precondiciones:
+Usuario
+Usuario APP
+Perfil
+Paciente
+• Paciente usuario de la APP GVA+Salut  • Tener la APP GVA+Salut instalada en el dispositivo• Paciente con solo tratamientos crónicos de enfermería y próximos a su fecha de vencimiento.    • Paciente con cita de enfermería o médica con fecha anterior al fin del primer tratamiento
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Esperar que se ejecute el proceso de GAIAWS que realiza el envío de notificaciones a través de SIAREST.
+No llegará  notificación al dispositivo de que existen tratamientos próximos a su vencimiento
+Resultado esperado
+No se genera notificación
+Resultado obtenido
+Caso:
+APP- Notificación paciente tratamiento crónico próximo a su vencimiento-Médico
+Precondiciones:
+Usuario
+Usuario APP
+Perfil
+Paciente
+• Paciente usuario de la APP GVA+Salut  • Tener la APP GVA+Salut instalada en el dispositivo• Paciente  con tratamientos crónicos próximos a su fecha de vencimiento que no sean de enfermería ni de UFPE• Paciente con cita médica de primaria o especializada, con fecha anterior al fin del primer tratamiento
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Esperar que se ejecute el proceso de GAIAWS que realiza el envío de notificaciones a través de SIAREST.
+No llegará  notificación al dispositivo de que existen tratamientos próximos a su vencimiento
+Resultado esperado
+No se genera notificación
+Resultado obtenido
+Caso:
+APP- Notificación paciente tratamiento crónico próximo a su vencimiento-UFPE
+Precondiciones:
+Usuario
+Usuario APP
+Perfil
+Paciente
+• Paciente usuario de la APP GVA+Salut  • Tener la APP GVA+Salut instalada en el dispositivo• Paciente  con tratamientos crónicos de UFPE, próximos a su fecha de vencimiento• Paciente con cita médica especializada, con fecha anterior al fin del primer tratamiento
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Esperar que se ejecute el proceso de GAIAWS que realiza el envío de notificaciones a través de SIAREST.
+No llegará  notificación al dispositivo de que existen tratamientos próximos a su vencimiento
+Resultado esperado
+No se genera notificación
+Resultado obtenido
+Caso:
+Envio SMS paciente tratamiento crónico próximo a su vencimiento
+Precondiciones:
+Usuario
+Perfil
+Paciente
+• Paciente con teléfono móvil informado en SIP.      • Paciente con algún tratamiento crónico cercanos a su fecha de vencimiento      • Paciente sin cita
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Esperar que se ejecute el proceso de GAIAWS que realiza el envío de SMS a través de RHAPSODY.
+Al paciente le llegara un SMS a su dispositivo con la siguiente información: “Su tratamiento crónico está próximo a su vencimiento: solicite cita con el profesional médico para prolongar la prescripción de sus tratamientos.” (Si el paciente ya ha sido notificado y no ha pasado el plazo establecido para volver a enviarle un SMS. En este caso, no se le envía de nuevo el SMS.)
+La notificación queda registrada en la tabla de auditoria
+Resultado esperado
+Se envia SMS
+Resultado obtenido
+Caso:
+10
+Envio SMS paciente tratamiento crónico próximo a su vencimiento - Enfermería
+Precondiciones:
+Usuario
+Perfil
+Paciente
+• Paciente con teléfono móvil informado en SIP     • Paciente con solo tratamientos crónicos de enfermería cercanos a su fecha de vencimiento      • Paciente con cidta de enfermería o médica anterior a  la fecha fin del primer tratamiento
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Esperar que se ejecute el proceso de GAIAWS que realiza el envío de SMS a través de RHAPSODY.
+Al paciente NO le llegara un SMS a su dispositivo con la siguiente información: “Su tratamiento crónico está próximo a su vencimiento: solicite cita con el profesional médico para prolongar la prescripción de sus tratamientos.”
+Resultado esperado
+NO se envia SMS
+Resultado obtenido
+Caso:
+11
+Envio SMS paciente tratamiento crónico próximo a su vencimiento – Médico
+Precondiciones:
+Usuario
+Perfil
+Paciente
+• Paciente con teléfono móvil informado en SIP     • Paciente con tratamientos crónicos que no sean de enfermería, ni de UFPE cercanos a su fecha de vencimiento     • Paciente con cita médica de primaria o de especializada con fecha anterior al fin del primer tratamiento
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Esperar que se ejecute el proceso de GAIAWS que realiza el envío de SMS a través de RHAPSODY.
+Al paciente NO le llegara un SMS a su dispositivo con la siguiente información: “Su tratamiento crónico está próximo a su vencimiento: solicite cita con el profesional médico para prolongar la prescripción de sus tratamientos.”
+Resultado esperado
+NO se envia SMS
+Resultado obtenido
+Caso:
+12
+Envió SMS paciente tratamiento crónico próximo a su vencimiento – UFPE
+Precondiciones:
+Usuario
+Perfil
+Paciente
+• Paciente con teléfono móvil informado en SIP   • Paciente con solo tratamientos crónicos de UFPE cercanos a su fecha de vencimiento     • Paciente con cita médica de especializada con fecha anterior al fin del primer tratamiento
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Esperar que se ejecute el proceso de GAIAWS que realiza el envío de SMS a través de RHAPSODY.
+Al paciente NO le llegara un SMS a su dispositivo con la siguiente información: “Su tratamiento crónico está próximo a su vencimiento: solicite cita con el profesional médico para prolongar la prescripción de sus tratamientos.”
+Resultado esperado
+NO se envia SMS
+Resultado obtenido
+Caso:
+13
+Revisar Tratamientos crónicos y citas paciente – Enfermería
+Precondiciones:
+Usuario
+Usuario con permiso para la opción ‘Tratamientos crónicos’
+Perfil
+Enfermería
+Paciente
+• Paciente que tenga algún tratamiento crónico próximo a su fecha de vencimiento prescribible por Enfermería  • Paciente con cita de enfermería o cita médica pendientes, registradas en la vista de SIA
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Tener configurada la variable CRONICOS_DIAS_REVISION=30
+Acceder a la pantalla Utilidades de Prescripción
+Seleccionar la opción Tratamientos Crónicos
+Desplegar los filtros y comprobar que este marcada la opción ‘Crónicos próximos a su vencimiento’
+Realizar una búsqueda de pacientes y comprobar que en la ruleta se visualiza solo la opción ‘Marcar como revisado’
+Comprobar que aparecen las citas pendientes del paciente.
+Resultado esperado
+Resultado obtenido
+Caso:
+14
+Tratamientos crónicos y citas paciente – Farmacia/SC
+Precondiciones:
+Usuario
+Usuario con permiso para la opción ‘Tratamientos crónicos’
+Perfil
+Farmacéutico o Servicios centrales
+Paciente
+• Paciente que tenga algún tratamiento crónico próximo a su fecha de vencimiento • Paciente con citas pendientes registradas en  SIA
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Tener configurada la variable CRONICOS_DIAS_REVISION=30
+Acceder a la pantalla Utilidades de Prescripción
+Seleccionar la opción Tratamientos Crónicos
+Desplegar los filtros y comprobar que este marcada la opción ‘Crónicos próximos a su vencimiento’
+Realizar una búsqueda de pacientes y comprobar que en la ruleta NO se visualiza solo la opción ‘Marcar como revisado’
+Comprobar que se muestra la información de cita para cada paciente
+Comprobar que aparece el tooltip con la información de la cita más cercana
+Resultado esperado
+Resultado obtenido
+Caso:
+15
+Tratamientos crónicos y citas paciente – Médico
+Precondiciones:
+Usuario
+Usuario con permiso para la opción ‘Tratamientos crónicos’
+Perfil
+Médico
+Paciente
+• Paciente que tenga algún tratamiento crónico próximo a su fecha de vencimiento que no sea de enfermería• Paciente con alguna cita médica de primaria o especializada registrada en SIA
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Tener configurada la variable CRONICOS_DIAS_REVISION=30
+Acceder a la pantalla Utilidades de Prescripción
+Seleccionar la opción Tratamientos Crónicos
+Desplegar los filtros y comprobar que este marcada la opción ‘Crónicos próximos a su vencimiento’
+Realizar una búsqueda de pacientes y comprobar que en la ruleta se visualiza solo la opción ‘Marcar como revisado’
+Comprobar que se muestra la información de cita para cada paciente
+Comprobar que aparecen las citas pendientes del paciente.
+Resultado esperado
+Resultado obtenido
