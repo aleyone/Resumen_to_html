@@ -550,24 +550,60 @@ function extractVersionDate(text) {
   return allDates[0] || null;
 }
 
-function buildPromptSingle(chunk, chunkIdx, totalChunks) {
-  const isFirst = chunkIdx === 0;
-  const metaLine = isFirst ? 'Extrae el meta (title, version, app).' : 'Para "meta" devuelve campos vacíos.';
-  const instruccion = isFirst
-    ? 'Estás analizando UN ÚNICO requerimiento. Extrae la información en UN SOLO objeto.'
-    : `Fragmento ${chunkIdx+1}/${totalChunks} del mismo requerimiento. Enriquece situacion_actual y descripcion si hay información nueva. Devuelve UN objeto o requirements:[].`;
-  return `Eres experto en documentación de requerimientos sanitarios para soporte CAU. ${instruccion} ${metaLine}
+// ── Extract title deterministically from document text ──
+function extractTitleFromText(text, filename) {
+  // Try "Nombre de requisito" section — grab the line after heading
+  const nombreMatch = text.match(/Nombre de requisito\s*\n+([^\n]+)/i);
+  if (nombreMatch) {
+    // Clean brackets: [GVMEGAIA-27217] GAIA-526 [MPRE3] Ajuste posología envase antibiótico.
+    const raw = nombreMatch[1].trim();
+    const cleaned = raw.replace(/^(\[[^\]]*\]\s*)+(GAIA-\d+\s*|SIA-\d+\s*)?/i, '').replace(/\.$/, '').trim();
+    if (cleaned.length > 3) return cleaned;
+  }
+  // Fallback: filename without extension and brackets
+  return filename.replace(/\.[^.]+$/, '')
+    .replace(/^(\[[^\]]*\]\s*)+(GAIA-\d+[-_]\s*|SIA-\d+[-_]\s*)?/i, '')
+    .replace(/[_\-]+/g, ' ').trim();
+}
 
-SOLO dos campos de contenido:
-- situacion_actual: qué había antes del cambio, el problema o necesidad que motivó el requerimiento. Máximo 2 párrafos en prosa clara.
-- descripcion: resumen funcional del cambio implementado orientado al equipo de soporte CAU. Qué cambia, cómo afecta al usuario final (médico, enfermería, farmacia, paciente). MÁXIMO 2 PÁRRAFOS. Sin tecnicismos, sin nombres de variables ni endpoints.
+// ── Phase 1 extraction prompt — just extract key facts, no synthesis ──
+function buildPromptExtract(chunk, chunkIdx, totalChunks) {
+  return `Eres experto en documentación de requerimientos sanitarios. Extrae del fragmento ${chunkIdx+1}/${totalChunks} los siguientes datos si aparecen. NO sintetices ni reescritas, extrae el texto relevante tal como está.
 
-EXCLUIR: variables de configuración, BBDD, endpoints, DTOs, clases Java, tablas técnicas, permisos técnicos.
+Extrae SOLO si aparece en este fragmento:
+- situacion_actual: párrafos que describan la situación ANTES del cambio, el problema o necesidad
+- hechos_clave: lista de hechos funcionales importantes del cambio (qué ve el usuario, qué ocurre en pantalla, qué perfiles se ven afectados)
 
-Responde ÚNICAMENTE con JSON válido sin markdown:
-{"meta":{"title":"","version":"","app":""},"requirements":[{"id":"REQ-01","title":"título descriptivo sin corchetes técnicos","situacion_actual":"situación previa en 1-2 párrafos","descripcion":"descripción funcional del cambio en máximo 2 párrafos orientados al CAU"}]}
+EXCLUIR: variables técnicas, SQL, nombres de tablas BBDD, diagramas, estimaciones, ficheros JS.
+
+Responde ÚNICAMENTE con JSON sin markdown:
+{"situacion_actual":"texto extraído o vacío","hechos_clave":["hecho 1","hecho 2"]}
+
+Si no hay contenido relevante en este fragmento devuelve: {"situacion_actual":"","hechos_clave":[]}
+
 FRAGMENTO ${chunkIdx+1}/${totalChunks}:
-${chunk.slice(0, 7000)}`;}
+${chunk.slice(0, 7000)}`;
+}
+
+// ── Phase 2 synthesis prompt — one call, sees all extracted facts ──
+function buildPromptSynthesize(title, situacionActual,hechosClave) {
+  return `Eres un experto en soporte técnico sanitario. Con los datos extraídos de un requerimiento, genera UN resumen claro para el equipo CAU.
+
+TÍTULO DEL REQUERIMIENTO: ${title}
+
+SITUACIÓN ACTUAL (antes del cambio):
+${situacionActual || 'No disponible'}
+
+HECHOS CLAVE DEL CAMBIO:
+${hechosClave.map((h,i) => `${i+1}. ${h}`).join('\n') || 'No disponible'}
+
+Genera:
+1. situacion_actual: 1-2 párrafos en prosa que expliquen qué había antes y por qué se necesitaba el cambio. Sin tecnicismos.
+2. descripcion: EXACTAMENTE 2 párrafos que resuman qué cambia funcionalmente, cómo afecta al usuario final y qué debe saber el CAU. Sin tecnicismos, sin repetir ideas, sin mencionar nombres de variables ni referencias técnicas.
+
+Responde ÚNICAMENTE con JSON sin markdown:
+{"situacion_actual":"párrafos de situación previa","descripcion":"exactamente 2 párrafos del cambio"}`;
+}
 
 function buildPromptSummary(chunk, chunkIdx, totalChunks) {
   const isFirst = chunkIdx === 0;
@@ -593,59 +629,85 @@ async function parseText(text, app, filename, docType, onProgress) {
   let allReqs = [], meta = {};
 
   if (docType === 'single') {
-    // ── SINGLE REQUIREMENT MODE ──
-    // Chunk the document but merge all results into ONE requirement
+    // ── SINGLE REQUIREMENT MODE — two-phase: extract then synthesize ──
+
+    // Step 0: extract title deterministically
+    const extractedTitle = extractTitleFromText(text, filename);
+
+    // Step 1: chunk and extract key facts (no synthesis yet)
     const CHUNK = 7000;
     const chunks = [];
     for (let i = 0; i < text.length; i += CHUNK) chunks.push(text.slice(i, i + CHUNK));
 
-    let merged = null; // Single requirement object we keep enriching
+    let allSituacion = [];
+    let allHechos = [];
 
     for (let i = 0; i < chunks.length; i++) {
-      onProgress(`Analizando bloque ${i+1} de ${chunks.length}...`, Math.round(20 + (i / chunks.length) * 60));
-      const prompt = buildPromptSingle(chunks[i], i, chunks.length);
+      onProgress(`Extrayendo bloque ${i+1} de ${chunks.length}...`, Math.round(15 + (i / chunks.length) * 50));
+      const prompt = buildPromptExtract(chunks[i], i, chunks.length);
       try {
         const result = await callAI(prompt);
-        if (i === 0 && result.meta?.title) meta = result.meta;
-        const reqs = result.requirements || [];
-        if (reqs.length > 0) {
-          if (!merged) {
-            merged = reqs[0];
-          } else {
-            // Enrich: only situacion_actual and descripcion
-            if (reqs[0].situacion_actual && !merged.situacion_actual) {
-              merged.situacion_actual = reqs[0].situacion_actual;
-            }
-            if (reqs[0].descripcion) {
-              // Append only if new content — avoid repeating same text
-              const existing = (merged.descripcion || '').toLowerCase().slice(0, 100);
-              const incoming = (reqs[0].descripcion || '').toLowerCase().slice(0, 100);
-              if (incoming && existing !== incoming) {
-                merged.descripcion = (merged.descripcion ? merged.descripcion + '\n' : '') + reqs[0].descripcion;
-              }
-            }
-          }
+        if (result.situacion_actual && result.situacion_actual.trim().length > 20) {
+          allSituacion.push(result.situacion_actual.trim());
+        }
+        if (result.hechos_clave && result.hechos_clave.length) {
+          allHechos = allHechos.concat(result.hechos_clave.filter(h => h && h.trim().length > 10));
         }
       } catch(e) {
-        console.warn('Single chunk', i, 'error:', e.message);
+        console.warn('Extract chunk', i, 'error:', e.message);
         if (e.message.includes('rate_limit') || e.message.includes('429') || e.message.includes('Too Many')) {
-          onProgress(`Límite de API, esperando 15s...`, Math.round(20 + (i / chunks.length) * 60));
+          onProgress(`Límite de API, esperando 15s...`, Math.round(15 + (i / chunks.length) * 50));
           await sleep(15000);
           try {
             const retry = await callAI(prompt);
-            if (i === 0 && retry.meta?.title) meta = retry.meta;
-            const reqs = retry.requirements || [];
-            if (reqs.length > 0 && !merged) merged = reqs[0];
-          } catch(e2) { console.error('Retry chunk', i, 'failed:', e2.message); }
+            if (retry.situacion_actual?.trim().length > 20) allSituacion.push(retry.situacion_actual.trim());
+            if (retry.hechos_clave?.length) allHechos = allHechos.concat(retry.hechos_clave.filter(h => h?.trim().length > 10));
+          } catch(e2) { console.error('Retry extract chunk', i, 'failed:', e2.message); }
         }
       }
       if (i < chunks.length - 1) await sleep(2000);
     }
 
-    allReqs = merged ? [{ ...merged, id: 'REQ-01' }] : [];
+    // Deduplicate hechos (remove near-duplicates by first 60 chars)
+    const seenHechos = new Set();
+    allHechos = allHechos.filter(h => {
+      const key = h.toLowerCase().slice(0, 60);
+      if (seenHechos.has(key)) return false;
+      seenHechos.add(key);
+      return true;
+    }).slice(0, 20); // max 20 facts for synthesis
+
+    // Best situacion_actual — take the longest/most complete one
+    const bestSituacion = allSituacion.sort((a, b) => b.length - a.length)[0] || '';
+
+    // Step 2: single synthesis call
+    onProgress('Generando resumen...', 75);
+    let finalSituacion = bestSituacion;
+    let finalDescripcion = '';
+
+    if (allHechos.length > 0 || bestSituacion) {
+      try {
+        const synthPrompt = buildPromptSynthesize(extractedTitle, bestSituacion, allHechos);
+        const synthResult = await callAI(synthPrompt);
+        if (synthResult.situacion_actual) finalSituacion = synthResult.situacion_actual;
+        if (synthResult.descripcion) finalDescripcion = synthResult.descripcion;
+      } catch(e) {
+        console.warn('Synthesis error:', e.message);
+        finalDescripcion = allHechos.slice(0, 5).join(' ');
+      }
+    }
+
+    allReqs = [{
+      id: 'REQ-01',
+      title: extractedTitle,
+      situacion_actual: finalSituacion,
+      descripcion: finalDescripcion
+    }];
+
+    meta = { title: extractedTitle, version: '', app };
 
   } else {
-    // ── SUMMARY MODE ──
+    // ── SUMMARY MODE ── (unchanged)
     const parts = text.split(/(?=\*{0,2}Requerimiento\*{0,2}\s*:)/gi).filter(p => p.trim().length > 100);
     const chunks = [];
     let current = '';
