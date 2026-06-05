@@ -1,3 +1,36 @@
 {
-  "deployments": []
+  "deployments": [
+    {
+      "id": "dep_1780650562157",
+      "app": "GAIA",
+      "version": "PRUEBA GAIA",
+      "date": "2026-06-05",
+      "author": "David Gil",
+      "files": [
+        "[GAIA][2023-29] GAIA-526-[GVMEGAIA-27217] [MPRE3] Ajuste posologia envase antibiotico - V1.3.docx"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Ajuste automático de número de envases para evitar desperdicio de producto",
+          "situacion_actual": "Actualmente, al prescribir medicamentos, el sistema calcula automáticamente el número de envases necesarios redondeando siempre hacia arriba, basándose en la posología y la presentación farmacéutica del producto. Esto provoca pérdida de producto en muchos casos, donde queda sin usar la mayoría de un envase completo. Como alternativa, existe un botón que permite ajustar el tamaño de envases, pero esto modifica la posología original, pudiendo dejar el tratamiento corto de duración.",
+          "descripcion": "El sistema ahora calcula inteligentemente el número de envases durante la prescripción, redondeando hacia abajo en determinados casos para evitar desperdicios, sin alterar la posología adecuada. El médico prescriptor verá una alerta informativa cuando se aplique este redondeo a la baja, para tener claridad sobre qué ha ocurrido. Esta funcionalidad se aplica a medicamentos específicos como antibióticos, configurados previamente en el sistema, y utiliza un umbral de redondeo (por ejemplo, si el cálculo da 1.3 envases, redondea a 1 en lugar de a 2), asegurando siempre que el resultado sea al menos 1 envase.\nSe implementa un sistema de redondeo inteligente de envases que, para medicamentos seleccionados (como antibióticos), redondea automáticamente a la baja el número de envases cuando la parte decimal es igual o inferior a un umbral configurado, evitando así desperdicio. Por ejemplo, si se calcula 1,2 envases y el umbral es 0,3, el sistema redondea a 1 envase. En los demás casos se redondea al alza normalmente. El prescriptor verá una alerta informativa y un icono visual en la pantalla de detalles del tratamiento cuando se haya aplicado este redondeo a la baja, permitiéndole identificar fácilmente qué tratamientos han sido optimizados. Esta funcionalidad afecta a las pantallas de prescripción y modificación de tratamientos, así como a la transcripción de medicamentos en dispensación.\nLa transcripción de tratamientos ahora incluye un cálculo inteligente que detecta automáticamente si la presentación farmacéutica es un antibiótico. Cuando así lo es, el sistema redondea hacia abajo el número de envases si la parte decimal calculada está dentro de un rango permitido, ahorrando medicación sin afectar la eficacia del tratamiento. El enfermero verá una alerta informativa que le notifica este ajuste. En todos los demás casos, el redondeo continúa siendo hacia arriba, excepto cuando redondear hacia abajo resultaría en cero envases, situación que se evita automáticamente.\nSe implementa un sistema de redondeo inteligente que ajusta automáticamente el número de envases según el tipo de antibiótico. Para antibióticos incluidos en el grupo específico, si la fracción de envase es pequeña (menor al 30%), el sistema redondea a la baja para evitar desperdicio, mostrando una alerta al prescriptor informando del ajuste realizado. Para otros medicamentos o cuando la fracción es mayor, se mantiene el redondeo al alza habitual. El cambio afecta a prescriptores y farmacéuticos durante la prescripción, modificación y transcripción de tratamientos, optimizando el uso de recursos sin comprometer la efectividad del tratamiento.\nSe implementa un sistema de redondeo inteligente que ajusta automáticamente el número de envases según reglas de negocio específicas por tipo de medicamento. Cuando se prescribe o transcribe un tratamiento, si el cálculo resulta en decimales, el sistema redondea hacia arriba para garantizar que el paciente disponga de suficiente medicamento; sin embargo, si el redondeo hacia abajo daría como resultado cero envases, el sistema evita este redondeo para asegurar que se dispense al menos una unidad. Para medicamentos sujetos a redondeo hacia abajo (como ciertos antibióticos), se muestra un icono visual en las pantallas de detalle y modificación de tratamientos, permitiendo a farmacéuticos y otros usuarios identificar fácilmente cuándo se ha aplicado este ajuste y acceder a información adicional sobre la posología.",
+          "component": "MPRE3",
+          "req_date": "2026-03-30",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780650609/jeukhvwhbhveqy9jnwok.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780650610/qwkbllqb6zyyodfmt0ly.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780650610/gdafizi3qd4tu3n7s1zs.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780650612/pcrnzjeqlvuxisg8ydcl.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780650612/udsuhvlcdobh5boavc1f.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780650613/os60i795zhnrhdsftteb.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780650614/gynndxsmazzqt16x51qn.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780650614/qo7efaazgznq5zfpjkss.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780650615/efgqxnaqgmulqxdfjxbi.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780650615/vkpz3jgvxphqjoogehhq.png"
+          ]
+        }
+      ]
+    }
+  ]
 }
