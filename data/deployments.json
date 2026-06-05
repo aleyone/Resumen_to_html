@@ -31,6 +31,38 @@
           ]
         }
       ]
+    },
+    {
+      "id": "dep_1780654284246",
+      "app": "GAIA",
+      "version": "E4.2.4 Ex.29-23",
+      "date": "2026-06-05",
+      "author": "Christian Gil",
+      "files": [
+        "[GAIA][2023-29] GAIA-667 - [GVMEGAIA-26272] [PROTO][SVP] Incorporar circuito de autorizaciones en los protocolos SVP V3.0.docx"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Incorporar circuito de autorizaciones en los protocolos SVP",
+          "situacion_actual": "Actualmente, cuando un prescriptor solicita un tratamiento con protocolo SVP (como DUPIXENT), la solicitud se aprueba automáticamente al finalizar la prescripción sin necesidad de validación adicional. El prescriptor cumplimenta los formularios requeridos durante el proceso y la solicitud queda inmediatamente autorizada, sin pasos intermedios de revisión. Esto funciona bien para la mayoría de casos, pero genera un vacío en el control de calidad cuando estos medicamentos se van a dispensar en unidades de farmacia especializadas, donde es necesario que un farmacéutico verifique que se cumplen todos los requisitos antes de la dispensación.",
+          "descripcion": "A partir de ahora, las solicitudes de protocolos SVP destinadas a dispensación en unidades especializadas no quedarán automáticamente autorizadas, sino que pasarán a un nuevo estado intermedio llamado 'A Validar'. En este estado, el sistema alertará al usuario con un icono de aviso indicando que la solicitud está pendiente de validación por el servicio de farmacia. El prescriptor verá este cambio reflejado en sus vistas de tratamientos, pero la solicitud no necesitará ser enviada manualmente ni podrá ser modificada por otras acciones como aprobar o rechazar. Este comportamiento solo aplica a medicamentos configurados para requerir esta validación y para dispensación especializada; los demás tratamientos continuarán como antes. Cuando un tratamiento se modifique, el original se interrumpirá y el nuevo quedará en estado 'A Validar', mostrando el aviso correspondiente. Los farmacéuticos tendrán nuevas opciones de configuración para indicar qué protocolos y formularios requieren validación previa antes de poder ser dispensados.",
+          "component": "PROTO",
+          "req_date": "2025-11-17",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780654342/hdkapz9osgkuq4hlbufo.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780654342/shafpcpo137ek1dd1fnj.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780654343/rrjpwwpodcmdaem4sftm.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780654343/lvl4zmkqaga8rbroz0tg.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780654344/isyt8dq1wqggtnsussql.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780654345/qnd9q33p7wnuxgf2cxvh.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780654345/idoxwlfifchmbzraff9f.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780654346/acud8rf3sc1xwsj4othb.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780654346/rj4cc5ef1oryryjjgvq2.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780654347/irzbnzy0vzeah1s8pfiw.png"
+          ]
+        }
+      ]
     }
   ]
 }
