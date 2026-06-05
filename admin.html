@@ -682,7 +682,9 @@ async function parseText(text, app, filename, docType, onProgress) {
   // Detect component from filename (primary) + text (fallback)
   const component = detectComponent(text, app, filename);
   const reqDate = extractVersionDate(text);
-  const raw_text = text.slice(0, 50000);
+
+  // Structure raw text with semantic tags before storing
+  const raw_text = structureRawText(text, filename);
 
   allReqs = allReqs.map((r, i) => ({
     ...r,
@@ -692,6 +694,215 @@ async function parseText(text, app, filename, docType, onProgress) {
   }));
 
   return { meta, requirements: allReqs, raw_text };
+}
+
+// ── Structure raw text with semantic tags ──
+function structureRawText(text, filename) {
+  const lines = text.split('\n');
+  const out = [];
+
+  // Header: filename as document identifier
+  out.push('[DOCUMENTO]');
+  out.push(filename.replace(/\.[^.]+$/, '').replace(/[_\-]+/g, ' ').trim());
+  out.push('');
+
+  // Patterns to detect and skip (noise)
+  const skipPatterns = [
+    /^\s*\|\s*-+\s*\|/,                          // markdown table dividers
+    /^\s*\|\s*SUBDIRECCIÓN/i,                     // corporate headers
+    /^\s*Análisis y diseño técnico\s*$/i,
+    /^\s*SGPTIC\s*$/,
+    /^\s*ÍNDICE\s*$/i,
+    /^\s*ÍNDICE DE ILUSTRACIONES\s*$/i,
+    /^\s*Estimación (macro|micro)\s*$/i,
+    /^\s*Ilustración\s+[\d\.]+[a-z]?\s*:/i,       // *Ilustración N: ...*
+    /^\s*\*Ilustración/i,
+    /^\s*\d+\s*\|\s*\d+\s*$/,                     // page numbers like "3 | 31"
+    /^\s*SGPTIC\s+\*?\*?\d+\*?\*?\s*\|\s*\*?\*?\d+/,
+    /^\t\d+\t.*\t\d+\s*$/,                        // index lines: "1\tIntroducción\t5"
+    /^\t\s*\d+\.\d+/,                              // sub-index lines
+  ];
+
+  // Section heading patterns
+  const sectionPatterns = [
+    { re: /^#+\s+(.+)/, tag: null },              // markdown headings — detect level
+    { re: /^(\d+)\s+([A-ZÁÉÍÓÚÑ][^a-z]{4,})$/, tag: '[SECCION]' },  // "2  REQUISITOS..."
+    { re: /^(\d+\.\d+)\s+(.+)$/, tag: '[APARTADO]' },               // "2.1 GAIA-667"
+    { re: /^(\d+\.\d+\.\d+)\s+(.+)$/, tag: '[SUBAPARTADO]' },       // "2.1.1 Nombre"
+  ];
+
+  // Key functional section names
+  const functionalSections = [
+    /situación actual/i, /descripción del requisito/i, /descripción funcional/i,
+    /casos de uso/i, /caso de uso/i, /cu\d+/i,
+    /nombre de requisito/i, /análisis/i, /plan de pruebas funcional/i
+  ];
+
+  const technicalSections = [
+    /diseño técnico/i, /modelo de datos/i, /diagrama de clases/i,
+    /ficheros ext/i, /configuración/i, /variables de configuración/i,
+    /estimación/i, /cumplimiento de ens/i, /impacto en otras aplicaciones/i,
+    /otras consideraciones/i
+  ];
+
+  let inTechnicalSection = false;
+  let inVersionTable = false;
+  let inIndex = false;
+  let currentSection = '';
+  let tableRows = [];
+  let inTable = false;
+  let tableTitle = '';
+  let versionsEmitted = false;
+
+  // First pass: extract version table
+  const versionLines = [];
+  let inVT = false;
+  for (const line of lines) {
+    if (/versiones del documento/i.test(line)) { inVT = true; continue; }
+    if (inVT && /^\|\s*\d+\./.test(line)) {
+      // Parse version row: | 1.0 | date | author | description |
+      const cells = line.split('|').map(c => c.replace(/\*+/g, '').trim()).filter(Boolean);
+      if (cells.length >= 4) versionLines.push(cells.join(' | '));
+    }
+    if (inVT && versionLines.length > 0 && !/^\|/.test(line) && line.trim()) inVT = false;
+  }
+  if (versionLines.length) {
+    out.push('[VERSIONES]');
+    out.push(...versionLines);
+    out.push('');
+  }
+
+  // Second pass: structured content
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    // Skip empty lines (will add spacing contextually)
+    if (!trimmed) continue;
+
+    // Skip noise patterns
+    if (skipPatterns.some(p => p.test(line))) continue;
+
+    // Skip version table (already emitted)
+    if (/versiones del documento/i.test(trimmed)) { inVT = true; continue; }
+    if (inVT) {
+      if (/^\|/.test(trimmed)) continue;
+      else inVT = false;
+    }
+
+    // Detect index section
+    if (/^ÍNDICE\s*$/.test(trimmed)) { inIndex = true; continue; }
+    if (inIndex) {
+      // Index ends when we hit a real paragraph (not a tab-indented line)
+      if (/^\t/.test(line) || /^\d+\t/.test(line)) continue;
+      inIndex = false;
+    }
+
+    // Detect technical sections to skip
+    if (technicalSections.some(p => p.test(trimmed)) &&
+        (/^#+/.test(trimmed) || /^\d+[\.\d]*\s/.test(trimmed) || trimmed.length < 60)) {
+      inTechnicalSection = true;
+      currentSection = trimmed;
+      continue;
+    }
+
+    // Detect functional sections — exit technical mode
+    if (functionalSections.some(p => p.test(trimmed))) {
+      inTechnicalSection = false;
+    }
+
+    if (inTechnicalSection) continue;
+
+    // Handle markdown tables
+    if (/^\|/.test(trimmed)) {
+      if (!inTable) {
+        inTable = true;
+        tableRows = [];
+        // Try to get title from previous non-empty line
+        tableTitle = out.length > 0 ? '' : '';
+      }
+      if (/^\|\s*-+/.test(trimmed)) continue; // skip divider rows
+      const cells = trimmed.split('|').map(c =>
+        c.replace(/\*+/g, '').trim()
+      ).filter(c => c.length > 0 && !/^-+$/.test(c));
+      if (cells.length > 0 && cells.some(c => c.length > 1)) {
+        tableRows.push(cells.join(' | '));
+      }
+      continue;
+    } else if (inTable) {
+      // Table ended — emit it
+      if (tableRows.length > 1) {
+        out.push('');
+        out.push('[TABLA]' + (tableTitle ? ' ' + tableTitle : ''));
+        out.push(...tableRows);
+      }
+      inTable = false;
+      tableRows = [];
+      tableTitle = '';
+    }
+
+    // Detect headings
+    let tagged = false;
+    for (const { re, tag } of sectionPatterns) {
+      const m = trimmed.match(re);
+      if (m) {
+        out.push('');
+        if (tag) {
+          out.push(tag + ' ' + trimmed);
+        } else {
+          // markdown heading — determine level
+          const hLevel = (trimmed.match(/^#+/) || [''])[0].length;
+          const hText = trimmed.replace(/^#+\s*/, '');
+          const hTag = hLevel <= 1 ? '[SECCION]' : hLevel === 2 ? '[APARTADO]' : '[SUBAPARTADO]';
+          out.push(hTag + ' ' + hText);
+        }
+        currentSection = trimmed;
+        tagged = true;
+
+        // Tag known functional sections
+        if (/situación actual/i.test(trimmed)) {
+          out.push('[SITUACION_ACTUAL]');
+        } else if (/descripción del requisito/i.test(trimmed) || /descripción funcional/i.test(trimmed)) {
+          out.push('[DESCRIPCION]');
+        } else if (/^(cu\d+|caso de uso)/i.test(trimmed.replace(/.*?\]\s*/, '')) ||
+                   /cu\d+\s*[–-]/i.test(trimmed)) {
+          out.push('[CASO_DE_USO]');
+        } else if (/plan de pruebas funcional/i.test(trimmed)) {
+          out.push('[PLAN_PRUEBAS]');
+        }
+        break;
+      }
+    }
+    if (tagged) continue;
+
+    // Special: detect CU headers that aren't numbered headings
+    if (/^CU\d+\s*[–-]/i.test(trimmed) || /^Datos generales\s*$/i.test(trimmed) ||
+        /^Secuencia Normal\s*$/i.test(trimmed) || /^Excepción \d+\s*$/i.test(trimmed)) {
+      out.push('');
+      if (/^CU\d+/i.test(trimmed)) out.push('[CASO_DE_USO] ' + trimmed);
+      else out.push('[SUBAPARTADO] ' + trimmed);
+      continue;
+    }
+
+    // Regular content — strip markdown formatting
+    const clean = trimmed
+      .replace(/\*\*([^*]+)\*\*/g, '$1')  // bold
+      .replace(/\*([^*]+)\*/g, '$1')       // italic
+      .replace(/`([^`]+)`/g, '$1');        // code
+
+    if (clean.length > 1) out.push(clean);
+  }
+
+  // Flush any remaining table
+  if (inTable && tableRows.length > 1) {
+    out.push('');
+    out.push('[TABLA]');
+    out.push(...tableRows);
+  }
+
+  // Clean up: remove consecutive blank lines, limit to 60k chars
+  const result = out.join('\n').replace(/\n{3,}/g, '\n\n').slice(0, 60000);
+  return result;
 }
 
 // ── Associate images to requirements ──
