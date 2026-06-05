@@ -1,0 +1,804 @@
+[DOCUMENTO]
+[GAIA][2023 29] GAIA 667   [GVMEGAIA 26272] [PROTO][SVP] Incorporar circuito de autorizaciones en los protocolos SVP V3.0
+
+GAIA
+Código de la versión: E4.1 Exp. 2023-29
+Última actualización: 17/11/2025
+Versión
+Fecha
+Autor/es
+Descripción de la Versión/Cambios
+1.0
+02/06/2025
+INDRA
+Versión inicial
+2.0
+01/08/2025
+INDRA
+Nuevo planteamiento
+3.0
+06/10/2025
+INDRA
+Ficheros, clases y otras especificaciones tras finalizar el desarrollo
+1	Introducción	6
+2	Requisitos que cubre el análisis	7
+
+[APARTADO] 2.1	GAIA-667	7
+
+[SUBAPARTADO] 2.1.1	Nombre de requisito	7
+
+[SUBAPARTADO] 2.1.2	Situación actual	7
+[SITUACION_ACTUAL]
+
+[SUBAPARTADO] 2.1.3	Descripción del requisito	12
+[DESCRIPCION]
+3	Análisis	20
+
+[APARTADO] 3.1	Casos de uso	20
+
+[SUBAPARTADO] 3.1.1	CU1 – Prescripción de tratamiento asociado a protocolo SVP	20
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.2	CU2 – Prescripción de tratamiento con formulario SVP	21
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.3	CU3 – Modificación de tratamiento asociado a protocolo SVP	22
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.4	CU4 - Modificación de tratamiento con formulario SVP	23
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.5	CU5 – Continuación de tratamiento asociado a protocolo SVP	24
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.6	CU6 – Continuación de tratamiento con formulario SVP	25
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.7	CU7 – Validación de tratamiento asociado a protocolo SVP	26
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.8	CU8 – Validación de tratamiento con formulario SVP	27
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.9	CU9 – Definir criterio de validación para protocolos SVP	28
+[CASO_DE_USO]
+
+[SUBAPARTADO] 3.1.10	CU10 – Definir criterio de validación para formularios SVP	31
+[CASO_DE_USO]
+
+[APARTADO] 5.1	Plan de pruebas funcional	41
+[PLAN_PRUEBAS]
+En el presente documento se recoge el análisis y diseño técnico de los requisitos indicados en el Apartado “2. Requisitos que cubre el análisis”.
+El análisis de estos requisitos se ha realizado utilizando las técnicas que se han considerado como más apropiadas para definir la implementación de las funcionalidades solicitadas.
+El objetivo es incorporar la posibilidad de configurar los protocolos SVP y los formularios SVP asociados a determinados tratamientos, para que, tras la prescripción, sean validados por farmacia antes de ser dispensados.
+Requisitos que cubre el análisis
+GAIA-667
+Nombre de requisito
+[GVMEGAIA-26272] GAIA-667 [PROTO][SVP] Incorporar circuito de autorizaciones en los protocolos SVP.
+Situación actual
+En la actualidad, los protocolos de tipo SVP, por ejemplo, el protocolo de DUPIXENT, se autorizan automáticamente durante el proceso de prescripción.
+En el caso de los protocolos SVP, tras cumplimentar la posología en el asistente de prescripción, se muestran todos los formularios asociados al protocolo para que el prescriptor cumplimente al menos uno de ellos.
+Al pulsar el botón ‘Valorar’ se muestra el formulario correspondiente para que sea cumplimentado.
+Tras cumplimentar el / los formulario/s, se finaliza la prescripción del tratamiento y la solicitud queda aprobada automáticamente.
+Si se accede a ‘Utilidades de prescripción / Protocolos especiales’, se puede comprobar que la solicitud está autorizada.
+Desde el detalle de la solicitud también se puede comprobar que la solicitud está autorizada y no aparece el botón ‘Enviar’ para su aprobación.
+Además, desde el detalle de la solicitud se pueden cumplimentar más formularios asociados al protocolo a través del botón ‘Nuevo formulario’. Este botón se muestra siempre excepto cuando la solicitud ha sido cancelada o interrumpida.
+Del mismo modo, si se accede a ‘Utilidades de prescripción / Gestión protocolos’, también se puede comprobar que la solicitud está autorizada.
+Desde el detalle de la solicitud también se puede comprobar que la solicitud está autorizada y no aparece ni el botón ‘Aprobar’ ni el botón ‘Rechazar’.
+Del mismo modo que desde ‘Utilidades de prescripción / Protocolos especiales’, desde el detalle de la solicitud se pueden cumplimentar más formularios a través del botón ‘Nuevo formulario’.
+Por otra parte, a pesar de que la solicitud está autorizada, los formularios SVP pueden ser editados durante un periodo de tiempo desde su creación.
+El periodo de tiempo durante el cual se puede editar los formularios SVP se define en la variable de configuración PROTO.SVP_DIAS_ATRAS.
+Nota: Si la solicitud está cancelada o interrumpida, los formularios no se podrán editar en ningún caso. Este comportamiento no varía con las modificaciones realizadas en este requerimiento.
+Cuando el formulario sea editable, se mostrará el botón ‘Aceptar’ y, si se pulsa, se guardará cualquier cambio realizado.
+En caso de que haya transcurrido el periodo de tiempo definido en la variable de configuración PROTO.SVP_DIAS_ATRAS, o la solicitud esté cancelada o interrumpida, no se mostrará el botón ‘Aceptar’ y no se podrán realizar modificaciones en el formulario.
+Descripción del requisito
+En este requerimiento se realizan las modificaciones necesarias, tanto en MPRE3, MDIS3, PROTO y BOF WEB, para poder configurar los protocolos SVP y los formularios SVP, de forma que no se autoricen automáticamente al prescribir, sino que requieran validación por parte del servicio de farmacia, siempre y cuando la dispensación de estos tratamientos sea en UFPE.
+Modificaciones en MPRE
+Cuando se finalice el proceso de prescripción de un tratamiento asociado a un protocolo SVP la solicitud, en vez de quedar en estado Autorizado, podrá quedar en un nuevo estado: A Validar.
+Del mismo modo, cuando se finalice el proceso de prescripción de un tratamiento que tenga asociado un formulario SVP, podrá quedar en estado: A Validar.
+Este estado se reflejará en el ‘Visor de Tratamientos’ e ‘Historial farmacoterapéutico’, igual a como se está haciendo actualmente para otros tratamientos que requieren validación antes de dispensar: mostrando el icono de aviso (triángulo amarillo) informando que está ‘pendiente de validación farmacéutica’.
+La continuación no se ve afectada, puesto que, si se continúa un tratamiento con un protocolo SVP, por ejemplo, la solicitud y el tratamiento en sí permanecen en el mismo estado, sólo varían las fechas del tratamiento. Ejemplo:
+Tras confirmar la continuación del tratamiento, los formularios cumplimentados, se asociarán a la solicitud.
+La solicitud seguirá en el mismo estado Autorizado o A validar, es decir, no sería necesario volver a validar para su dispensación si el protocolo SVP está configurado como que requiere validación y ya ha sido validado, por ejemplo.
+Este es el comportamiento actual en la continuación de este tipo de tratamientos y no varía con las modificaciones realizadas en este requerimiento.
+La modificación de estos tratamientos se ve afectada de igual forma que la prescripción, ya que toda modificación implica la interrupción del tratamiento anterior y la generación de un nuevo tratamiento con las modificaciones realizadas. Es decir, el nuevo tratamiento quedará automáticamente en estado A Validar (si así está configurado el protocolo SVP o el formulario SVP) independientemente del estado anterior a la modificación.
+En cualquiera de estos casos, el nuevo estado A Validar aplicará solo si el tratamiento es de dispensación UFPE.
+Modificaciones en PROTO
+En los módulos ‘Solicitudes Protocolos Especiales’ y ‘Gestión Protocolos’: Las solicitudes de protocolos SVP ya no se mostrarán en estado Autorizado automáticamente, sino A Validar.
+El detalle de la solicitud sería
+Este nuevo estado, en el módulo de protocolos, se comportará de forma similar al estado Autorizado; es decir, no permitirá realizar ninguna otra acción sobre la solicitud, como Enviar, Aprobar, Rechazar, Revisar o Firmar.
+El nuevo estado será de aplicación en el módulo MDIS.
+Modificaciones en BOF WEB
+Se añadirán nuevos check para poder configurar los protocolos SVP y los formularios SVP que deben ser validados por el servicio de farmacia para ser dispensados en UFPE.
+En BOF ya no se realizan nuevas funcionalidades, por lo que serán en las pantallas equivalentes de BOF WEB donde se incluyan estas nuevas funcionalidades.
+Por defecto, los nuevos check Validar se mostrarán desmarcados (indicando que no requiere validación previa del servicio de farmacia y, por tanto, el comportamiento será igual al actual: al prescribir queda Autorizado automáticamente). Al ser marcado, indicará que requiere validación y al prescribir o modificar, queda en estado A Validar.
+La pantalla está en BOF WEB, pero no con la nueva funcionalidad
+La pantalla está en BOF WEB, pero no con la nueva funcionalidad
+Modificaciones en MDIS
+En la pantalla ‘Criterios de Validación de la Dispensación’, será necesario añadir dos nuevos tipos de criterios, en el desplegable ‘Tipo Criterio de Validación’. Son:
+Protocolos SVP
+Formularios SVP
+Cuando se seleccione alguno de los nuevos tipos de criterios, se desplegará un nuevo listado con los protocolos SVP o los formularios SVP a los que, tras ser seleccionados, aplicará el criterio de validación que se está creando. De este listado será obligatorio seleccionar al menos uno, pero pueden seleccionarse varios o todos los elementos del listado.
+Cuando desde MDIS se valide un tratamiento con protocolo SVP, se cambiará el estado de la solicitud del protocolo SVP, de A Validar a Autorizado.
+En general, ha de tenerse en cuenta que:
+Desde Servicios Centrales se configuran los protocolos SVP y formularios SVP que requerirán una validación previa para ser dispensados en UFPE (con los nuevos check que ya se han comentado).
+Si en el momento de la puesta en producción de este evolutivo, no están disponibles estas funcionalidades en las pantallas de BOF WEB, el mantenimiento de los campos asociados en base de datos para estos check, se realizará mediante scripts (en BOF no se realizan nuevas funcionalidades).
+Cada Centro, deberá gestionar los nuevos tipos de criterios de validación de dispensación disponibles, como consideren oportuno.
+Para facilitarles la tarea, en el momento de la puesta en producción de este evolutivo, se contempla la posibilidad de crear un script, que aplique en general a todos los centros, para que tengan definido, por defecto, un nuevo criterio de validación que incluya uno de los formularios SVP recién configurados.
+Estas modificaciones sólo aplican a tratamientos con protocolos SVP y formularios SVP debidamente configurados y dispensables en UFPE.
+Análisis
+Casos de uso
+
+[CASO_DE_USO] CU1 – Prescripción de tratamiento asociado a protocolo SVP
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU1 – Prescripción de tratamiento asociado a protocolo SVP.
+Actores
+Prescriptores.
+Referencias
+Precondiciones
+Presentación / producto que requiera protocolo SVP.
+Dicho protocolo SVP debe estar configurado para requerir validación.
+Tratamiento dispensable en UFPE.
+Postcondiciones
+Tras la prescripción, la solicitud de protocolo SVP está en estado A Validar.
+Descripción
+Al prescribir, las solicitudes de protocolo SVP así configurados, no se autorizan automáticamente, sino que deben quedar en estado A Validar si el tratamiento es dispensable en UFPE.
+Se debe considerar la nueva configuración de los protocolos SVP (4.1 Modelo de datos).
+Se deben mostrar los iconos informativos correspondientes (4.2 Diseño de interfaz).
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+usuario
+Prescribir un tratamiento según las precondiciones y cumplimentar alguno de sus formularios SVP para finalizar la prescripción.
+En el visor, el nuevo tratamiento prescrito debe mostrar el icono informativo que indica que está pendiente de validación.
+Acceder a ‘Utilidades de prescripción / Protocolos especiales’ y comprobar que la solicitud está en estado A Validar y no necesita ser Enviado.
+Acceder a ‘Utilidades de prescripción / Gestión de Protocolos’ y comprobar que la solicitud está en estado A Validar.
+Desde el detalle de la nueva solicitud, comprobar que muestra el estado correctamente y no permite ninguna operación como Revisar, Aprobar, etc.
+Excepciones
+Paso
+Ejecutor
+Acción
+usuario
+Si el tratamiento con protocolo SVP (aunque dicho protocolo SVP esté configurado en BOFWEB como que requiere validación) no se va a dispensar en UFPE, quedará en estado Autorizado al finalizar la prescripción.
+
+[CASO_DE_USO] CU2 – Prescripción de tratamiento con formulario SVP
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU2 – Prescripción de tratamiento con formulario SVP.
+Actores
+Prescriptores.
+Referencias
+Precondiciones
+Presentación / producto que requiera formulario SVP.
+Dicho formulario SVP debe estar configurado para requerir validación.
+Tratamiento dispensable en UFPE.
+Postcondiciones
+Tras la prescripción, el tratamiento requiere validación para ser dispensado.
+Descripción
+Los tratamientos con formulario SVP así configurados, no se dispensan directamente, sino que deben ser validados por el servicio de farmacia.
+Se debe considerar la nueva configuración de los formularios SVP (4.1 Modelo de datos).
+Se deben mostrar los iconos informativos correspondientes (4.2 Diseño de interfaz).
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+usuario
+Prescribir un tratamiento según las precondiciones y cumplimentar el formulario SVP para finalizar la prescripción.
+En el visor, el nuevo tratamiento prescrito debe mostrar el icono informativo que indica que está pendiente de validación.
+Excepciones
+Paso
+Ejecutor
+Acción
+usuario
+Si el tratamiento con formulario SVP (aunque dicho formulario SVP esté configurado en BOFWEB como que requiere validación) no se va a dispensar en UFPE, quedará en estado Autorizado al finalizar la prescripción.
+
+[CASO_DE_USO] CU3 – Modificación de tratamiento asociado a protocolo SVP
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU3 – Modificación de tratamiento asociado a protocolo SVP
+Actores
+Prescriptores.
+Referencias
+CU1
+Precondiciones
+Tratamiento asociado a protocolo SVP con solicitud autorizada tras validación. Ejemplo, el prescrito en CU1.
+Postcondiciones
+La solicitud asociada al tratamiento original modificado, queda en estado Interrumpida y la solicitud que se ha creado asociada al tratamiento resultado de la modificación queda en estado A Validar.
+Descripción
+En las modificaciones, las nuevas solicitudes de protocolo SVP no se autorizan siempre automáticamente, sino que pueden quedar en estado A Validar.
+Se debe considerar la nueva configuración de los protocolos SVP (4.1 Modelo de datos).
+Se deben mostrar los iconos informativos correspondientes (4.2 Diseño de interfaz).
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+Usuario
+Modificar un tratamiento que cumpla las precondiciones.
+Cumplimentar alguno de sus formularios SVP.
+Acceder a ‘Utilidades de prescripción / Protocolos especiales’ y comprobar que la solicitud asociada al tratamiento modificado está en estado Interrumpido y la solicitud que se ha creado asociada al tratamiento resultado de la modificación está en estado A Validar.
+Desde el detalle de la nueva solicitud, comprobar que muestra el estado correctamente y no necesita ser Enviado.
+Acceder a ‘Utilidades de prescripción / Gestión de Protocolos’ y comprobar que la solicitud que se ha creado asociada al tratamiento resultado de la modificación está en estado A Validar.
+Desde el detalle de la nueva solicitud, comprobar que muestra el estado correctamente y no permite ninguna operación como Revisar, Aprobar, etc.
+
+[CASO_DE_USO] CU4 - Modificación de tratamiento con formulario SVP
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU4 – Modificación de tratamiento con formulario SVP.
+Actores
+Prescriptores.
+Referencias
+CU2
+Precondiciones
+Tratamiento con formulario SVP que requiera validación, ejemplo el prescrito en CU2.
+Postcondiciones
+Tras la modificación, el tratamiento original queda Interrumpido y el nuevo tratamiento requiere validación para ser dispensado.
+Descripción
+Los tratamientos con formulario SVP así configurados, no se dispensan directamente, sino que deben ser validados por el servicio de farmacia.
+Se debe considerar la nueva configuración de los formularios SVP (4.1 Modelo de datos).
+Se deben mostrar los iconos informativos correspondientes (4.2 Diseño de interfaz).
+El tratamiento original se sigue interrumpiendo.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+usuario
+Modificar un tratamiento según las precondiciones y cumplimentar el formulario SVP para finalizar la operación.
+En el visor, el tratamiento original queda interrumpido y el nuevo tratamiento debe mostrar el icono informativo que indica que está pendiente de validación.
+
+[CASO_DE_USO] CU5 – Continuación de tratamiento asociado a protocolo SVP
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU5 – Continuación de tratamiento asociado a protocolo SVP.
+Actores
+Prescriptores.
+Referencias
+CU3
+Precondiciones
+Tratamiento asociado a protocolo SVP. Protocolo configurado para requerir validación, ejemplo el obtenido en CU3. Estado A Validar.
+Postcondiciones
+La solicitud de protocolo sigue en el mismo estado tras la continuación.
+Descripción
+Al continuar solicitudes de protocolo SVP siguen en el mismo estado, no varía, independientemente de la configuración del protocolo SVP y del estado.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+usuario
+Continuar un tratamiento que cumpla las precondiciones y cumplimentar alguno de los formularios SVP para finalizar la operación.
+En el visor de tratamientos, el tratamiento se muestra igual que antes de la continuación, excepto el nuevo periodo. Muestra el icono informativo.
+Acceder a ‘Utilidades de prescripción / Protocolos especiales’ y comprobar que la solicitud sigue en el mismo estado A validar.
+Excepciones
+Paso
+Ejecutor
+Acción
+usuario
+Tratamiento a continuar cumple las precondiciones, pero ya ha sido validado, es decir, está en estado Autorizado.
+En el visor de tratamientos, el tratamiento se muestra igual que antes de la continuación, excepto el nuevo periodo. No muestra el icono informativo.
+Acceder a ‘Utilidades de prescripción / Protocolos especiales’ y comprobar que la solicitud sigue en el mismo estado Autorizado.
+
+[CASO_DE_USO] CU6 – Continuación de tratamiento con formulario SVP
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU6 – Continuación de tratamiento con formulario SVP
+Actores
+Prescriptores.
+Referencias
+CU4
+Precondiciones
+Tratamiento con formulario SVP que requiera validación y aún no ha sido validado. Ejemplo el obtenido en CU4.
+Postcondiciones
+Descripción
+Al continuar tratamientos con formulario SVP, el estado no varía,  independientemente de la configuración del formulario SVP y del estado.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+usuario
+Continuar un tratamiento según las precondiciones y cumplimentar el formulario SVP para finalizar la operación.
+En el visor, el tratamiento se muestra igual que antes de la continuación, excepto el nuevo periodo. Muestra el icono informativo de que está pendiente de validar.
+Excepciones
+Paso
+Ejecutor
+Acción
+usuario
+Si el tratamiento a continuar cumple las precondiciones, pero ya ha sido validado, es decir, está en estado Autorizado.
+En el visor de tratamientos, el tratamiento se muestra igual que antes de la continuación, excepto el nuevo periodo. No muestra el icono informativo, sigue Autorizado.
+
+[CASO_DE_USO] CU7 – Validación de tratamiento asociado a protocolo SVP
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU7 – Validación de tratamiento asociado a protocolo SVP.
+Actores
+Farmacéuticos.
+Referencias
+Precondiciones
+Tratamiento dispensable en UFPE, asociado a protocolo SVP, con estado A validar.
+Postcondiciones
+La solicitud de protocolo cambia a estado Autorizado.
+El tratamiento es dispensable para el resto de usuarios del módulo de dispensación.
+No se muestra el icono.
+Descripción
+La validación no se hace desde PROTO, se hace desde MDIS, igual que otros tratamientos que requieren validación farmacéutica para ser dispensados.
+Tras la validación, el estado de la solicitud del protocolo SVP cambia de  A Validar a Autorizado.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+usuario
+Desde el módulo MDIS obtener el listado de tratamientos pendientes de validación UFPE.
+En el listado, seleccionar al menos un tratamiento y pulsar ‘Validar’.
+Aceptar el mensaje de confirmación.
+En ese momento, el tratamiento queda listo para ser dispensado por el resto de perfiles de usuarios de MDIS.
+Deja de mostrarse el icono informativo de que está pendiente de validar.
+La solicitud de protocolo SVP cambia de estado A validar a Autorizado.
+Excepciones
+Paso
+Ejecutor
+Acción
+usuario
+Si se Cancela el mensaje de confirmación, la operación de validación se suspende y nada cambia.
+
+[CASO_DE_USO] CU8 – Validación de tratamiento con formulario SVP
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU8 – Validación de tratamiento con formulario SVP
+Actores
+Farmacéuticos.
+Referencias
+C7 (el proceso es similar. Ver imágenes de ejemplo)
+Precondiciones
+Tratamiento dispensable en UFPE, asociado a formulario SVP, con estado A Validar
+Postcondiciones
+El tratamiento se puede dispensar por el resto de usuarios del módulo de dispensación.
+No se muestra el icono.
+Descripción
+La validación se hace desde MDIS, igual que otros tratamientos que requieren validación farmacéutica para ser dispensados.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+usuario
+Desde el módulo MDIS obtener el listado de tratamientos pendientes de validación UFPE.
+En el listado, seleccionar al menos un tratamiento y pulsar ‘Validar’.
+Aceptar el mensaje de confirmación.
+En ese momento, el tratamiento queda listo para ser dispensado por el resto de perfiles de usuarios de MDIS.
+Deja de mostrarse el icono informativo indicando que está pendiente de validar.
+Excepciones
+Paso
+Ejecutor
+Acción
+usuario
+Si se Cancela el mensaje de confirmación, la operación de validación se suspende y no cambia nada.
+
+[CASO_DE_USO] CU9 – Definir criterio de validación para protocolos SVP
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU9 – Definir criterio de validación para protocolos SVP.
+Actores
+Farmacéuticos autorizados.
+Referencias
+Precondiciones
+Postcondiciones
+Los tratamientos con protocolos SVP, recogidos en el criterio creado, en estado A Validar, no requerirán la validación previa en ese centro de dispensación.
+Descripción
+Añadir en el desplegable el nuevo tipo de criterio: Protocolos SVP.
+Obtener y mostrar el listado de los protocolos SVP que requieran validación (Ver 4.1 Modelo de datos).
+Obligar a seleccionar al menos un protocolo SVP para continuar.
+Permitir seleccionar varios.
+Facilitar seleccionar todos los protocolos SVP.
+Registrar el criterio creado en bbdd.
+Los nuevos criterios creados se deben considerar en el proceso actual de validación para la dispensación.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+usuario
+Desde el módulo MDIS, acceder a los criterios de validación para la dispensación.
+En la pantalla, pulsar el botón Crear Criterio de Validación
+En el desplegable Tipo Criterio de Validación, seleccionar la opción Protocolos SVP.
+Se desplegará un nuevo listado con los protocolos SVP. De este listado será obligatorio seleccionar al menos uno, pero pueden seleccionarse varios o todos los elementos del listado.
+Los tipos de protocolos SVP que se seleccionen, serán a los que aplicará el criterio de validación que se está creando.
+Tras pulsar el botón Crear, el nuevo criterio creado se mostrará en el listado y podrá ser eliminado desde la última columna del registro.
+El nuevo criterio se aplicará en el proceso de dispensación.
+
+[CASO_DE_USO] CU10 – Definir criterio de validación para formularios SVP
+
+[SUBAPARTADO] Datos generales
+Caso de Uso
+
+[CASO_DE_USO] CU10 – Definir criterio de validación para formularios SVP
+Actores
+Farmacéuticos
+Referencias
+CU9 (el proceso es similar. Ver resto de imágenes de ejemplo)
+Precondiciones
+Postcondiciones
+Los tratamientos con formulario SVP, recogidos en el criterio creado, no requerirán la validación previa en ese centro de dispensación.
+Descripción
+Añadir en el desplegable el nuevo tipo de criterio: Formularios SVP.
+Obtener y mostrar el listado de todos los formularios SVP que requieran validación (Ver 4.1 Modelo de datos).
+Obligar a seleccionar al menos un formulario SVP para continuar.
+Permitir seleccionar varios.
+Facilitar seleccionar todos los formularios SVP.
+Registrar el criterio creado en bbdd.
+Los nuevos criterios creados se deben considerar en el proceso actual de validación para la dispensación.
+
+[SUBAPARTADO] Secuencia Normal
+Paso
+Ejecutor
+Acción
+usuario
+Desde el módulo MDIS, acceder a los criterios de validación para la dispensación.
+En la pantalla, pulsar el botón Crear Criterio de Validación.
+En el desplegable Tipo Criterio de Validación, seleccionar la opción Formularios SVP.
+Se desplegará un nuevo listado con todos los formularios SVP. De este listado será obligatorio seleccionar al menos uno, pero pueden seleccionarse varios o todos los elementos del listado.
+Los tipos de formularios SVP que se seleccionen, serán a los que aplicará el criterio de validación que se está creando.
+Tras pulsar el botón Crear, el nuevo criterio creado se mostrará en el listado y podrá ser eliminado desde la última columna del registro.
+El nuevo criterio se aplicará en el proceso de dispensación.
+Plan de pruebas funcional
+[GVMEGAIA-26272] GAIA-667 [PROTO][SVP] Incorporar circuito de autorizaciones en los protocolos SVP.
+CU1
+Caso:
+Prescripción de tratamiento asociado a protocolo SVP, dispensable en UFPE
+Precondiciones:
+Presentación / producto que requiera protocolo SVP.El protocolo SVP debe estar configurado para requerir validación.Tratamiento dispensable en UFPE.
+Usuario
+Perfil
+Prescriptores
+Paciente
+Diagnostico
+Medicamento
+Centro
+Pasos a realizar:
+Prescribir un tratamiento según las precondiciones y cumplimentar alguno de sus formularios SVP para finalizar la prescripción.
+En el visor, el nuevo tratamiento prescrito debe mostrar el icono informativo que indica que está pendiente de validación.
+Comprobar que, al acceder a ‘Utilidades de prescripción / Protocolos especiales’ la solicitud está en estado A Validar y no necesita ser Enviado.
+Comprobar que, al acceder a ‘Utilidades de prescripción / Gestión de Protocolos’ la solicitud está en estado A Validar.
+comprobar que, desde el detalle de la nueva solicitud, se muestra el estado correctamente (A Validar) y no permite ninguna operación como Revisar, Aprobar, etc.
+10
+Resultado esperado
+Finalizada correctamente la prescripción, la solicitud de protocolo SVP está en estado 'A Validar'
+Resultado obtenido
+Caso:
+Prescripción de tratamiento asociado a protocolo SVP, NO dispensable en UFPE
+Precondiciones:
+Presentación / producto que requiera protocolo SVP.El protocolo SVP debe estar configurado para requerir validación.Tratamiento no dispensable en UFPE.
+Usuario
+Perfil
+Prescriptores
+Paciente
+Diagnostico
+Medicamento
+Centro
+Pasos a realizar:
+Prescribir un tratamiento según las precondiciones y cumplimentar alguno de sus formularios SVP para finalizar la prescripción.
+En el visor, el nuevo tratamiento prescrito NO debe mostrar el icono informativo usado para indicar que el tratamiento está pendiente de validación.
+Comprobar que, al acceder a ‘Utilidades de prescripción / Protocolos especiales’ la solicitud está en estado Autorizado y no necesita ser Enviado.
+Comprobar que, al acceder a ‘Utilidades de prescripción / Gestión de Protocolos’ la solicitud está en estado Autorizado.
+comprobar que, desde el detalle de la nueva solicitud, se muestra el estado correctamente (Autorizado) y no permite ninguna operación como Revisar, Aprobar, etc.
+10
+Resultado esperado
+Finalizada correctamente la prescripción, la solicitud de protocolo SVP está en estado 'Autorizado'
+Resultado obtenido
+Caso:
+Prescripción de tratamiento asociado a protocolo SVP, sin criterio de validación
+Precondiciones:
+Presentación / producto que requiera protocolo SVP.El protocolo SVP debe estar configurado para requerir validación.Tratamiento no dispensable en UFPE.Hay criterio de validación para el protocolo SVP.
+Usuario
+Perfil
+Prescriptores
+Paciente
+Diagnostico
+Medicamento
+Centro
+Pasos a realizar:
+Prescribir un tratamiento según las precondiciones y cumplimentar alguno de sus formularios SVP para finalizar la prescripción.
+En el visor, el nuevo tratamiento prescrito NO debe mostrar el icono informativo usado para indicar que el tratamiento está pendiente de validación.
+Comprobar que, al acceder a ‘Utilidades de prescripción / Protocolos especiales’ la solicitud está en estado Autorizado y no necesita ser Enviado.
+Comprobar que, al acceder a ‘Utilidades de prescripción / Gestión de Protocolos’ la solicitud está en estado Autorizado.
+comprobar que, desde el detalle de la nueva solicitud, se muestra el estado correctamente (Autorizado) y no permite ninguna operación como Revisar, Aprobar, etc.
+10
+Resultado esperado
+Finalizada correctamente la prescripción, la solicitud de protocolo SVP está en estado 'Autorizado'
+Resultado obtenido
+CU2
+Caso:
+Prescripción de tratamiento con formulario SVP, dispensable en UFPE
+Precondiciones:
+Presentación / producto que requiera formulario SVP.Dicho formulario SVP debe estar configurado para requerir validación.Tratamiento dispensable en UFPE.
+Usuario
+Perfil
+Prescriptores
+Paciente
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Prescribir un tratamiento según las precondiciones y cumplimentar el formulario SVP para finalizar la prescripción.
+Comprobar que, en el visor, el nuevo tratamiento prescrito muestra el icono informativo que indica que está pendiente de validación.
+10
+Resultado esperado
+Tras finalizar correctamente la prescripción, el tratamiento requiere validación para ser dispensado.
+Resultado obtenido
+Caso:
+Prescripción de tratamiento con formulario SVP, NO dispensable en UFPE
+Precondiciones:
+Presentación / producto que requiera formulario SVP.Dicho formulario SVP debe estar configurado para requerir validación.Tratamiento NO dispensable en UFPE.
+Usuario
+Perfil
+Prescriptores
+Paciente
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Prescribir un tratamiento según las precondiciones y cumplimentar el formulario SVP para finalizar la prescripción.
+Comprobar que, en el visor, el nuevo tratamiento prescrito NO muestra el icono informativo que indica que el tratamiento está pendiente de validación.
+10
+Resultado esperado
+Tras finalizar correctamente la prescripción, el tratamiento NO requiere validación para ser dispensado.
+Resultado obtenido
+Caso:
+Prescripción de tratamiento con formulario SVP, con criterio de validación
+Precondiciones:
+Presentación / producto que requiera formulario SVP.Dicho formulario SVP debe estar configurado para requerir validación.Tratamiento NO dispensable en UFPE.Hay criterio de validación para el formulario SVP.
+Usuario
+Perfil
+Prescriptores
+Paciente
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Prescribir un tratamiento según las precondiciones y cumplimentar el formulario SVP para finalizar la prescripción.
+Comprobar que, en el visor, el nuevo tratamiento prescrito NO muestra el icono informativo que indica que el tratamiento está pendiente de validación.
+10
+Resultado esperado
+Tras finalizar correctamente la prescripción, el tratamiento NO requiere validación para ser dispensado.
+Resultado obtenido
+CU3
+Caso:
+Modificación de tratamiento asociado a protocolo SVP
+Precondiciones:
+Tratamiento asociado a protocolo SVP con solicitud autorizada tras validación. Ejemplo, el prescrito en el Caso de prueba 1, pero ya validado.
+Usuario
+Perfil
+Prescriptores
+Paciente
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Modificar un tratamiento que cumpla las precondiciones.
+Cumplimentar alguno de sus formularios SVP y finalizar la modificación.
+Comprobar que, al acceder a ‘Utilidades de prescripción / Protocolos especiales’ la solicitud asociada al tratamiento original modificado está en estado 'Interrumpido' y la solicitud que se ha creado asociada al tratamiento resultado de la modificación está en estado 'A Validar'.
+Comprobar que, desde el detalle de la nueva solicitud, se muestra el estado correctamente  (A Validar) y no necesita ser Enviado.
+Comprobar que, al acceder a ‘Utilidades de prescripción / Gestión de Protocolos’ la solicitud que se ha creado asociada al tratamiento resultado de la modificación está en estado 'A Validar'.
+Comprobar que, desde el detalle de la nueva solicitud, se muestra el estado correctamente (A Validar) y no permite ninguna operación como Revisar, Aprobar, etc.
+Comprobar que, en el visor, el tratamiento original queda 'interrumpido' y el nuevo tratamiento muestra el icono informativo que indica que está pendiente de validación.
+10
+Resultado esperado
+La solicitud asociada al tratamiento original modificado, queda en estado 'Interrumpida' y la solicitud que se ha creado asociada al tratamiento resultado de la modificación queda en estado 'A Validar'
+Resultado obtenido
+CU4
+Caso:
+Modificación de tratamiento con formulario SVP
+Precondiciones:
+Tratamiento con formulario SVP que requiera validación. Ejemplo, el prescrito en el Caso de prueba 3.
+Usuario
+Perfil
+Prescriptores
+Paciente
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Modificar un tratamiento que cumpla las precondiciones y cumplimentar el formulario SVP para finalizar correctamente la operación.
+Comprobar que, en el visor, el tratamiento original queda 'interrumpido' y el nuevo tratamiento muestra el icono informativo que indica que está pendiente de validación.
+10
+Resultado esperado
+La solicitud asociada al tratamiento original modificado, queda en estado 'Interrumpida' y la solicitud que se ha creado asociada al tratamiento resultado de la modificación queda en estado 'A Validar'
+Resultado obtenido
+CU5
+Caso:
+Prolongar un tratamiento asociado a protocolo SVP, pendiente de validar
+Precondiciones:
+Tratamiento asociado a protocolo SVP. Protocolo configurado para requerir validación, ejemplo el obtenido en Caso de prueba 1 ó 5. Estado A Validar.
+Usuario
+Perfil
+Prescriptores
+Paciente
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Continuar un tratamiento que cumpla las precondiciones y cumplimentar alguno de los formularios SVP para finalizar la operación.
+comprobar que, en el visor, el tratamiento se muestra igual que antes de la continuación, excepto el nuevo periodo. Muestra el icono informativo indicando que requiere validación.
+Acceder a ‘Utilidades de prescripción / Protocolos especiales’ y comprobar que la solicitud sigue en el mismo estado 'A validar'.
+10
+Resultado esperado
+La solicitud de protocolo sigue en el mismo estado 'A validar' tras la continuación.
+Resultado obtenido
+Caso:
+10
+Prolongar un tratamiento asociado a protocolo SVP, autorizado tras ser validado
+Precondiciones:
+Tratamiento asociado a protocolo SVP. Protocolo configurado para requerir validación, ejemplo el obtenido en Caso de prueba 1 ó 5. Estado Autorizado, tras ser validado.
+Usuario
+Perfil
+Prescriptores
+Paciente
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Continuar un tratamiento que cumpla las precondiciones y cumplimentar alguno de los formularios SVP para finalizar la operación.
+comprobar que, en el visor, el tratamiento se muestra igual que antes de la continuación, excepto el nuevo periodo. No muestra el icono informativo indicando que requiere validación, ya que está Autorizado.
+Acceder a ‘Utilidades de prescripción / Protocolos especiales’ y comprobar que la solicitud sigue en el mismo estado 'Autorizado'.
+10
+Resultado esperado
+La solicitud de protocolo sigue en el mismo estado 'A validar' tras la continuación.
+Resultado obtenido
+CU6
+Caso:
+11
+Prolongar un tratamiento con formulario SVP, pendiente de validar
+Precondiciones:
+Tratamiento con formulario SVP, configurado para requerir validación. Estado A Validar.
+Usuario
+Perfil
+Prescriptores
+Paciente
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Continuar un tratamiento que cumpla las precondiciones y cumplimentar el formularios SVP para finalizar la operación.
+Comprobar que, en el visor, el tratamiento se muestra igual que antes de la continuación, excepto el nuevo periodo. Muestra el icono informativo indicando que requiere validación.
+10
+Resultado esperado
+el tratamiento sigue en el mismo estado 'A validar' tras la continuación.
+Resultado obtenido
+Caso:
+12
+Prolongar un tratamiento asociado a formulario SVP, autorizado tras ser validado
+Precondiciones:
+Tratamiento con formulario SVP configurado para requerir validación. Estado Autorizado, tras ser validado.
+Usuario
+Perfil
+Prescriptores
+Paciente
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Continuar un tratamiento que cumpla las precondiciones y cumplimentar el formulario SVP para finalizar la operación.
+comprobar que, en el visor, el tratamiento se muestra igual que antes de la continuación, excepto el nuevo periodo. No muestra el icono informativo indicando que requiere validación, ya que está Autorizado.
+Acceder a ‘Utilidades de prescripción / Protocolos especiales’ y comprobar que la solicitud sigue en el mismo estado 'Autorizado' y NO muestra el icono informativo para indicar que requiere validación.
+10
+Resultado esperado
+El tratamiento sigue en el mismo estado 'Autorizado' tras la continuación.
+Resultado obtenido
+CU7
+Caso:
+13
+Validar tratamiento asociado a protocolo SVP
+Precondiciones:
+Tratamiento dispensable en UFPE, asociado a protocolo SVP, con estado 'A validar'.
+Usuario
+Perfil
+Farmacéuticos
+Paciente
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Acceder al módulo MDIS y obtener el listado de tratamientos pendientes de validación UFPE.
+Comprobar que sólo muestra tratamientos dispensables en UFPE, asociados a protocolo SVP y con estado 'A validar'
+Del listado, seleccionar al menos un tratamiento y pulsar ‘Validar’
+Cancelar el mensaje de confirmación de la validación.
+Comprobar que la operación de validación se suspende y nada cambia.
+Volver a Seleccionar otro tratamiento del listado de tratamientos pendientes de validación y pulsar 'Validar'
+Aceptar el mensaje de confirmación de la validación.
+Comprobar que el tratamientos seleccionado, queda listo para ser dispensado por el resto de perfiles de usuarios de MDIS.Deja de mostrarse el icono informativo de que está pendiente de validar.La solicitud de protocolo SVP cambia de estado 'A validar' a 'Autorizado'.
+10
+Resultado esperado
+La solicitud de protocolo cambia a estado 'Autorizado'.El tratamiento es dispensable para el resto de usuarios del módulo de dispensación.No se muestra el icono.
+Resultado obtenido
+CU8
+Caso:
+14
+Validar tratamiento asociado a formulario SVP
+Precondiciones:
+Tratamiento dispensable en UFPE, asociado a formulario SVP, con estado 'A validar', no hay criterio de validación definido para formulario SVP.
+Usuario
+Perfil
+Farmacéuticos
+Paciente
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Acceder al módulo MDIS y obtener el listado de tratamientos pendientes de validación UFPE.
+Comprobar que sólo muestra tratamientos dispensables en UFPE, asociados a protocolo SVP, con estado 'A validar' y no hay criterio de validación definido para ese formulario SVP
+Del listado, seleccionar al menos un tratamiento y pulsar ‘Validar’
+Cancelar el mensaje de confirmación de la validación.
+Comprobar que la operación de validación se suspende y nada cambia.
+Volver a Seleccionar otro tratamiento del listado de tratamientos pendientes de validación y pulsar 'Validar'
+Aceptar el mensaje de confirmación de la validación.
+Comprobar que el tratamiento seleccionado queda listo para ser dispensado por el resto de perfiles de usuarios de MDIS.Deja de mostrarse el icono informativo de que está pendiente de validar.El tratamiento está en estado 'Autorizado'.
+10
+Resultado esperado
+El tratamiento queda en estado 'Autorizado'.
+Resultado obtenido
+CU9
+Caso:
+15
+Definir criterio de validación para protocolos SVP
+Precondiciones:
+Usuario
+Perfil
+Farmacéuticos autorizados
+Paciente
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Desde el módulo MDIS, acceder a los criterios de validación para la dispensación
+En la pantalla, pulsar el botón 'Crear Criterio de Validación'.
+En el desplegable Tipo Criterio de Validación, seleccionar la opción 'Protocolos SVP'.
+Comprobar que se despliega un nuevo listado con los protocolos SVP y se pueden seleccionar uno, varios o todos los elementos del listado.
+Comprobar que tras pulsar el botón Crear, el nuevo criterio creado se muestra en el listado y podrá ser eliminado desde la última columna del registro.
+Resultado esperado
+Los tratamientos con los tipos de protocolos SVP, recogidos en el criterio creado, no requerirán la validación previa en ese centro de dispensación.
+Resultado obtenido
+CU10
+Caso:
+16
+Definir criterio de validación para formularios SVP
+Precondiciones:
+Usuario
+Perfil
+Farmacéuticos autorizados
+Paciente
+Diagnostico
+Medicamento
+Centro
+Pasos a realzar:
+Desde el módulo MDIS, acceder a los criterios de validación para la dispensación
+En la pantalla, pulsar el botón 'Crear Criterio de Validación'.
+En el desplegable Tipo Criterio de Validación, seleccionar la opción 'Formularios SVP'.
+Comprobar que se despliega un nuevo listado con los formularios SVP y se pueden seleccionar uno, varios o todos los elementos del listado.
+Comprobar que tras pulsar el botón Crear, el nuevo criterio creado se muestra en el listado y podrá ser eliminado desde la última columna del registro.
+Resultado esperado
+Los tratamientos con los tipos de formularios SVP, recogidos en el criterio creado, no requerirán la validación previa en ese centro de dispensación.
+Resultado obtenido
