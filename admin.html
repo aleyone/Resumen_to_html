@@ -665,36 +665,44 @@ function extractVersionDate(text) {
 // ── Extract title deterministically from document text ──
 function extractTitleFromText(text, filename) {
   // Pattern 1 — docx: "Nombre de requisito" section
-  const nombreMatch = text.match(/Nombre de requisito\s*\n+([^\n]+)/i);
+  const nombreMatch = text.match(/Nombre de requisito\s*\n+([^\n]{5,})/i);
   if (nombreMatch) {
-    const raw = nombreMatch[1].trim();
-    const cleaned = cleanBracketPrefixes(raw);
+    const cleaned = cleanBracketPrefixes(nombreMatch[1].trim());
     if (cleaned.length > 3) return cleaned;
   }
 
-  // Pattern 2 — PDF: table "Requisitos que cubre el análisis"
-  // Matches: [SIAGP-2699] [CRIBAT][MAMA] Mejoras en la lista de cribados
-  const reqTableMatch = text.match(/\[(?:SIAGP|GAIA|SIA)[\w-]+\]\s+([\[\]\w\s,/_+.-]+?)\s*(?:\[(?:SIAGP|SIA|GAIA)[\w-]+\]|$|\n)/i);
-  if (reqTableMatch) {
-    const cleaned = cleanBracketPrefixes(reqTableMatch[1].trim());
+  // Pattern 2 — PDF/docx requisitos table row
+  // "[SIAGP-2703] [CRIBAT][MAMA][Integración_GIMD] Cambio en integración con Universal Viewer"
+  const reqRowMatch = text.match(/\[(?:SIAGP|GAIAGP|GAIA|SIA)[\w-]+\]\s+([\s\S]{5,200}?)(?:\n|$)/i);
+  if (reqRowMatch) {
+    const cleaned = cleanBracketPrefixes(reqRowMatch[1].trim());
     if (cleaned.length > 3) return cleaned;
   }
 
-  // Pattern 3 — from filename
+  // Fallback: filename
   return cleanBracketPrefixes(
     filename.replace(/\.[^.]+$/, '').replace(/[_\-]+/g, ' ').trim()
   );
 }
 
 function cleanBracketPrefixes(str) {
-  // Remove: [GVMEGAIA-27217] GAIA-526 [MPRE3] → title
-  // Remove: [CRIBAT][MAMA][Integración_GIMD] → title
-  // Remove trailing Jira IDs: "title [SIA-2703]" → "title"
-  return (str || '')
-    .replace(/^(\[[^\]]*\]\s*)+((?:GAIA|SIA)-\d+\s*)?/i, '')  // leading brackets
-    .replace(/\s*\[(?:SIAGP|GAIA|SIA|GAIAGP)[\w-]+\]\s*$/i, '')  // trailing Jira ID
-    .replace(/\.$/, '')
-    .trim();
+  if (!str) return '';
+  let s = str.trim();
+
+  // Remove leading bracket groups: [GVMEGAIA-27217] [MPRE3] [CRIBAT][MAMA][Integración_GIMD]
+  // Stop when we hit a word that is NOT a bracket tag
+  s = s.replace(/^(\[[^\]]+\]\s*)+/i, '').trim();
+
+  // Remove leading Jira-style IDs: "GAIA-526 " or "SIA-2699 "
+  s = s.replace(/^(?:GAIA|SIA|SIAGP|GAIAGP)-\d+\s+/i, '').trim();
+
+  // Remove trailing Jira IDs: "title [SIA-2703]"
+  s = s.replace(/\s*\[(?:SIAGP|GAIA|SIA|GAIAGP)[\w-]+\]\s*$/i, '').trim();
+
+  // Remove trailing period
+  s = s.replace(/\.$/, '').trim();
+
+  return s;
 }
 
 // ── Phase 1 extraction prompt — just extract key facts, no synthesis ──
@@ -877,6 +885,7 @@ async function parseText(text, app, filename, docType, formDate, onProgress) {
 
   // Structure raw text with semantic tags before storing
   const raw_text = structureRawText(text, filename);
+  console.log('[parseText] raw_text length:', raw_text.length, '| text length:', text.length, '| component:', component);
 
   allReqs = allReqs.map((r, i) => ({
     ...r,
