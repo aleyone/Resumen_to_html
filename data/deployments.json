@@ -20,6 +20,27 @@
           "images": []
         }
       ]
+    },
+    {
+      "id": "dep_1780928910670",
+      "app": "SIA",
+      "version": "uyyttit",
+      "date": "2026-06-08",
+      "author": "Jordi Gallego",
+      "files": [
+        "[SIA][CRIBAT][MAMA] Mejoras en la lista de cribados [SIA-2699].pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Mejoras en la lista de cribados",
+          "situacion_actual": "Tras migrar una gran cantidad de cribados desde el sistema anterior (SIGMA), la lista de cribados 'Finalizados con mamografía' en el módulo de Gestión de pacientes presenta tiempos de carga muy lentos. Este problema se detectó inicialmente en la unidad piloto de Manises y se espera que ocurra en el resto de unidades conforme crezca el volumen de datos históricos. La lentitud afecta a la búsqueda y consulta diaria de los radiólogos, impactando negativamente en su productividad.",
+          "descripcion": "El sistema ahora obliga a acotar las búsquedas de cribados finalizados mediante un rango de fechas o un número de identificación del paciente (SIP), lo que reduce significativamente el volumen de datos procesados. Cuando se selecciona esta opción de búsqueda, el rango de fechas se rellena automáticamente de forma inteligente, abarcando únicamente los últimos días configurables según las necesidades de cada centro. Los usuarios pueden seguir buscando por otros criterios, pero siempre se aplicará este filtro temporal automáticamente para garantizar velocidad de respuesta.\n\nAdemás, se incorpora una nueva columna 'Hora visita' en la lista de cribados que permite a los radiólogos identificar si las pacientes vinieron por la mañana o por la tarde, facilitando la organización de su trabajo. Se añade también la posibilidad de filtrar cribados específicamente por rango horario de visita, utilizando intervalos de media hora, permitiendo búsquedas aún más precisas según las franjas horarias deseadas.",
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-08",
+          "images": []
+        }
+      ]
     }
   ]
 }
