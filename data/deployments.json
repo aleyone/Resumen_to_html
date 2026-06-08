@@ -7,7 +7,8 @@
       "date": "2026-06-08",
       "author": "Belén Nuñez",
       "files": [
-        "[SIA][CRIBAT][MAMA] Mejoras en la lista de cribados [SIA-2699].pdf"
+        "[SIA][CRIBAT][MAMA] Mejoras en la lista de cribados [SIA-2699].pdf",
+        "[SIA][CRIBAT][MAMA] [Integración_GIMD] Cambio en la integración con Universal Viewer [SIA-2703].pdf"
       ],
       "requirements": [
         {
@@ -27,6 +28,25 @@
             "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933182/z7swl8dgm2mfggcvw1lq.png",
             "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933183/cj5g5x7zwerd1cgb6b0u.png",
             "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933184/gcrbs6s3jobdwp80ujxw.png"
+          ]
+        },
+        {
+          "id": "REQ-02",
+          "title": "Universal Viewer",
+          "situacion_actual": "Anteriormente, los radiólogos podían abrir el visor de imágenes Universal Viewer desde la historia clínica para consultar las mamografías en diferentes momentos de lectura. Sin embargo, existía un problema de seguridad y experiencia de usuario: cuando un profesional cerraba la historia clínica, el visor permanecía abierto en segundo plano, lo que significaba que la siguiente vez que otro radiólogo accedía a una historia diferente, podía ver las imágenes de la paciente anterior. Esto comprometía la privacidad y podía causar confusión en el trabajo diario.",
+          "descripcion": "Con este cambio, el flujo se automatiza y mejora: cuando el radiólogo pulsa el botón para abrir el visor, el sistema solicita las credenciales de acceso una única vez y las mantiene en memoria durante la sesión. Al cerrar la historia clínica, el visor también se cierra automáticamente, asegurando que no queden imágenes de otras pacientes abiertas. El usuario verá avisos informativos si algo falla en este proceso, permitiéndole saber exactamente qué ha ocurrido.\n\nEsta mejora afecta a los radiólogos que realizan lecturas en el programa de detección de cáncer de mama. El cambio es transparente para ellos: el acceso al visor sigue siendo igual de rápido y fácil, pero ahora más seguro y limpio. Si ocurre algún problema técnico durante la conexión, recibirá una notificación clara para reportarlo al equipo de soporte correspondiente.",
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-08",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933200/zmean7iao0qaqfm43jym.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933201/q9mwrbep9ftoblhjx9ew.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933201/fuxmba2ze1zjuwbw57vg.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933202/bgxxrvgqn7lsrwkf1yzf.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933203/opp7efwq6shxoa2imd8m.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933203/hjgxzolm6ftckxgxdjtc.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933204/fuvbqx66nluldi6hmk08.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933205/pei0pwy3etcdts3jijfq.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933205/nsqr6bu3j1psaa7t5xbp.png"
           ]
         }
       ]
