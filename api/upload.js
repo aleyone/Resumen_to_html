@@ -71,13 +71,17 @@ export default async function handler(req, res) {
         // Fall back to index i if reqIndex not provided (backwards compat)
         const reqIdx = reqIndex !== undefined ? reqIndex : i;
         const req = requirements[reqIdx] || requirements[i] || requirements[0];
-        const component = normalizePathSegment(req?.component || 'General');
+        const realComponent = req?.component || 'General'; // original name with accents
+        const component = normalizePathSegment(realComponent);
         const titleClean = normalizePathSegment(cleanTitle(req?.title || filename));
         const rawPath = `data/raw/${appSafe}/${versionSafe}/${component}/${titleClean}.txt`;
 
+        // Prepend real component name so search.js can read it back correctly
+        const rawWithMeta = `[COMPONENTE_REAL] ${realComponent}\n${raw_text}`;
+
         try {
           const existing = await ghGet(GITHUB_REPO, GITHUB_TOKEN, rawPath);
-          await ghPut(GITHUB_REPO, GITHUB_TOKEN, rawPath, raw_text, existing?.sha || null,
+          await ghPut(GITHUB_REPO, GITHUB_TOKEN, rawPath, rawWithMeta, existing?.sha || null,
             `Raw: ${app} ${version} - ${component} - ${titleClean}`
           );
           console.log('Saved raw:', rawPath);

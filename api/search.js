@@ -207,11 +207,16 @@ ${docsBlock}`;
       1200
     );
 
-    const references = relevantDocs.map(d => ({
-      title: d.filename.replace('.txt', '').replace(/_/g, ' '),
-      version: d.version.replace(/_/g, ' '),
-      component: d.component.replace(/_/g, ' ')
-    }));
+    const references = relevantDocs.map(d => {
+      // Try to read real component name from [COMPONENTE_REAL] tag in raw
+      const compMatch = d.text.match(/^\[COMPONENTE_REAL\] (.+)/m);
+      const realComponent = compMatch ? compMatch[1].trim() : d.component.replace(/_/g, ' ');
+      return {
+        title: d.filename.replace('.txt', '').replace(/_/g, ' '),
+        version: d.version.replace(/_/g, ' '),
+        component: realComponent
+      };
+    });
 
     return res.status(200).json({ answer, references });
 
