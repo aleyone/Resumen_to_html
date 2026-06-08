@@ -64,11 +64,13 @@ export default async function handler(req, res) {
     // 1. Save raw texts to data/raw/{app}/{version}/{component}/{cleanTitle}.txt
     if (rawTexts && rawTexts.length) {
       for (let i = 0; i < rawTexts.length; i++) {
-        const { filename, raw_text } = rawTexts[i];
+        const { filename, raw_text, reqIndex } = rawTexts[i];
         if (!raw_text) continue;
 
-        // Find matching requirement to get component and clean title
-        const req = requirements[i] || requirements[0];
+        // Use reqIndex to find the correct requirement for this file
+        // Fall back to index i if reqIndex not provided (backwards compat)
+        const reqIdx = reqIndex !== undefined ? reqIndex : i;
+        const req = requirements[reqIdx] || requirements[i] || requirements[0];
         const component = normalizePathSegment(req?.component || 'General');
         const titleClean = normalizePathSegment(cleanTitle(req?.title || filename));
         const rawPath = `data/raw/${appSafe}/${versionSafe}/${component}/${titleClean}.txt`;
