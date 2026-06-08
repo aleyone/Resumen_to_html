@@ -54,30 +54,38 @@ export default async function handler(req, res) {
     if (!rawText) return '';
     const sections = [];
 
-    // Extract [DOCUMENTO] — title
     const docMatch = rawText.match(/\[DOCUMENTO\]\n([^\n]+)/);
     if (docMatch) sections.push('Requerimiento: ' + docMatch[1]);
 
-    // Extract [VERSIONES] — last version
     const verMatch = rawText.match(/\[VERSIONES\]\n((?:[^\n]+\n?){1,3})/);
     if (verMatch) {
       const lastVer = verMatch[1].trim().split('\n').pop();
       if (lastVer) sections.push('Última versión: ' + lastVer);
     }
 
-    // Extract [SITUACION_ACTUAL] content — next ~400 chars
-    const saMatch = rawText.match(/\[SITUACION_ACTUAL\]\n([\s\S]{0,500}?)(?=\[|$)/);
+    const saMatch = rawText.match(/\[SITUACION_ACTUAL\]\n([\s\S]{0,400}?)(?=\[|$)/);
     if (saMatch) sections.push('[SITUACION_ACTUAL]\n' + saMatch[1].trim());
 
-    // Extract [DESCRIPCION] content — next ~400 chars
-    const descMatch = rawText.match(/\[DESCRIPCION\]\n([\s\S]{0,500}?)(?=\[|$)/);
+    const descMatch = rawText.match(/\[DESCRIPCION\]\n([\s\S]{0,400}?)(?=\[|$)/);
     if (descMatch) sections.push('[DESCRIPCION]\n' + descMatch[1].trim());
 
-    // Extract first [CASO_DE_USO] — just the header + 200 chars
+    // Include first CU
     const cuMatch = rawText.match(/\[CASO_DE_USO\][^\n]*\n([\s\S]{0,200}?)(?=\[CASO_DE_USO\]|\[SECCION\]|$)/);
     if (cuMatch) sections.push('[CASO_DE_USO]\n' + cuMatch[1].trim());
 
-    return sections.join('\n\n').slice(0, 900);
+    // Include config/variables sections — critical for config questions
+    const cfgMatch = rawText.match(/(?:Configuraci[oó]n|[Vv]ariable|APARTADO.*[Cc]onfig)([\s\S]{0,400}?)(?=\[APARTADO\]|\[SECCION\]|$)/);
+    if (cfgMatch) sections.push('[CONFIGURACION]\n' + cfgMatch[1].trim());
+
+    // If nothing tagged found (simple PDF), take distributed samples
+    if (sections.length <= 1) {
+      const len = rawText.length;
+      sections.push(rawText.slice(0, 300));
+      sections.push(rawText.slice(Math.floor(len * 0.3), Math.floor(len * 0.3) + 300));
+      sections.push(rawText.slice(Math.floor(len * 0.6), Math.floor(len * 0.6) + 300));
+    }
+
+    return sections.join('\n\n').slice(0, 1200);
   }
 
   try {
@@ -130,12 +138,17 @@ export default async function handler(req, res) {
       docs.push({ ...c, text: text || '' });
     }
 
-    // 4. Phase 1 — relevance check using functional snippets (not first N chars)
-    const snippetBlock = docs.map((d, i) =>
-      `[${i}] ${d.component} / ${d.version.replace(/_/g,' ')} / ${d.filename.replace('.txt','').replace(/_/g,' ')}\n${extractFunctionalSnippet(d.text)}`
-    ).join('\n\n---\n\n');
+    // 4. Phase 1 — relevance check (skip if 3 or fewer candidates, use all)
+    let relevantIndices = [];
+    if (candidates.length <= 3) {
+      // Few docs — skip filtering, use all
+      relevantIndices = docs.map((_, i) => i);
+    } else {
+      const snippetBlock = docs.map((d, i) =>
+        `[${i}] ${d.component} / ${d.version.replace(/_/g,' ')} / ${d.filename.replace('.txt','').replace(/_/g,' ')}\n${extractFunctionalSnippet(d.text)}`
+      ).join('\n\n---\n\n');
 
-    const phase1Prompt = `Eres un asistente de soporte técnico sanitario.
+      const phase1Prompt = `Eres un asistente de soporte técnico sanitario.
 El usuario pregunta: "${question}"
 
 Tienes los siguientes requerimientos disponibles. Identifica los índices (números entre corchetes) de los 1-3 requerimientos cuyo contenido es más relevante para responder esta pregunta.
@@ -145,14 +158,13 @@ ${snippetBlock}
 
 Responde ÚNICAMENTE con JSON: {"indices": [0, 2]}`;
 
-    let relevantIndices = [];
-    try {
-      const phase1Raw = await callClaude([{ role: 'user', content: phase1Prompt }], 150);
-      const clean = phase1Raw.replace(/```json|```/g, '').trim();
-      relevantIndices = JSON.parse(clean).indices || [];
-    } catch(e) {
-      // Fallback: use all (max 3)
-      relevantIndices = docs.map((_, i) => i).slice(0, 3);
+      try {
+        const phase1Raw = await callClaude([{ role: 'user', content: phase1Prompt }], 150);
+        const clean = phase1Raw.replace(/```json|```/g, '').trim();
+        relevantIndices = JSON.parse(clean).indices || [];
+      } catch(e) {
+        relevantIndices = docs.map((_, i) => i).slice(0, 3);
+      }
     }
 
     if (!relevantIndices.length) {
