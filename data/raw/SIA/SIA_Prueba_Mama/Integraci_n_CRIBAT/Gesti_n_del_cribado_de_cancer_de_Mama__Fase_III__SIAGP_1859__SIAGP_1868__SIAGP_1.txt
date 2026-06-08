@@ -1,0 +1,913 @@
+[DOCUMENTO]
+[SIA][CRIBAT][MAMA] Gestión del cribado de cancer de Mama [Fase III][SIAGP 1859][SIAGP 1868][SIAGP 1732][SIAGP 1846]
+
+SIA
+Código de la versión:SIA V41.00.00-SIA V 42.00.00
+Últimaactualización:23/12/2025
+VersiónFechaAutor/esDescripción de la Versión/Cambios
+1.027/06/2025Carmina CórcolesVersión inicial
+2.014/11/2025Carmina CórcolesSeamplíala funcionalidad implementada en la
+v41.00:
+-Nuevo circuito de informados(BAG)
+-Ampliacióndeinformación mostrada en
+Datos de SIP
+-Pruebas complementarias
+-Citas TER
+-Ampliación funcionalidad lista de cribados
+-Ordenación en lista de cribados [IA]
+-Integración conla IA
+-Recepción deimágenes en PACS
+-Centrosderefuerzo
+SGPTIC2|85
+1Introducción..............................................................................................................8
+1.1Petición que se recoge en este documento.................................................................8
+2Requisitos que cubre el análisis.................................................................................9
+3Análisis...................................................................................................................10
+3.1Análisis textual.............................................................................................................10
+Citas de Cribado de mama para realización de mamografía...........................10
+Citas de proyección complementaria (Citas TER).............................................14
+Lista de procesos de Cribado de mama desde Gestión de Pacientes............16
+Lista de Cribados de mama desde la Historia Clínica......................................26
+Integración con PACS para el aviso de recepción de imágenes......................27
+Integración con la IA............................................................................................28
+Informado de Lectura 1.......................................................................................29
+Informado de Lectura 2.......................................................................................45
+Informado de Consenso......................................................................................52
+Cribados finalizados............................................................................................59
+Informados de Cribados migrados de SIGMA...................................................59
+Solicitud de pruebas adicionales........................................................................61
+Visor de pruebas adicionales..............................................................................69
+Análisis y diseño técnicoAcceso de profesionales externos.....................................................................73
+Nuevosdatos de SIP en el tooltip del paciente.................................................74
+Permisos...............................................................................................................74
+3.2Modelo de datos...........................................................................................................75
+3.3Otras consideraciones.................................................................................................77
+Diagrama de integración.....................................................................................77
+Impacto en otras aplicaciones o dependencias................................................78
+Cumplimiento de ENS y ENI................................................................................78
+4Planes de Pruebas...................................................................................................79
+4.1Plan de pruebas funcional...........................................................................................79
+5Configuraciones (detalle).........................................................................................80
+5.1Resumen de configuraciones......................................................................................80
+5.2Resumen de la lista de impacto..................................................................................84
+SGPTIC3|85
+ÍNDICE DEILUSTRACIONES
+Ilustración 1. Aviso de citas de Cribado de mama en Captura de actividad masiva...............11
+Ilustración 2. No acceso a la Historia Clínica desde una cita de Cribado de mama...............11
+Ilustración 3. Lista de trabajo de la UPCM–Acceso al cuestionario.......................................12
+Ilustración 4.Guardado y envío del cuestionario........................................................................12
+Ilustración 5.Mujer que NO consiente la realización de la mamografía...................................13
+Ilustración 6.Envío directo al mamógrafo (sin cuestionario)....................................................14
+Ilustración 7.Aviso informativo de envío directo al mamógrafo...............................................14
+Ilustración 8.Envío al mamógrafo para una proyección............................................................15
+Ilustración 9.Aviso de cita no creada dentro del circuito de Cribado de mama......................16
+Ilustración 10. Acceso a Gestión de pacientes...........................................................................16
+Ilustración 11.Acceso a Cribados de mama–Gestión de pacientes.......................................17
+Ilustración 12. Lista de Cribados de mama................................................................................17
+Ilustración 13. Filtros de búsqueda en la lista de Cribados de mama–Gestión de pacientes
+........................................................................................................................................................18
+Ilustración 14.Lista de cribados resultantes del filtrado...........................................................20
+Ilustración 15. Filtros de búsqueda en la lista de Cribados de mama–Gestión de pacientes
+........................................................................................................................................................20
+Ilustración 16. Mostrar cribados pendientes de envío al mamógrafo......................................21
+Análisis y diseño técnicoIlustración 17. Búsqueda de texto sobre los registros mostrados...........................................21
+Ilustración 18. Acciones de la rueda de acciones sobre un cribado.........................................23
+Ilustración 19. Cuestionario de Participación cribado de mama..............................................24
+Ilustración 20. Alerta. Pendiente de envío al mamógrafo..........................................................24
+Ilustración 21. Envío al mamógrafo realizado correctamente..................................................25
+Ilustración 22. Envío petición al mamógrafo. Mensaje de error de envío................................25
+Ilustración 23. Valoraciones adicionales. Mensaje informativo..................................................25
+Ilustración 24.Acceso a ‘Cribado de Mama’ desde la HC..........................................................27
+Ilustración 25.Lista de Cribados de Mama desde la HC............................................................27
+Ilustración 26. Puntuación de la IA en los informados..............................................................28
+Ilustración 27.Tipo de composición de tejido mamario MD/MI en los informados...............29
+Ilustración 28.Acceso a Lectura 1 desde la lista de cribados de gestión de paciente............30
+Ilustración 29.Acceso a Lectura 1 desde la lista de cribados de gestión de la HC.................30
+Ilustración 30.Informado de Lectura 1 en modo consulta.........................................................30
+Ilustración 31.Botonera superior de acciones en Lectura 1......................................................31
+SGPTIC4|85
+Ilustración 32.Visor de valoraciones adicionales.......................................................................31
+Ilustración 33.Acceso a Universal Viewer...................................................................................32
+Ilustración 34.Aviso al salir cancelando de un informado.........................................................32
+Ilustración 35.Bloque de datos generales del cribado e información del cuestionario..........33
+Ilustración 36.Tooltip con los comentarios indicados por el TSID para el radiólogo..............34
+Ilustración 37.Tooltip con los comentarios indicados por los radiólogos en los informados34
+Ilustración 38.Indicaciones, Técnica… Tipo tejido mamario.....................................................35
+Ilustración 39.BIRADS y hallazgos Lectura 1 para mama derecha y mama izquierda............40
+Ilustración 40.Lectura 1 realizada y guardada............................................................................40
+Ilustración 41.Sección de Solicitud de pruebas complementarias...........................................41
+Ilustración 42. Sección de Cribado en un cribado migrado.......................................................42
+Ilustración 43.Sección de Resultado de proceso NORMAL en Lectura 1.................................43
+Ilustración 44.Sección de Resultado de proceso CASO en Lectura 1.......................................44
+Ilustración 45.Aviso de Biopsias sin resultado...........................................................................44
+Ilustración 46.Apunte en Consulta activa por guardado de Lectura 1......................................45
+Ilustración 47. Cribado ‘Pendiente de L2’....................................................................................46
+Ilustración 48. Cribados ‘Pendiente de L2’ cuya Lectura 1 fue realizada por el radiólogo de la
+sesión.............................................................................................................................................46
+Ilustración 49.Informado de Lectura 2 en modo consulta.........................................................47
+Ilustración 50. Informado de Lectura 2 (1/2)..............................................................................47
+Ilustración 51. Informado de Lectura 2 (2/2)..............................................................................48
+Ilustración 52.Botonera superior de acciones en Lectura 2......................................................48
+Ilustración 53.Sección de Indicaciones en Lectura 2.................................................................49
+Ilustración 54.Lectura 2 realizada y guardada............................................................................49
+Ilustración 55.Sección de Resultado de proceso CASO en Lectura 2.......................................51
+Ilustración 56.Aviso de que Biopsias sin resultado....................................................................51
+Ilustración 57.Apunte en la Consulta activa por guardado de Lectura 2..................................52
+Ilustración 58.Cribado pendiente de Consenso..........................................................................53
+Ilustración 59.Informado de Consenso en modo consulta.......................................................53
+Ilustración 60. Informado de Consenso–Vista MD..................................................................54
+Ilustración 61. Informado de Consenso–Vista MI....................................................................54
+Ilustración 62.Botonera superior de acciones en Consenso.....................................................54
+Ilustración63.Seccióndedatosgeneraleseinformaciónrelevantedelcuestionario-
+Consenso.......................................................................................................................................55
+Ilustración 64.Sección de Indicaciones en Consenso................................................................55
+SGPTIC5|85
+Ilustración 65. Coincidencia de BIRDAS en mama derecha-Consenso..................................56
+Ilustración 66. No coincidencia de BIRDAS en mama izquierda-Consenso...........................56
+Ilustración 67. Consenso realizado y guardado.........................................................................57
+Ilustración 68.Sección de Resultado de proceso en Consenso................................................58
+Ilustración 69.Apunte en la Consulta activa por guardado de Consenso.................................59
+Ilustración 70. Cribado finalizado en Consenso.........................................................................59
+Ilustración 71. Visualización de cribados migrados en lista de cribados................................59
+Ilustración 72. Identificación de un cribado migrado en los informados.................................60
+Ilustración 73. Visualización de Hallazgos o Cuadrantes en el informado de un cribado
+migrado..........................................................................................................................................60
+Ilustración 74. Sección de Cribado en el informado de un cribado migrado...........................60
+Ilustración 75. Lista Valoraciones adicionales de un cribado migrado....................................61
+Ilustración 76.Solicitud de pruebas en un informado................................................................61
+Ilustración 77.Selección de diagnóstico para la solicitud de pruebas......................................62
+Ilustración 78. Cuestionario CRO de Cribado de mama.............................................................62
+Ilustración 79. Solicitud de Interconsulta CRO para Cribados de mama..................................63
+Ilustración 80. Acceso a valoraciones adicionales dentro de la HC.........................................63
+Ilustración 81.Petición de Interconsulta CRO para Cribados de mama-Lista de pruebas
+adicionales.....................................................................................................................................63
+Ilustración 82.Petición de Interconsulta CRO para Cribados de mama-Visor de peticiones en
+curso..............................................................................................................................................64
+Ilustración 83. Instrucción de cita solicitada por el radiólogo desde los informados.............64
+Ilustración 84. Instrucción de cita para proyección complementaria-Lista de pruebas
+adicionales.....................................................................................................................................65
+Ilustración 85. Citar proyección desde la lista de cribados–Gestión de pacientes...............65
+Ilustración 86. Acceso a las pruebas adicionales desde la lista de cribados–Gestión de
+pacientes.......................................................................................................................................65
+Ilustración 87. Citar proyección desde la lista de pruebas solicitadas.....................................65
+Ilustración 88. Citación de la proyección a partir de la instrucción de cita..............................66
+Ilustración 89. Cita para la proyección en lista de trabajo.........................................................66
+Ilustración 90. Aviso de cita no vinculada a cribado..................................................................66
+Ilustración 91. Proyección sin prestación indicada....................................................................67
+Ilustración 92. Petición de prueba de imagen............................................................................67
+Ilustración 93. Acceso a valoraciones adicionales dentro de la HC.........................................68
+Ilustración 94.Petición de prueba de imagen-Lista de pruebas adicionales.........................68
+SGPTIC6|85
+Ilustración 95.Pruebas solicitadas-Visor de peticiones en curso...........................................68
+Ilustración 96. Petición de Otras pruebas...................................................................................68
+Ilustración 97. Acceso a valoraciones adicionales dentro de la HC.........................................69
+Ilustración 98.Petición de Otras pruebas-Lista de pruebas adicionales................................69
+Ilustración 99.Pruebas solicitadas-Visor de peticiones en curso...........................................69
+Ilustración 100. Acceso a Valoraciones adicionales desde la lista de cribados.....................70
+Ilustración 101. Acceso a valoraciones adicionales dentro de la HC.......................................70
+Ilustración 102. Visor de pruebas adicionales desde la HC.....................................................70
+Ilustración 103.Apunte en la Consulta activa por modificación de prueba solicitada desde un
+cribado de mama..........................................................................................................................72
+Ilustración 104.Tooltip de Datos de SIP......................................................................................74
+SGPTIC7|85
+1INTRODUCCIÓN
+En elpresente documentoserecoge elanálisisy diseño técnicodelos requisitosindicados
+en el Apartado “2. Requisitos que cubre el análisis”.
+El análisisde estos requisitosse ha realizado utilizando lastécnicasque se hanconsiderado
+comomás apropiadaspara definirla implementación de lasfuncionalidades solicitadas.
+1.1Petición que se recoge en este documento
+Trasdesarrollar en la versión 41la gestión delCribado deCáncer de Mama en SIAque permitía
+realizar el cuestionarioa las mujeres citadaspara la mamografía, enviar la petición al aparato
+y realizar los informados,seincluye en este documento la especificación funcionalcompleta
+del circuitoque se liberaen la versión 42a partir del nuevo algoritmopresentado el pasado
+mes deseptiembrepor el equipo funcional, así comolos cambios de alcance solicitadosque
+afectan atodo el circuito.
+Respecto a las diferentes integraciones contempladas en el circuito, cada una de ellas tiene
+un SIAGP propioo documento de especificación técnicaal que se hace referencia desde este
+documento.
+SGPTIC8|85
+2REQUISITOSQUE CUBRE EL ANÁLISIS
+A continuación, se detallan losrequisitos/funcionalidadesde los que se realizará el análisis y
+3ANÁLISIS
+3.1Análisis textual
+En este requerimiento se abordanlos siguientes desarrollos:
+•Identificación de las citas de CRIBATMAMA(Citas no TER)para la realización de
+mamografía, tanto las generadas automáticas por petición de CRIBAT como las citas
+manuales.
+•Identificaciónde las citas para las proyecciones,solicitadas por los radiólogos(Citas
+TER).
+•Lista de procesos de cribados,con múltiples filtros de búsqueda, que permitirán
+visualizar los cribados,así como el estado de cada uno de ellos, tanto desde fuera
+como desde dentro dela Historia Clínica.
+•Integración con la IA para la obtención del SCOREy tipo de composición de tejido
+mamario.
+•Algoritmo de ordenación en función del SCORE de la IA en la lista de procesos de
+cribados.
+•Integración con PACS parael procesamientode la recepción deimágenes.
+•Lecturas1 y 2 y emisión del Consenso.
+•Petición de pruebas adicionalesdesde cada lectura.
+•Visor de pruebas adicionales.
+•Cierre delcribado.
+•Gestión de citas creadas en un centro diferente a la UPCM solicitante (Agendas de
+refuerzo).
+Serecogeel cambio de alcance del SIAGP-1732 liberado en la v41:
+[SIAGP-1732][CRIBAT][MAMA] Integración SIA con CRIBA-T MAMA y gestión del
+cribado de cancer de Mama [Fase II]
+Citas de Cribado de mamapara realización de mamografía
+Desde la lista de trabajo de cadaUPCM, se mostrarán las citas generadas automáticamente
+enagendas deSIA por petición de CRIBATMAMA, así como las creadas manualmente o
+reprogramadas(véase[SIA][INT][CMAMA] Ampliar datos cita automática [SIAGP-1816][SIAGP-
+1845].docx)
+Para identificaren la lista de trabajolas citas de Cribado de mama(citas no TER),se
+comprobaránlas siguientes parametrizaciones:
+•CITA.citacent_key. Se valida si el centrode la citaestá configurado para envío FHIR
+(CENT_SIA.cent_siaflagfhir = S)
+•CITA.citaservofer_key. Se valida si el serviciode la citaestá configurado para envío
+FHIR (SEOF_SIA.seof_siaflagfhir = S)
+SGPTIC10|85
+•CITA.presagen_key→PRESAGEN.presageninvepres_key.Se valida si la prestación de
+la cita está configurada para envío FHIR. En la variableCMAMA_PRES_CITAdebe estar
+elINVEPRES_COD:
+En este tipo de citas, NO se podrá:
+oRealizarCaptura de actividad(ni individual ni masiva).
+oIndividual: No se mostrará la opción en la rueda de opciones.
+oMasiva:Al seleccionar desde la Captura de actividad masiva alguna citade
+Cribado de mama, se mostrará el siguiente aviso indicando quese deberán
+desmarcarpara poder hacerla captura:
+Ilustración1.Avisode citas de Cribado de mama en Captura de actividad masiva
+oAcceder a la HC.Alintentar acceder a la HC desde la cita, se mostrará un aviso que
+impedirá el acceso:
+Ilustración2.No acceso a la Historia Clínicadesde una cita de Cribado de mama
+SGPTIC11|85
+Una vez identificada la citaparalarealización delamamografíadentro del circuito de Cribado
+de mama,se mostrarán dos nuevasopciones en la rueda:
+•ParticipaciónCribadodemama
+•Envío directo al mamógrafo
+Participación Cribado de mama
+Consiente realización de mamografía
+Cuando la paciente acudaa su cita para la mamografía,y el administrativo seleccionela
+opción de ‘Participación Cribado de mama’seabrirá elformulario delCuestionario inicialpara
+su cumplimentación(véasedocumento[SIA][CRIBAT][MAMA]Cuestionario de Participación
+Cribado de mama [SIAGP-1732][SIAGP-1846].docx).
+Ilustración3. Lista de trabajo de la UPCM–Acceso al cuestionario
+Tras cumplimentar el cuestionarioy rellenar la pestaña deAsistencia a la cita, si la mujer
+consiente la realización de la mamografía,alpulsar‘Guardar,enviarycerrar’:
+Ilustración4.Guardado yenvíodel cuestionario
+pasará a la lista de cribadosen elestadoinicialEn proceso de pruebas(véase apartado3.1.2
+Lista de procesos de Cribado de mama), enviándosela petición almamógrafo (PACS)(véase
+[SIA][INT][CMAMA][Integración_GIMD] Petición de mamografía a la lista de trabajo del PACS
+[Fase II][SIAGP-1802][SIAGP-1844].docx).
+NOTA:Tanto si la mujer consiente larealización de la mamografía como si no, la cita pasará
+a ‘Visitada’ dejando de visualizarse en la lista de citas pendientes.
+NO consiente realización de mamografía
+SGPTIC12|85
+En aquellos casos en los que la mujer no consiente la realización de la mamografía,el cribado
+quedará enuna situación de ‘No mamografía’,tal y como puede verse en lasiguiente captura
+de lanueva lista de cribados deGestión de pacientes:
+Ilustración5.Mujer que NO consiente la realización de lamamografía
+Tanto desdelalista de cribados deGestión de pacientescomo desde la cita visitada,el
+administrativopodráeditar el cuestionario por si finalmentela mujerquisiera realizarse la
+mamografía.
+Agendas de refuerzo
+En caso de que la UPCM tenga algún centro de refuerzo parametrizado en los centros
+relacionados de CRC, desde dicho centro de refuerzo se mostrarán las citas de cribado de
+mama que se hubieran creado en dicho centro, para poder cumplimentar el cuestionarioy
+realizar la mamografía.(véase[SIA][INT][CMAMA] Ampliar datos cita automática [SIAGP-
+1816][SIAGP-1845].docx,[SIA][INT][CMAMA][Integración_GIMD] Petición de mamografía a la
+lista de trabajo del PACS [Fase II][SIAGP-1802][SIAGP-1844].docx)
+Mamógrafo no operativo
+Siel mamógrafo de la UPCM en la que está citada la mujer, estuviera inoperativo en el
+momento de la asistencia, la mujer tuviera que acudir a un centro diferente al de su cita para
+realizarse la mamografía, será necesario parametrizar en la tabla CENTMAMA elcentro origen
+(UPCM) y el centro destino donde acudirá la mujer a realizarse la mamografía. Si además se
+indica una agenda del centro destino, ésta será la que se envíe a la lista de trabajo del PACS
+(véase documento[SIA][INT][CMAMA][Integración_GIMD] Petición de mamografía a la lista de
+trabajo del PACS [Fase II][SIAGP-1802][SIAGP-1844].docx).
+Envío directo a mamógrafo
+SGPTIC13|85
+En caso de no cumplimentarse elcuestionarioen el momento de la asistencia, sepodráenviar
+la petición al mamógrafode forma directamediantela opción de‘Envío directo a mamógrafo’.
+La mujer pasará a la lista de cribados yse enviará la petición al mamógrafo (PACS)(véase
+[SIA][INT][CMAMA][Integración_GIMD] Petición de mamografía a la lista de trabajo del PACS
+[Fase II][SIAGP-1802][SIAGP-1844].docx).
+Ilustración6.Envío directo al mamógrafo (sin cuestionario)
+Se mostrará un aviso informandoquea la mujer se le realizará la mamografíay pasará a la
+lista de procesos de cribado:
+Ilustración7.Aviso informativo de envíodirectoal mamógrafo
+•Aceptar:Se envía la petición al mamógrafo y la mujer se visualiza en la lista de
+cribadosenelestadoEnproceso de pruebas.La cita pasará a ‘Visitada’ dejando
+de visualizarse en la lista de citas pendientes.
+•Cancelar:Se cancela el envío al mamógrafo y se vuelve a lalista de trabajo.La cita
+sigue pendiente, no se realizándose ninguna acción.
+Citas de proyeccióncomplementaria(Citas TER)
+Desde la lista de trabajo de cada UPCM, se mostrarán las citaspara la realización de una
+proyeccióncomplementaria(Citas TER).
+Las citas TER se solicitarándesde los informados por loslectoresmediante una Instrucción
+de cita, generándoseposteriormente la citapor un administrativo desde la lista de cribados
+deGestión de pacienteso desdeel Visor de pruebas adicionalesde fuera de la HCaccediendo
+al módulo de Citación(véase apartadoSolicitud de pruebas adicionales).
+SGPTIC14|85
+Paraidentificarlascitasdelasmujeresqueacudenarealizarselaproyección
+complementaria, se deberán comprobar las siguientes parametrizaciones:
+•CITA.citacent_key. Se valida si el centrode la citaestá configurado para envío FHIR
+(CENT_SIA.cent_siaflagfhir = S)
+•CITA.citaservofer_key. Se valida si el serviciode la citaestá configurado para envío
+FHIR (SEOF_SIA.seof_siaflagfhir = S)
+•CITA.presagen_key→presagen.presageninvepres_key.Se valida si la prestación de
+la cita está configurada para envío FHIR. En la variableCMAMA_PROY_COMPdeberá
+estar elINVEPRES_CODcorrespondiente alas prestaciones que se indiquen por parte
+del equipo funcional:
+En este tipo de citas,nose podrá:
+oRealizarCaptura de actividad(ni individual ni masiva)
+oAcceder a la HC
+Con el mismo comportamiento queel explicado arriba paralas citas no TER.
+Las citas TERmostraránunanuevaopciónen la ruedade opcionespara ‘Enviar proyección al
+mamógrafo’:
+Ilustración8.Envío al mamógrafo para una proyección
+Cuando la paciente acude asucitay el administrativo seleccionela opción de‘Enviar
+proyección al mamógrafo’,seenviará la petición al aparato para la realización de la
+proyección,quedandolacita‘Visitada’(véasedocumento
+[SIA][INT][CMAMA][Integración_GIMD] Petición de mamografía a la lista de trabajo del PACS
+[FaseII][SIAGP-1802][SIAGP-1844].docx).LaFecha de realizaciónde laproyecciónquedará
+actualizada con la fecha de la citaen la lista deValoraciones adicionalesdel cribado(véase
+apartadoVisorde pruebas adicionales).
+En caso de que la citapara la proyecciónno se hubiera creadosegún el circuito habituala
+partirdeunaInstrucción de citadesde el informado, en el momento de ‘Enviar proyección al
+SGPTIC15|85
+mamógrafo’ se detectará estacircunstancia, ya que no estará vinculada a ningún cribado,
+mostrando el siguiente mensaje que impediráel envío al aparato:
+Ilustración9.Aviso de cita no creadadentro del circuito de Cribado de mama
+La cita deberá anularse y crearse una nueva desdelaInstrucción de citaquesolicitóel lector.
+Lista de procesos de Cribado de mamadesde Gestión de
+Pacientes
+Tras cumplimentarel cuestionario, si la mujerconsiente la realización de la mamografíao tras
+realizarelEnvío directo al mamógrafo, pasa a la lista de procesos de Cribado de mamacon
+el estado inicialEn proceso de prueba.
+Elprofesional podrá visualizar los cribados desdeGestión de Pacientesde las listas de trabajo
+ydesde laHistoria Clínica.
+Ilustración10.Acceso a Gestión de pacientes
+Estando en la pantalla deGestión de pacientes,si el profesional tiene permiso, se mostrará el
+botón deCRIBADO DE MAMA:
+SGPTIC16|85
+Ilustración11.Acceso a Cribados de mama–Gestión de pacientes
+Tras pulsar enCRIBADO DE MAMAsemostrará la lista de procesos de cribados de mama de
+la UPCM del usuario que esté conectado. Para visualizar cribados de otra UPCM, será
+necesario acceder con un recurso que pertenezca a dicha UPCM.
+En caso de que lacitahaya sido en un centro de refuerzo,se podrán visualizar los cribados en
+la lista, tanto desde el centro de refuerzo como desde la propia UPCM origen de dicho
+refuerzo.
+Ilustración12. Lista de Cribados de mama
+La pantalla está dividida en 2apartados principales:
+SGPTIC17|85
+•Filtros de búsqueda
+•Listado decribados
+Filtros de búsqueda
+Ilustración13.Filtros de búsqueda en la lista de Cribados de mama–Gestión de pacientes
+Estos filtros permiten alusuario visualizar los cribadossegún los criterios que se seleccionen.
+En la lista de cribados, si el cribado está en estadoPendiente deL2y el profesional que está
+ensesión es el que realizó la Lectura 1,la fila aparecerá marcada en gris y no selepermitirá
+informar laLectura 2.
+Se podrá filtrar por los siguientes valores:
+•Situación:estado del cribado, pudiendo seleccionar los siguientes filtros de tipo radio
+button excluyentes. Este filtro siempre tendrá una opción marcada:
+oEn curso: Cribados que están en proceso y no se han finalizado. Opción por
+Análisis y diseño técnicoIlustración17.Búsqueda de texto sobre los registros mostrados
+Columnas del listado
+•Alertas: apartado en el que se muestran alertas del circuito de cribado.
+El círculo rojo informa que la cita no ha llegado al mamógrafo, porquedio error en la
+comunicacióno porno haberse enviadohabiéndoseinformadoúnicamentela pestaña de
+Cuestionario inicial.
+Si la celda se encuentra vacía, no hay ninguna alerta para el paciente.
+Si el estado está Finalizado, no se mostrará alerta de envío al mamógrafo.
+El número adjunto a la alerta indica el número de alertas parael cribado.
+Los cribados migrados de SIGMA no muestran alertas.
+•Participación: indica si hay pestañas del cuestionario sin rellenar:
+Rojo: No se ha completado ninguna información de participación, es decir, ninguna de las
+pestañas del cuestionario está rellena. Este caso se produce cuándo se realiza unEnvío
+directo al mamógrafo.
+SGPTIC21|85
+Amarillo: Está pendiente completar la información de participación, es decir, existe alguna
+pestaña del cuestionario sin cumplimentar.
+Verde: Información de participación completa. Las tres pestañas del cuestionario se han
+cumplimentado.
+MIGRADO: literal que indica que los datos proceden de la migración de SIGMA.
+Se mostrarán los siguientes tooltipssegún estén pendientes de cumplimentar las pestañas
+del cuestionario.
+o"Pendiente de cumplimentación Cuestionario inicial"
+o"Pendiente de cumplimentación Asistencia a la cita"
+o"Pendiente de cumplimentación Técnica mamográfica"
+•Biopsia:si se ha solicitadoalgunabiopsia a la paciente, se mostrarán los siguientes
+estados:
+:Pendiente de recibir los resultados de la prueba.
+:Informe de resultados recibido
+:Prueba con resultado informado.
+El número asociado al icono indica el número de biopsias solicitadas, mostrándose el estado
+de la más reciente.
+•Proyección:sisehansolicitadoproyeccióncomplementariaalapaciente,se
+mostrarán los siguientes estados:
+:Pendiente de cita / Citada. La proyección complementaria está pendiente de cita / citada.
+Existe fecha de solicitud pero no de realización.
+:Citavisitada.Laproyeccióncomplementariaseencuentravisitada.Existefecha
+realización.
+:Prueba con resultado informado.La proyección complementaria se encuentra en estado
+visitada y tiene resultado. Existe fecha de resultado.
+El número asociado al icono indica el número de proyecciones complementarias solicitadas,
+mostrándose el estado de la más reciente.
+•Valoraciones adicionales: informa si se han solicitado pruebas adicionales a la cita de
+cribado.
+:Pendiente de recibir los resultados de la prueba.
+:Informe de resultados recibido.
+:Prueba con resultado informado.
+El número asociado al icono indica el número de valoraciones adicionales solicitadas,
+mostrándose el estado de la más reciente.
+•Estado:visualiza el estado en el que se encuentra la paciente en el circuito de cribado.
+•En proceso de pruebas
+SGPTIC22|85
+•Pendiente de L1
+•Pendiente de L2
+•Pendiente de Consenso
+•Finalizado
+•No mamografía
+•SIP:muestra el número SIP de la paciente.
+•Paciente:nombre y apellidos del paciente.
+•Tipo Cita:tipo de la cita, siendo una de las siguientes:
+•Normal
+•Reevaluación temprana
+•Recita
+•Recita reevaluación temprana
+•Fecha visita.Fecha de la visita de la paciente al circuito de cribado.
+•Fecha de la última visita.Fecha de la visita anterior en el circuito de cribado.
+Acciones sobre los cribados
+Semostraránlassiguientesaccionesdesdelaruedadeaccionesdeloscribados,
+dependiendo del estado en el que se encuentrecada uno de ellos:
+Ilustración18. Acciones de la rueda de accionessobre un cribado
+Participación Cribado de mama: permite acceder al cuestionario y editar, siempre que
+el profesional tenga permisoy en funcióndel estado del proceso.
+Cadapermisoaplicaalastrespestañasdelcuestionario:Cuestionarioinicial,
+Asistencia a la Cita y Técnica mamográfica.
+Si el usuario tiene permiso de Consulta, al acceder al cuestionario, podrá navegar por
+la información de las pestañas de la Participación, pero no podrá realizar ninguna
+modificación.
+SGPTIC23|85
+Si el usuario logado tiene permiso de Edición, las pestañas del cuestionario tendrán el
+comportamiento siguiente:
+✓Un mismo profesional puede grabar en más de una pestaña.
+✓La pestaña deCuestionario inicialserá editable hasta que se cierre el proceso
+de cribado.
+✓Las pestañas deAsistencia a la citayTécnica mamográficaserán editables
+hasta que se guarde laLectura 1.
+Ilustración19.Cuestionario deParticipación cribado de mama
+Esta opción no está disponible en los procesos migrados de SIGMA.
+Enviar petición al mamógrafo: se mostrará en aquellos cribadosque tengan pendiente
+el envío al mamógrafo, tanto de lamamografía como de la proyección. Permite enviar
+la petición al mamógrafo.
+En la columna de‘Alertas’, se mostrará un aviso indicando que la cita está Pendiente
+de envío al mamógrafo.
+Ilustración20. Alerta. Pendiente de envío al mamógrafo
+Si el usuario pulsa la opción deEnviar petición al mamógrafo, se realizará el envío de
+lapetición al mamógrafo. Si el mamógrafo recibe la petición,desparecerála alertay
+dejará de mostrarse la opción deEnviar petición al mamógrafo.
+SGPTIC24|85
+Ilustración21. Envío al mamógrafo realizado correctamente
+Sihubo error en la comunicación conel mamógrafo, seguirámostrándosela alertaen
+la listay continuará mostrándose la opción deEnviar petición al mamógrafo.
+Adicionalmente, se mostrará el siguiente mensaje, para informar al usuario que no se
+pudo realizar el envío.
+Ilustración22. Envío petición al mamógrafo. Mensaje de error de envío
+Esta opción no está disponible en los procesos migrados de SIGMA
+Valoraciones adicionales:Se muestra esta opción cuándo la paciente tiene solicitadas
+valoraciones adicionales. Permite acceder a las valoraciones adicionales solicitadas
+desde el cribado, si el profesional tiene permiso.
+Al pulsar la opción deValoraciones adicionales, se mostrará el siguiente mensaje
+informativo:
+Ilustración23. Valoraciones adicionales. Mensaje informativo
+Si el usuario pulsa el botón deCancelar, se volverá a lalistade cribados.
+Si el usuario pulsa el botón deAceptar, se mostrarálalistade lasValoraciones
+adicionalessolicitadas a la paciente.
+Veáse apartadoVisor de pruebas adicionales.
+Esta opción está disponible en los procesos migrados de SIGMA
+•Acceder a la Historia Clínica: se accederá a la Historia clínica del. Esta opción se
+muestra para cualquier estadosiempre que el profesional tenga permiso.
+SGPTIC25|85
+Lectura 1:si el profesional tiene permiso,accederáa la Historia clínica del paciente
+posicionándose en la pestaña deCribat MAMA–Lector 1. Se mostrará esta opciónsi
+el cribado estáPendiente de L1,o habiéndose realizado ésta, estáPendiente L2,
+Pendiente Consensoo Finalizado.
+Lectura 2:si el profesional tiene permiso,accederáa laHistoria clínica del paciente
+posicionándose en la pestaña deCribat MAMA–Lector 2.Se mostrará esta opciónsi
+el cribadoestáPendiente de L2,o habiéndose realizado ésta,estáPendiente
+Consensoo Finalizado.
+Consenso: se accede a la Historia clínica del paciente posicionándose en la pestaña
+deCribat MAMA–Consenso.Se mostrará esta opciónsi el cribado estáPendiente
+Consenso,o habiéndose realizado ésta, estáFinalizado.
+Citar proyección.se accede a la pantalla deCitación, para podercrearla citadesde la
+Instrucción de cita creada por el radiólogopara la proyección.
+Ordenación de la lista
+Los resultados de la búsqueda de los filtros por pantalla, se mostrarán ordenados conforme
+a lo siguientes criterios:
+Análisis y diseño técnicobajo) hasta alcanzar la mitad del número de cribados, sin mantener una ordenación
+concreta (en este caso, podrán aparecer scores bajos mezclados con scores altos
+dentro de la primera mitad).
+3.Cribados conSCOREbajo, sin un orden específico.
+4.Cribados sinSCORE, sin un orden específico.
+No será posible ordenar las columnas desde su cabecera, ya que prevalece el orden indicado
+anteriormente.
+ListadeCribadosde mamadesdelaHistoria Clínica
+Desde la HC, si el profesional tiene permiso,tendrá visible la opción de menú ‘Cribados’, desde
+la que se podrá acceder al ‘Cribado de mama’,que permitirávisualizar todos los cribados de
+mama realizados a la pacienteen cualquier centro.
+SGPTIC26|85
+Ilustración24.Acceso a‘Cribado de Mama’desde la HC
+Alseleccionar la opción de‘Cribado de mama’se abrirá una nueva pestaña en la HC, con todos
+los cribados de mama realizados a la mujer,ordenados del más reciente al más antiguo:
+Ilustración25.Lista de Cribados de Mama desde la HC
+Las columnas a mostrar será la misma que en la lista de cribados de Gestión de pacientes,
+mostrándoseúnicamente las siguientes opciones:
+Participación Cribado de mama
+Valoraciones adicionales
+Lectura 1
+Lectura 2
+Desde un cribado migradotambién se podránvisualizar las pruebas solicitadas,no siendoAnálisis y diseño técnico
+editables puesto que estaráFinalizado.
+oBotón ‘Participación Cribado de mama’
+Abrirá elformulario de participaciónen modo consulta o edición en función del permiso
+delprofesional(véasedocumento[SIA][CRIBAT][MAMA]CuestionariodeParticipación
+Cribado de mama [SIAGP-1732][SIAGP-1846].docx).
+En cribadosFinalizados, el cuestionario se visualizarásiempre en modo consulta.
+En cribados migrados NO se visualizará el cuestionario, puesto que no existirá en SIA.
+oBotón ‘GIMD/PACS’
+Si elprofesionaltiene permisode accesoal visorUniversal Viewerpodráaccederalas
+imágenesdelasmamografíasrealizadas(véasedocumento[SIA][CRIBAT][MAMA]
+[Integración_GIMD] Apertura visor de imágenes Universal Viewer[SIAGP-1803]de lav41).
+Como mejora enesta versión,en la pantalla de login,elUsuariose cargará con el DNI del
+profesional que accedió a SIA, teniendo solo que indicar lacontraseña.El usuario cargado
+podrá modificarse.
+SGPTIC31|85
+Ilustración33.Acceso a Universal Viewer
+oBotón ‘Cancelar’
+Solovisible en modo edición.
+Se mostrará un mensaje de aviso indicando quese descartarán los cambios que no se
+hayan guardado:
+Ilustración34.Avisoal salir cancelando de un informado
+Análisis y diseño técnicopara que quede guardada la lectura 1,permaneciendo en el informado para solicitar pruebas
+si fuera necesario, finalizar el proceso de cribado o avanzar a Lectura 2según corresponda.
+Ilustración40.Lectura 1 realizada y guardada
+SecciónSCORE de la IA
+Bajo los BIRADS y hallazgos dela Lectura 1, se mostrarán los siguientes datos:
+▪Puntuación IA:En base al SCORE(*)enviadopor la IAyalumbral definido en la variable
+CMAMA_UMBRAL_IA,se mostrarán los siguientes valores:
+SGPTIC40|85
+oBaja(Low):siel SCOREde la IAes MENOR que el umbral definido
+oAlta:siel SCOREde la IAes MAYOR o IGUAL que el umbral definido
+oIA no disponible:cuandoel mensaje enviado porla IAes un mensaje de error.
+Véase[SIA][CRIBAT][MAMA]. Servicio Web integraciones.docxpara más
+información del mensaje de error enviado por la IA.
+No editable.
+(véaseapartadoIntegración con la IA).
+▪CheckNo aplicable:Ellectormarcará este checksi considera que la IA no debe ser
+aplicable, por llevar la mujermascapasos, prótesis,...Si el check ‘No aplicable’ está
+marcado invalidará el resultado de la IA.
+Editablesólo en la Lectura 1.
+Sección de finalización de la lectura
+Tras guardarla Lectura 1, semostrará:
+▪Fecha L1:Fecha en la que se guardó el informado de L1 por primera vez. No editable.
+▪Hora L1:Hora en la que se guardó el informado de L1 por primera vez.No editable.
+Además, internamente en BD, semarcarála Lectura 1 comofinalizada.
+Si serealizase alguna modificación posterior en los BIRADS, Hallazgosuobservacionesde la
+Lectura 1, laFechaL1yHora L1permanecerán sin cambios.
+Análisis y diseño técnicocribado sin finalizar,se modificasen los BIRADSde forma que cambienlos criterios de
+cálculo del resultado, la fecha seguirá siendo la del primer cálculo.
+No editable.
+Meses a citar:Se cargarán 24 mesespor defecto, pudiendoindicarseotra cantidad de
+mesesseleccionándola del combo:
+o12
+o18
+o24
+Editable.
+Observaciones Clínicas:campo detexto librepara las observaciones del resultado del
+proceso. Editable.
+Transición siguiente
+Se mostrarán dos botones bajo la sección deProceso:
+o‘Continuar proceso’:Deshabilitado.
+o‘Finalizar proceso’:Habilitado.En un cribado con resultado de proceso NORMAL,
+se podrá finalizar el proceso de cribadopulsandoel botón de ’Finalizar proceso’,
+quelotransitaráaestadoFinalizado,enviándoseinformeaGIMD(véase
+SGPTIC42|85
+[SIA][CRIBAT][MAMA][Integración_GIMD] Envío de resultados de L1, L2 y consenso
+[SIAGP-1805].docx).
+Ilustración43.Sección de Resultado de procesoNORMALen Lectura 1
+•Resultadode ProcesoCASO
+BIRADS:3, 4A, 4B, 4C,o5enalguna delas mamas de las que se harealizadola
+mamografía.
+Valoraciones:existealguna Biopsia con resultado POSITIVO.
+Valoraciones adicionales
+Se mostrarála sección de ‘Solicitud de pruebas’, tras grabar la lectura1pulsando en
+‘Guardar informado L1’,ysiempre queel circuitoNOdetermine un resultadoNORMAL. El
+lector 1 podrápedir las pruebas que considerenecesarias(véase apartadoSolicitud de
+pruebas adicionales).
+Bajo esta secciónse mostrará el botón de:
+o‘Continuar proceso’:Al pulsar‘Continuar proceso’, si se cumplen las condiciones
+arribaindicadasyalgunaBiopsiatieneresultadoPOSITIVO,secargaráun
+Análisis y diseño técnicoIlustración46.Apunteen Consulta activa por guardado deLectura 1
+Modificación del informado
+Trasguardar la L1,sepodrá modificarlalecturasiempre que el cribado estéPendiente deL1,
+lo que podríacambiar el resultado del proceso.
+Estando el cribadoPendiente de L1,sepodráfinalizar el cribado, si se obtuvo un resultado
+NORMAL o de CASO, o avanzar aPendiente de L2.
+Informado de Lectura 2
+Si el proceso no se finalizótras la Lectura 1,será necesario queun segundo radiólogo realice
+la Lectura 2.
+El lector2, desde la lista de cribados deGestión de pacientesaccederá al informado de
+aquellos cribados que esténPendiente de L2desde la opción dela rueda‘Lectura2’(véase
+apartadoLista de Cribado de mamadesde Gestión de pacientes).También podrá acceder a
+SGPTIC45|85
+realizar la Lectura 2desde la lista de cribadosdesdelaHC(véaseapartadoLista de Cribado
+de mamadesde laHC).
+Ilustración47.Cribado ‘Pendiente de L2’
+El radiólogo que realizó la Lectura 1NOpodrá realizar la Lectura 2.En la lista de cribados,
+tanto deGestión de pacientescomo de laHC, se mostrarán en color gris aquellos cribados
+Pendientes de L2cuya Lectura 1 la realizó el lectorde la sesión, no teniendo visible, por tanto,
+la opción de acceso a ‘Lectura 2’.
+Ilustración48. Cribados ‘Pendiente de L2’ cuya Lectura 1 fue realizada por el radiólogode la sesión
+Al acceder aLectura 2,se abrirá una pestaña en la HC‘Cribat MAMA-Lector2’, desde donde
+se podrá:
+•Realizar el informado de laLectura2, indicando los BIRADS y hallazgos paracada
+mama.
+•Solicitary revisar los resultados delasvaloraciones.
+•Indicar el Resultado del proceso y finalizar el proceso de cribado.
+•Avanzar aConsenso, parala realización del mismoy finalización del proceso de
+cribado.
+Al igual que en la Lectura 1, se accederá a la Lectura 2 en modo consulta mientras noestéla
+Consulta activa.
+SGPTIC46|85
+Ilustración49.Informado de Lectura2en modo consulta
+En Consulta activa, se cargará el diagnóstico parametrizado en la variableCMAMA_DIAG.
+Ilustración50.Informadode Lectura2(1/2)
+SGPTIC47|85
+Ilustración51.Informadode Lectura2(2/2)
+Botones de acciones desde el informado
+En la parte superior de la pestaña HC‘Cribat MAMA–Lector2’, se mostrarán losmismos
+botonesque en Lectura 1con el mismo funcionamiento:
+Ilustración52.Botonera superior de acciones en Lectura2
+oBotón ‘Valoraciones adicionales’
+oBotón ‘Participación Cribado de mama’
+oBotón ‘GIMD/PACS’
+oBotón ‘Cancelar’
+LaLectura2tendrá losmismosbloques de informaciónque laLectura 1:
+Sección condatosgeneralesdel cribado einformación relevante del cuestionario inicial
+(bloque de color amarillo).
+Con el mismo comportamiento que en Lectura 1.
+Sección deIndicaciones,Técnicautilizada,Artefactos,Comparación con estudios previosy
+Composicióndel Tejido mamario
+SGPTIC48|85
+Ilustración53.Sección de Indicaciones en Lectura 2
+En Lectura 2, la Comparación con estudios previos y la Simetría de la Composición del Tejido
+mamario no seráneditables.
+Sección de datos demamografía
+Con el mismo comportamiento que en Lectura 1.
+Sección de Lectura2:Categorización BIRADS®yhallazgos principales y secundarios
+Con el mismo comportamiento que en Lectura 1.
+Observaciones Clínicas L2:campo detexto libre.Editable.
+Una vez realizado el informado por el lector2, deberá pulsar el botón ‘Guardar informado L2’
+para que quede guardada la lectura2, permaneciendo en el informado para solicitar pruebas
+si fuera necesario, finalizar el proceso de cribado o avanzar a Lectura 2 según corresponda.
+Ilustración54.Lectura 2 realizada y guardada
+SecciónSCORE de la IA
+Bajo los BIRADS y hallazgos dela Lectura2, se mostrarán los siguientes datos:
+▪Puntuación IA:Se mostrará el SCOREcalculado por la IAsegún se indica enesta
+misma seccióndelaLectura 1.
+▪CheckNo aplicable:No editableen Lectura 2.
+Sección de finalización de la lectura
+Tras guardarla Lectura2, se mostrará:
+▪Fecha L2:Fecha en la que se guardó el informado de L2por primera vez. No editable.
+▪Hora L2:Hora en la que se guardó el informado de L2por primera vez.No editable.
+Además, internamente en BD, se marcará la Lectura2como finalizada.
+SGPTIC49|85
+Si serealizase alguna modificación posterior en los BIRADS, Hallazgos u observaciones de la
+Lectura2, laFecha L2yHora L2permanecerán sin cambios.
+Tras guardar la L2,se mostrará la sección de pruebas adicionales por si el radiólogo
+considerase necesario solicitaralguna prueba.
+Sección deSolicitud de pruebas
+Con el mismo comportamiento que en Lectura 1cuando se visualiza esta sección.
+Sección deresultado delCribado
+Sólovisibleen los cribados migrados desde SIGMA.Con el mismocomportamiento que en
+Lectura 1.
+Sección deresultado delProceso
+Esta sección se mostrará en el informado de Lectura2cuando, tras grabar la lecturapulsando
+en el botón de‘Guardar informado L2’, el circuito determine un resultadodeCASO,por haber
+alguna BIOPSIA solicitada desde los informados (L1 o L2) con resultadoPOSITIVO:
+•Resultado de ProcesoCASO
+Valoraciones:existealguna Biopsia con resultado POSITIVO.
+Valoraciones adicionales
+Se mostrará la sección de ‘Solicitud de pruebas’ para que el lector2pueda pedir las
+Análisis y diseño técnicopruebas que considere necesarias(véase apartadoSolicitud de pruebas adicionales).
+Podrá revisar losinformes de las pruebas solicitadas por el lector 1 e indicar los resultados
+de las mismasdesde‘Valoraciones adicionales’.
+Bajo esta sección se mostrará el botón de:
+o‘Continuar proceso’:Al pulsar‘Continuar proceso’, si se cumplen las condiciones
+arribaindicadasyalgunaBiopsiatieneresultadoPOSITIVO,secargaráun
+resultado de proceso deCASO.
+Resultado: CASO. No editable.
+Fecha:Fecha del día en el que se determina el resultado. Si posteriormente estando el
+cribado sin finalizar, se modificasen losBIRADS de forma que cambien los criterios de
+cálculo del resultado, la fecha seguirá siendo la del primer cálculo.
+No editable.
+Meses a citar:Sin valor. Editable.
+Observaciones Clínicas:campo detexto librepara las observaciones del resultado del
+proceso. Editable.
+Transición siguiente
+SGPTIC50|85
+Se mostrarán dos botones bajo la sección deProceso:
+o‘Continuar proceso’:Deshabilitado.
+o‘Finalizar proceso’:Habilitado.En un cribado con resultado de proceso CASO, se
+podrá finalizar el proceso de cribado pulsando en el botón de ’Finalizar proceso’,
+quelotransitaráaestadoFinalizado,enviándoseinformeaGIMD(véase
+[SIA][CRIBAT][MAMA][Integración_GIMD] Envío de resultados de L1, L2 y consenso
+[SIAGP-1805].docx).
+Ilustración55.Sección de Resultado de proceso CASO en Lectura2
+•Paso de Lectura2aConsenso
+Valoraciones:cualquiersituaciónexceptosiexistealgunaBiopsiaconresultado
+POSITIVO.
+Valoraciones adicionales
+Se mostrará la sección de ‘Solicitud de pruebas’ para que el lector 2 pueda pedir las
+pruebas que considere necesarias (véase apartadoSolicitud de pruebas adicionales).
+Podrá revisar los informes de las pruebas solicitadas por el lector 1 e indicar los resultados
+Análisis y diseño técnicode las mismas desde las‘Valoraciones adicionales’.
+Se mostrarán dos botones bajo esta sección:
+o‘Continuar proceso’:Habilitado.Al pulsar‘Continuar proceso’, si se cumplen la
+condiciónarriba indicadano existiendoningunabiopsiaconresultado POSITIVO,
+el cribado pasará a estado ‘Pendiente deConsenso’, abriéndose una pestañaen la
+HCpara realizar el Consenso.
+Si existealguna biopsia sin resultadoinformado se mostrará este mensaje:
+Ilustración56.Aviso de que Biopsias sin resultado
+SGPTIC51|85
+•PasarConsenso:El cribado pasará aPendiente deConsenso
+•Seguir en Lectura2:El cribado continúaen estadoPendiente de L2, en modo
+edición.
+Una vez que el cribado pasa a estado ‘Pendiente deConsenso’, el acceso a la
+Lectura 2 será siempre en modo consulta.
+o‘Finalizar proceso’:Deshabilitado.
+Resultado
+No se mostrará la sección de Resultado de proceso.
+Apuntes enConsulta activa
+Al registrar y guardar la Lectura2, se realizará el siguiente apunte en la consulta activa:
+‘Generado la Lectura2(Cribado mama) el ‘fecha del guardado de la L2o finalización del
+cribado’’
+Ilustración57.Apunte en la Consulta activa por guardado de Lectura2
+Modificación del informado
+Trasguardar la L2,ésta se podrá modificarsiempre que el cribado estéPendiente de L2, lo
+que podríacambiar el resultado del proceso.
+Estando el cribadoPendiente de L2,sepodráfinalizar el cribado si se obtuvo un resultado de
+CASO, o avanzar aPendiente deConsenso.
+Informado de Consenso
+Si el proceso no se finalizó tras lasLecturas 1y2,elradiólogo deberá realizarel Consenso.
+Trasrealizarse la Lectura 2 y ‘Continuar proceso’, se mostraráautomáticamenteen la HCla
+pestaña de‘Cribat MAMA-Consenso’, desde donde se podrá:
+•Revisar los BIRADS y hallazgos para cada mamaen Lectura 1 y Lectura 2.
+•Realizar el Consenso, indicando los BIRADS y hallazgos para cada mama.
+•Solicitar yrevisar los resultados de nuevas valoraciones, así como revisar los
+resultados de aquellas pruebas que se hubieran solicitado en Lectura 1 y Lectura 2.
+SGPTIC52|85
+•Indicar el Resultado del proceso y finalizar el proceso de cribado.
+También se podrá acceder al Consensodesde la lista de cribados deGestión de pacientesa
+aquellos cribados que esténPendiente deConsensodesde la opción de la rueda ‘Consenso’
+(véaseapartadoLista de Cribado de mamadesde Gestión de pacientes), así comodesdela
+lista de cribadosdesdela HC(véaseapartadoLista de Cribado de mamadesde laHC).
+Ilustración58.Cribado pendiente de Consenso
+Al igual que en las Lecturas 1 y 2, se accederá al Consenso en modo consulta mientras no
+estéla Consulta activa.
+Ilustración59.Informadode Consensoen modo consulta
+En Consulta activa, se cargará el diagnóstico parametrizado en la variableCMAMA_DIAG.
+SGPTIC53|85
+Ilustración60.Informado de Consenso–Vista MD
+Ilustración61.Informado de Consenso–Vista MI
+Botones de acciones desde el informado
+En la partesuperior de la pestaña HC‘Cribat MAMA–Consenso’, se mostrarán losmismos
+botonesque en Lecturas1y 2con el mismo funcionamiento:
+Ilustración62.Botonera superior de acciones enConsenso
+SGPTIC54|85
+oBotón‘Valoraciones adicionales’
+oBotón ‘Participación Cribado de mama’
+oBotón ‘GIMD/PACS’
+oBotón ‘Cancelar’
+ElConsensotendrá losmismosbloques de informaciónquelasLecturas1y 2:
+Sección condatos generalesdel cribado einformación relevante del cuestionario inicial
+(bloque de color amarillo).
+Ilustración63.Sección de datos generales e información relevante del cuestionario-Consenso
+Con el mismo comportamiento que en Lecturas1y 2.
+Sección deIndicaciones,Técnicautilizada,Artefactos,Comparación con estudios previosy
+Composicióndel Tejido mamario
+Ilustración64.Sección de Indicacionesen Consenso
+Con el mismo comportamiento que en Lectura2.
+Sección de datos demamografía
+Con el mismo comportamiento que en Lecturas1y 2.
+Sección deConsenso:Categorización BIRADS®yhallazgos principales y secundarios
+Se mostrarán, para mama derecha y mama izquierda,los BIRADS y hallazgos principales y
+secundariosde las Lectura 1 y 2.
+Identificación de discrepancias entre las Lecturas 1 y 2
+▪Aquellos BIRADS/hallazgos que coincidan en las Lecturas 1 y 2, se cargarán
+automáticamente en BIRADS/hallazgos del Consenso, no pudiendo ser editables.
+▪Si existendiscrepanciasen la categorizaciónBIRADSentrelaLectura1ylaLectura 2,se
+resaltarán encolor rojo enlas lecturas, estando sin informar en el Consenso para que el
+profesional la indique.
+SGPTIC55|85
+▪Si existediscrepancia en algún hallazgo, principal o secundario,entrelaLectura1yla
+Lectura 2,se resaltará encolor azulen las lecturas,quedando sin informar el hallazgo
+correspondiente en el Consenso para que el profesional lo indique.
+▪Será obligatorio indicarelBIRADSde la/s mama/s de la/s que se ha hecho la
+mamografía, pero no será obligatorioindicar todos los hallazgos.
+Ilustración65. Coincidencia de BIRDAS en mama derecha-Consenso
+Ilustración66. No coincidencia de BIRDAS en mama izquierda-Consenso
+Los campos de finalización de las Lecturas 1 y 2 se mostrarán en modo consulta:
+oFecha L1.Fecha de realización de L1. No editable.
+oHora L1.Horade realización de L1.No editable.
+oFecha L2.Fecha de realización de L1. No editable.
+oHora L2.Horade realización de L1.No editable.
+SGPTIC56|85
+Observaciones ClínicasConsenso:campo detexto libre. Editable.
+Una vez realizado elConsenso,sedeberá pulsar el botón ‘Guardar informadoConsenso’ para
+que quede guardado el Consenso, permaneciendo en el informado para solicitar pruebas si
+fuera necesario,ofinalizar el proceso de cribado.
+Ilustración67.Consensorealizado y guardado
+SecciónSCORE de la IA
+Bajo los BIRADS y hallazgos del Consenso, se mostrarán lossiguientes datos:
+▪Puntuación IA:Se mostrará el SCORE calculado por la IA según se indica en esta
+misma sección de la Lectura 1.
+▪CheckNo aplicable:No editableenConsenso.
+Sección de finalización delConsenso
+Tras guardarla Lectura 2, semostrará:
+▪FechaCS:Fecha en la que se guardó elConsensopor primera vez. No editable.
+▪HoraCS:Hora en la que se guardó elConsensopor primera vez.No editable.
+Además, internamente en BD, se marcaráel Consensocomo finalizado.
+Si serealizase alguna modificación posterior en los BIRADS, Hallazgos u observaciones del
+Consenso, laFechaCSyHoraCSpermanecerán sin cambios.
+Tras guardarel Consenso, se mostrará la sección de pruebas adicionales por si el radiólogo
+tuviera que pedir algunaprueba más, así como la sección deresultado del Proceso.
+Sección deSolicitud de pruebas
+Con el mismo comportamiento que en Lectura2.
+Sección deresultado delCribado
+Sólo visible en los cribados migrados desde SIGMA.Con el mismo comportamiento que en
+Lectura 1y 2.
+Sección deresultado delProceso
+Esta sección se mostrará tras grabarel Consensopulsando el botón de ‘Guardar informado
+Consenso’.
+SGPTIC57|85
+oResultado.Combo editabley obligatoriocon los siguientes valores:
+▪REEVALUACIÓN TEMPRANA
+▪NORMAL
+▪SEGUIMIENTO HOSPITALARIO
+▪CIERRE NO POSIBLE
+▪CASO
+oFecha.Fechadeldíaenelqueseindicaelresultadodelproceso.Serellena
+automáticamente al indicarlo.
+No editable.
+oMeses a citar.Combo numéricopara indicar en cuántos meses se deberá citar a la
+paciente, con los siguientes valores:
+▪12
+▪18
+▪24
+Se deberá indicar la cantidad de meses a citar en cualquier resultado excepto si el
+resultado es CASO. Editable.
+oObservaciones Clínicas:campo detexto libre para las observaciones del resultado del
+proceso. Editable.
+Se mostrará un único botón bajo esta sección, que permitirá finalizar el proceso de cribado:
+‘Finalizarproceso’:Habilitado.El cribado pasará a estadoFinalizado, enviándose
+informe a GIMD(véase[SIA][CRIBAT][MAMA][Integración_GIMD] Envío de resultados de
+Análisis y diseño técnicoL1, L2 y consenso [SIAGP-1805].docx).
+Ilustración68.Sección de Resultado de proceso enConsenso
+Apuntes enConsulta activa
+Al registrar y guardarel Consenso, se realizará el siguiente apunte en la consulta activa:
+‘Generadoel Consenso(Cribado mama) el ‘fecha del guardado del Consensoo finalización del
+cribado’’
+SGPTIC58|85
+Ilustración69.Apunte en la Consulta activa por guardado deConsenso
+Modificación del informado
+Trasguardarel Consenso,éstese podrá modificarsiempre que el cribado estéPendiente de
+Consenso.
+Cribadosfinalizados
+Los cribados finalizados se visualizarán siempre en modo consulta, no pudiendo hacer
+modificaciones sobre ellos.
+Enfunción de la lectura en la que se finalizó el cribado, se mostrará el acceso desde la lista
+de procesos de cribado:
+-Lectura1:siempre se mostrará esta opción en un cribado finalizado, pudiendo haberse
+finalizado en L1 o en una lectura posterior.
+-Lectura 2:se mostrará esta opción si el cribado se finalizó en L2.
+-Consenso:se mostrará esta opción si el cribado se finalizó en Consenso.
+Ilustración70.Cribado finalizado en Consenso
+Informados de Cribados migrados de SIGMA
+Los cribados migrados se identificarán en la lista de cribados con la etiqueta ‘Migrado’en la
+columna de Participación:
+Ilustración71. Visualización de cribados migrados en lista de cribados
+SGPTIC59|85
+Desde las lecturas en la HC, se identificarán con el texto‘[Datos SIGMA]’:
+Ilustración72. Identificación de un cribado migrado en los informados
+Para aquellos cribados migrados desde SIGMA con Hallazgos o Cuadrantes indicados en
+SIGMA, se mostrarán estos valores desde la lectura en la que informaron mediante un tooltip
+desde el que se podrán consultar los valores migrados.
+Ilustración73. Visualización de Hallazgos o Cuadrantes en el informado de un cribado migrado
+Sólo en los cribados migrados desde SIGMA, se mostrará la sección de ‘Resultado decribado’,
+con los valores de Resultado del cribado, Fecha del resultado del cribado y si se solicitaron
+pruebas adicionales para el cribado.
+Ilustración74. Sección de Cribado en el informado de un cribado migrado
+Sepodrá consultar la lista de pruebas solicitadas de un cribado migrado y sus resultados:
+SGPTIC60|85
