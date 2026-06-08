@@ -1,3 +1,25 @@
 {
-  "deployments": []
+  "deployments": [
+    {
+      "id": "dep_1780913560735",
+      "app": "SIA",
+      "version": "SIA PRUEBA",
+      "date": "2026-06-08",
+      "author": "David Gil",
+      "files": [
+        "[SIA][CRIBAT][MAMA] [Integración_GIMD] Cambio en la integración con Universal Viewer [SIA-2703].pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Cambio en la integración con Universal Viewer [SIA 2703]",
+          "situacion_actual": "Anteriormente, los radiólogos podían acceder al visor de imágenes desde la historia clínica de SIA introduciendo sus credenciales, que se guardaban en caché durante la sesión activa. El problema era que al cerrar la historia clínica, el visor de imágenes permanecía abierto, lo que generaba un riesgo de seguridad: cuando un radiólogo accedía a la siguiente historia clínica para hacer otra lectura, podía ver las imágenes de otras pacientes que habían quedado abiertas en el navegador. Esta situación comprometía la privacidad y requería una solución urgente.",
+          "descripcion": "El cambio modifica cómo se comunica SIA con el visor de imágenes. Ahora, cuando el radiólogo accede a una lectura y pulsa el botón para abrir el visor, se le solicitarán las credenciales en una ventana emergente. Una vez introducidas, el sistema envía la petición al visor y muestra al usuario el estado de la solicitud, el número de referencia del estudio y una advertencia de no cerrar la ventana. Lo más importante es que al cerrar la historia clínica en SIA, la ventana del visor también se cerrará automáticamente, evitando que queden abiertas imágenes de otras pacientes.\n\nEsta nueva forma de integración también mejora la capacidad de soporte al mostrar los errores directamente en la pantalla que se abre, permitiendo que los radiólogos y el equipo de soporte identifiquen y escalen los problemas con mayor rapidez. Los radiólogos del circuito de Cribado de cáncer de mama son los principales afectados por este cambio, que requiere que el visor de imágenes esté disponible y accesible para funcionar correctamente.",
+          "component": null,
+          "req_date": "2026-05-27",
+          "images": []
+        }
+      ]
+    }
+  ]
 }
