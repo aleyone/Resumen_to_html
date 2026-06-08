@@ -695,24 +695,32 @@ function extractTitleFromText(text, filename) {
     if (cleaned.length > 3) return cleaned;
   }
 
-  // Pattern 2 — PDF/docx requisitos table row
-  // The title may span multiple lines: "[SIAGP-2703] [CRIBAT][MAMA][Integración_GIMD] Cambio en integración con\nUniversal Viewer"
-  const reqRowMatch = text.match(/\[(?:SIAGP|GAIAGP|GAIA|SIA)[\w-]+\]\s+([\s\S]{5,300}?)(?:\n\n|\[(?:SIAGP|GAIAGP|GAIA|SIA)|$)/i);
-  if (reqRowMatch) {
-    // Join lines that are continuation of the title (short lines without structure)
-    const rawLines = reqRowMatch[1].split('\n').map(l => l.trim()).filter(Boolean);
-    const titleLines = [];
-    for (const line of rawLines) {
-      // Stop at structural lines (numbered headings, new sections)
-      if (/^\d+[\.\s]/.test(line) && line.length > 20) break;
-      if (/^(ÍNDICE|Versiones|Última|SGPTIC)/i.test(line)) break;
-      titleLines.push(line);
-      // Stop after 2 lines — title shouldn't be longer
-      if (titleLines.length >= 2) break;
+  // Pattern 2 — PDF table: ID may be on its own line, name on next line(s)
+  // Case A: "[SIAGP-2703] [CRIBAT]... Title on same line"
+  // Case B: "[SIAGP-2703]\n[CRIBAT]... Title\ncontinuation"
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  for (let i = 0; i < Math.min(lines.length, 60); i++) {
+    const line = lines[i];
+    // Found a Jira ID line
+    if (/^\[(?:SIAGP|GAIAGP|GAIA|SIA)[\w-]+\]/.test(line)) {
+      // Get content after the ID on same line
+      const sameLine = line.replace(/^\[(?:SIAGP|GAIAGP|GAIA|SIA)[\w-]+\]\s*/, '').trim();
+      // Collect up to 2 more lines as potential title continuation
+      const titleParts = sameLine ? [sameLine] : [];
+      for (let j = i + 1; j <= i + 2 && j < lines.length; j++) {
+        const next = lines[j];
+        // Stop if it looks like another ID, section number, or index entry
+        if (/^\[(?:SIAGP|GAIAGP|GAIA|SIA)/.test(next)) break;
+        if (/^\d+[\.\s]/.test(next) && next.length > 30) break;
+        if (/^(ÍNDICE|Versiones|SGPTIC|Última)/i.test(next)) break;
+        titleParts.push(next);
+        // If this line doesn't end mid-sentence, stop
+        if (!/con$|en$|de$|del$|la$|el$|y$|a$/.test(next.toLowerCase())) break;
+      }
+      const joined = titleParts.join(' ').trim();
+      const cleaned = cleanBracketPrefixes(joined);
+      if (cleaned.length > 3) return cleaned;
     }
-    const joined = titleLines.join(' ');
-    const cleaned = cleanBracketPrefixes(joined);
-    if (cleaned.length > 3) return cleaned;
   }
 
   // Fallback: filename
@@ -761,24 +769,19 @@ ${chunk.slice(0, 7000)}`;
 }
 
 // ── Phase 2 synthesis prompt — one call, sees all extracted facts ──
-function buildPromptSynthesize(title, situacionActual,hechosClave) {
-  return `Eres un experto en soporte técnico sanitario. Con los datos extraídos de un requerimiento, genera UN resumen claro para el equipo CAU.
+function buildPromptSynthesize(title, situacionActual, hechosClave) {
+  return `Eres un experto en soporte técnico sanitario. Genera un resumen para el equipo CAU.
 
-TÍTULO DEL REQUERIMIENTO: ${title}
+REQUERIMIENTO: ${title}
 
-SITUACIÓN ACTUAL (antes del cambio):
+SITUACIÓN PREVIA:
 ${situacionActual || 'No disponible'}
 
-HECHOS CLAVE DEL CAMBIO:
-${hechosClave.map((h,i) => `${i+1}. ${h}`).join('\n') || 'No disponible'}
+HECHOS DEL CAMBIO:
+${hechosClave.slice(0,15).map((h,i) => `${i+1}. ${h}`).join('\n') || 'No disponible'}
 
-Genera:
-1. situacion_actual: 1-2 párrafos en prosa que expliquen qué había antes y por qué se necesitaba el cambio. Sin tecnicismos.
-2. descripcion: EXACTAMENTE 2 párrafos que resuman qué cambia funcionalmente, cómo afecta al usuario final y qué debe saber el CAU. Sin tecnicismos, sin repetir ideas, sin mencionar nombres de variables ni referencias técnicas.
-
-Responde ÚNICAMENTE con JSON sin markdown:
-{"situacion_actual":"párrafos de situación previa","descripcion":"exactamente 2 párrafos del cambio"}`;
-}
+Genera exactamente este JSON (sin texto adicional, sin markdown, sin explicaciones):
+{"situacion_actual":"1-2 párrafos sobre la situación previa al cambio sin tecnicismos","descripcion":"exactamente 2 párrafos sobre qué cambia para el usuario final, sin tecnicismos, sin variables técnicas, sin nombrar sistemas internos"}`;}
 
 function buildPromptSummary(chunk, chunkIdx, totalChunks) {
   const isFirst = chunkIdx === 0;
@@ -869,7 +872,17 @@ async function parseText(text, app, filename, docType, formDate, onProgress) {
         if (synthResult.descripcion) finalDescripcion = synthResult.descripcion;
       } catch(e) {
         console.warn('Synthesis error:', e.message);
-        finalDescripcion = allHechos.slice(0, 5).join(' ');
+        // Fallback: use best situacion + top hechos as descripcion
+        finalSituacion = bestSituacion;
+        finalDescripcion = allHechos.slice(0, 5).filter(Boolean).join('\n');
+        // If still empty, try a simpler prompt
+        if (!finalDescripcion && allHechos.length > 0) {
+          try {
+            const simplePrompt = `Resume en 2 párrafos para soporte técnico CAU qué hace este requerimiento: "${extractedTitle}". Información: ${allHechos.slice(0,10).join('. ')}. Responde solo con JSON: {"situacion_actual":"","descripcion":"2 párrafos"}`;
+            const simpleResult = await callAI(simplePrompt);
+            if (simpleResult.descripcion) finalDescripcion = simpleResult.descripcion;
+          } catch(e2) { console.warn('Simple synthesis also failed:', e2.message); }
+        }
       }
     }
 
