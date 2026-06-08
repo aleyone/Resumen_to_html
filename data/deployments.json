@@ -1,3 +1,35 @@
 {
-  "deployments": []
+  "deployments": [
+    {
+      "id": "dep_1780933847063_0",
+      "app": "SIA",
+      "version": "PRUEBAS",
+      "date": "2026-06-08",
+      "author": "Jordi Gallego",
+      "files": [
+        "[SIA][CRIBAT][MAMA] Mejoras en la lista de cribados [SIA-2699].pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Mejoras en la lista de cribados 3 ANÁLISIS",
+          "situacion_actual": "Desde la incorporación del sistema a Producción, se ha detectado una ralentización importante en la carga de la lista de cribados cuando se filtran por 'Finalizados con mamografía'. Este problema se debe al elevado volumen de cribados migrados desde el sistema anterior (SIGMA), que ha impactado especialmente en la UPCM de Manises y se espera que afecte al resto de unidades. Esta situación dificulta el trabajo diario del equipo de radiología, que necesita acceder con agilidad a los cribados finalizados para su revisión.",
+          "descripcion": "Para mejorar los tiempos de carga, cuando se seleccione el filtro de 'Finalizados con mamografía', el sistema exigirá que se indique obligatoriamente un rango de fechas o un número de identificación de paciente (SIP). Al realizar la búsqueda, el sistema rellenará automáticamente un rango de fechas predeterminado (configurado por administración), lo que reduce significativamente los registros a consultar. Los usuarios podrán modificar este rango de fechas si lo necesitan, pero el sistema mostrará un aviso si intentan ampliar la búsqueda más allá del límite establecido.\n\nAdemás, se añade una nueva columna en la lista de cribados que muestra la hora exacta de la visita de cada mujer, permitiendo a los radiólogos identificar rápidamente quién acudió por la mañana y quién por la tarde. Se incorpora también un nuevo filtro para buscar cribados dentro de un rango horario específico, mediante dos selectores que trabajan en fracciones de media hora, facilitando la organización del trabajo según la agenda de consultas.",
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-08",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933869/mm54jddqvj2wfkmwsxis.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933869/cwbycpy96xcezr9qtobo.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933870/thv19xjks1clji6itd6e.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933871/byjmmndgpjxq4hiklt3y.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933871/o7y771vjx495evseh6ux.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933872/ldkzrfzkxbp3a9wp7p5a.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933872/b4okycszc4ld2csrtpia.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933873/k1a5clqibfvktvr4lb0i.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933874/nju8xlilhoaxovhvbxjx.png"
+          ]
+        }
+      ]
+    }
+  ]
 }
