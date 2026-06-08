@@ -400,13 +400,59 @@ async function extractPPTX(file){
 async function extractPDF(file){
   const ab=await file.arrayBuffer();
   const pdf=await pdfjsLib.getDocument({data:ab}).promise;
-  let text='';
+  const pageTexts=[];
+
   for(let i=1;i<=Math.min(pdf.numPages,60);i++){
     const pg=await pdf.getPage(i);
     const tc=await pg.getTextContent();
-    text+=tc.items.map(x=>x.str).join(' ')+'\n';
+
+    // Group items by vertical position (y coordinate) to reconstruct lines
+    // Items with same/similar Y are on the same line
+    const items=tc.items.filter(x=>x.str.trim().length>0);
+    if(!items.length)continue;
+
+    // Sort by Y descending (top of page first), then X ascending
+    items.sort((a,b)=>{
+      const yDiff=b.transform[5]-a.transform[5];
+      if(Math.abs(yDiff)>3)return yDiff;
+      return a.transform[4]-b.transform[4];
+    });
+
+    // Group into lines by Y position (within 3px tolerance)
+    const lines=[];
+    let currentLine=[];
+    let lastY=null;
+    for(const item of items){
+      const y=Math.round(item.transform[5]);
+      if(lastY===null||Math.abs(y-lastY)<=3){
+        currentLine.push(item.str);
+        lastY=y;
+      }else{
+        if(currentLine.length)lines.push(currentLine.join(''));
+        currentLine=[item.str];
+        lastY=y;
+      }
+    }
+    if(currentLine.length)lines.push(currentLine.join(''));
+
+    // Filter out header/footer noise: short lines with only SGPTIC, page numbers, corporate text
+    const filtered=lines.filter(line=>{
+      const t=line.trim();
+      if(!t||t.length<3)return false;
+      if(/^SGPTIC\s*$/.test(t))return false;
+      if(/^SGPTIC\s+\d+\s*\|\s*\d+/.test(t))return false;
+      if(/^\d+\s*\|\s*\d+$/.test(t))return false;
+      if(/^Análisis y diseño técnico\s*$/.test(t))return false;
+      if(/^SUBDIRECCIÓN GENERAL DE SISTEMAS DE INFORMACIÓN PARA LA SALUD\s*$/.test(t))return false;
+      return true;
+    });
+
+    if(filtered.length)pageTexts.push(filtered.join('\n'));
   }
-  console.log('[extractPDF] first 1000 chars:', JSON.stringify(text.slice(0, 1000)));
+
+  const text=pageTexts.join('\n\n');
+  console.log('[extractPDF] pages:', pdf.numPages, '| text length:', text.length);
+  console.log('[extractPDF] first 500 chars:', text.slice(0,500));
   return{text,images:[]};
 }
 async function loadJSZip() {
@@ -495,7 +541,6 @@ async function callAI(prompt) {
 // ── Components config (Jira Data Center — migrate to API when on Cloud) ──
 const COMPONENTS = {
   GAIA: [
-    // Longer/more specific variants first to avoid partial matches
     'RELESNS','RESIFAP','EHDSIPOR','GAIAWEB','GAIAWS','GAIAEXT',
     'BOFWEB','MDIS3','MPRE3','REFAR','RELE','RESI',
     'BOF','EXT','GFAR','ICPA','MDIS','MPRE',
@@ -504,32 +549,80 @@ const COMPONENTS = {
   SIA: ['Actividades comunitarias/grupales','Actividades preventivas','Agendas','Alertas','Avisos generales','Centinela','Citación','Contacto','Diagnosticos y procedimientos','Dietas y consejos','Escalas y Tablas','Examenes y Patrones Funcionales','Gestión de documentos adjuntos','Gestión de Pacientes','Gestión de Recursos','Historia de salud','Historia familiar','Historia personal','Historia sociofamiliar','Hojas de evolución','Hojas de seguimiento','Incapacidad Temporal','Indicadores','Informes','Integración Alumbra','Integración AVE','Integración Cita Previa','Integración COBRA','Integración CRIBAT','Integración DANTA','Integración DIGISAL','Integración ECGDIG','Integración Escriba','Integración GAIA','Integración GESPET','Integración GESTLAB','Integración GIMD','Integración Gva+Salut','Integración HERA','Integración HSE','Integración HSEAVS','Integración IRIS/HIGIA','Integración KARVIS','Integración LABONLINE','Integración MIZAR','Integración NEBULA','Integración Orion Clinic','Integración ORION RIS','Integración SIA-Webex','Integración SINEA','Integración SIP','Integración SISCOL','Integración SISVEL','Integración SIV','Integración SIVIO','Integración VOLANT','Interconsultas','Listas de trabajo','Monitorización','Notificaciones','Otras pruebas','Pruebas complementarias','Pruebas de Imagen','Pruebas de laboratorio','Recordatorios','Seguridad y auditoría','Utilidades','Webservices']
 };
 
+// Keyword aliases — bracket tags that map to full component names
+// [CRIBAT] → Integración CRIBAT, [GIMD] → Integración GIMD, etc.
+const COMPONENT_ALIASES = {
+  SIA: {
+    'CRIBAT': 'Integración CRIBAT',
+    'GIMD': 'Integración GIMD',
+    'GIMD_': 'Integración GIMD',
+    'Integración_GIMD': 'Integración GIMD',
+    'AVE': 'Integración AVE',
+    'SIP': 'Integración SIP',
+    'GAIA': 'Integración GAIA',
+    'SINEA': 'Integración SINEA',
+    'MIZAR': 'Integración MIZAR',
+    'NEBULA': 'Integración NEBULA',
+    'LABONLINE': 'Integración LABONLINE',
+    'HERA': 'Integración HERA',
+    'COBRA': 'Integración COBRA',
+    'VOLANT': 'Integración VOLANT',
+    'KARVIS': 'Integración KARVIS',
+    'SISCOL': 'Integración SISCOL',
+    'SISVEL': 'Integración SISVEL',
+    'SIV': 'Integración SIV',
+    'SIVIO': 'Integración SIVIO',
+    'ESCRIBA': 'Integración Escriba',
+    'Escriba': 'Integración Escriba',
+  }
+};
+
 function detectComponent(text, app, filename) {
   const list = COMPONENTS[app] || [];
+  const aliases = COMPONENT_ALIASES[app] || {};
   if (!list.length) { console.warn('detectComponent: no components for app', app); return null; }
 
-  // Search in filename first (most reliable), then first 2000 chars of text
-  const searchTargets = [
-    filename || '',
-    text.slice(0, 2000)
-  ];
-
+  // Step 1: extract bracket tags from filename — [CRIBAT][MAMA][Integración_GIMD]
+  const bracketTags = [];
+  const bracketMatches = (filename || '').matchAll(/\[([^\]]+)\]/g);
+  for (const m of bracketMatches) bracketTags.push(m[1]);
   console.log('[detectComponent] app:', app, '| filename:', filename);
-  console.log('[detectComponent] searching against', list.length, 'components');
-  console.log('[detectComponent] first 300 chars of text:', text.slice(0, 300));
+  console.log('[detectComponent] bracket tags from filename:', bracketTags);
 
+  // Step 2: check aliases first (bracket tags → full component name)
+  for (const tag of bracketTags) {
+    if (aliases[tag]) {
+      console.log('[detectComponent] ALIAS MATCH:', tag, '→', aliases[tag]);
+      return aliases[tag];
+    }
+  }
+
+  // Step 3: check bracket tags against component list (contains match)
+  for (const tag of bracketTags) {
+    const tagLower = tag.toLowerCase();
+    for (const comp of list) {
+      // Check if tag appears in component name or vice versa
+      if (comp.toLowerCase().includes(tagLower) || tagLower.includes(comp.toLowerCase().replace('integración ', ''))) {
+        console.log('[detectComponent] BRACKET MATCH:', tag, '→', comp);
+        return comp;
+      }
+    }
+  }
+
+  // Step 4: search in filename + first 2000 chars of text (full component name)
+  const searchTargets = [filename || '', text.slice(0, 2000)];
   for (const target of searchTargets) {
     const lower = target.toLowerCase();
     for (const comp of list) {
       if (lower.includes(comp.toLowerCase())) {
-        console.log('[detectComponent] MATCH:', comp, '(in', target === (filename||'') ? 'filename' : 'text', ')');
+        console.log('[detectComponent] TEXT MATCH:', comp, '(in', target === (filename||'') ? 'filename' : 'text', ')');
         return comp;
       }
     }
   }
 
   console.warn('[detectComponent] NO MATCH found for app:', app, '| filename:', filename);
-  return null; // No fallback to General — null means unmatched
+  return null;
 }
 
 function extractVersionDate(text) {
@@ -553,18 +646,37 @@ function extractVersionDate(text) {
 
 // ── Extract title deterministically from document text ──
 function extractTitleFromText(text, filename) {
-  // Try "Nombre de requisito" section — grab the line after heading
+  // Pattern 1 — docx: "Nombre de requisito" section
   const nombreMatch = text.match(/Nombre de requisito\s*\n+([^\n]+)/i);
   if (nombreMatch) {
-    // Clean brackets: [GVMEGAIA-27217] GAIA-526 [MPRE3] Ajuste posología envase antibiótico.
     const raw = nombreMatch[1].trim();
-    const cleaned = raw.replace(/^(\[[^\]]*\]\s*)+(GAIA-\d+\s*|SIA-\d+\s*)?/i, '').replace(/\.$/, '').trim();
+    const cleaned = cleanBracketPrefixes(raw);
     if (cleaned.length > 3) return cleaned;
   }
-  // Fallback: filename without extension and brackets
-  return filename.replace(/\.[^.]+$/, '')
-    .replace(/^(\[[^\]]*\]\s*)+(GAIA-\d+[-_]\s*|SIA-\d+[-_]\s*)?/i, '')
-    .replace(/[_\-]+/g, ' ').trim();
+
+  // Pattern 2 — PDF: table "Requisitos que cubre el análisis"
+  // Matches: [SIAGP-2699] [CRIBAT][MAMA] Mejoras en la lista de cribados
+  const reqTableMatch = text.match(/\[(?:SIAGP|GAIA|SIA)[\w-]+\]\s+([\[\]\w\s,/_+.-]+?)\s*(?:\[(?:SIAGP|SIA|GAIA)[\w-]+\]|$|\n)/i);
+  if (reqTableMatch) {
+    const cleaned = cleanBracketPrefixes(reqTableMatch[1].trim());
+    if (cleaned.length > 3) return cleaned;
+  }
+
+  // Pattern 3 — from filename
+  return cleanBracketPrefixes(
+    filename.replace(/\.[^.]+$/, '').replace(/[_\-]+/g, ' ').trim()
+  );
+}
+
+function cleanBracketPrefixes(str) {
+  // Remove: [GVMEGAIA-27217] GAIA-526 [MPRE3] → title
+  // Remove: [CRIBAT][MAMA][Integración_GIMD] → title
+  // Remove trailing Jira IDs: "title [SIA-2703]" → "title"
+  return (str || '')
+    .replace(/^(\[[^\]]*\]\s*)+((?:GAIA|SIA)-\d+\s*)?/i, '')  // leading brackets
+    .replace(/\s*\[(?:SIAGP|GAIA|SIA|GAIAGP)[\w-]+\]\s*$/i, '')  // trailing Jira ID
+    .replace(/\.$/, '')
+    .trim();
 }
 
 // ── Phase 1 extraction prompt — just extract key facts, no synthesis ──
@@ -626,7 +738,7 @@ ${chunk.slice(0, 7000)}`;}
 
 async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-async function parseText(text, app, filename, docType, onProgress) {
+async function parseText(text, app, filename, docType, formDate, onProgress) {
   let allReqs = [], meta = {};
 
   if (docType === 'single') {
@@ -744,7 +856,6 @@ async function parseText(text, app, filename, docType, onProgress) {
 
   // Detect component from filename (primary) + text (fallback)
   const component = detectComponent(text, app, filename);
-  const reqDate = extractVersionDate(text);
 
   // Structure raw text with semantic tags before storing
   const raw_text = structureRawText(text, filename);
@@ -753,7 +864,7 @@ async function parseText(text, app, filename, docType, onProgress) {
     ...r,
     id: docType === 'single' ? 'REQ-01' : `REQ-${String(i+1).padStart(2,'0')}`,
     component,
-    req_date: reqDate
+    req_date: formDate || null   // use form date, not document version date
   }));
 
   return { meta, requirements: allReqs, raw_text };
@@ -1094,7 +1205,7 @@ async function submitAll(){
       console.log(`[${file.name}] text length:`, text?.length, '| images:', images?.length, '| html length:', html?.length);
 
       setFileStatus(file.name,'processing','⏳ analizando');
-      const{meta,requirements,raw_text}=await parseText(text, app, file.name, docType, (msg,pct)=>{
+      const{meta,requirements,raw_text}=await parseText(text, app, file.name, docType, new Date().toISOString().split('T')[0], (msg,pct)=>{
         setProgress(pct,`[${fi+1}/${files.length}] ${msg}`);
       });
 
