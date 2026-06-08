@@ -1,3 +1,35 @@
 {
-  "deployments": []
+  "deployments": [
+    {
+      "id": "dep_1780933432893_0",
+      "app": "SIA",
+      "version": "MAMA",
+      "date": "2026-06-08",
+      "author": "Jordi Gallego",
+      "files": [
+        "[SIA][CRIBAT][MAMA] Mejoras en la lista de cribados [SIA-2699].pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Mejoras en la lista de cribados",
+          "situacion_actual": "Desde que el sistema comenzó a funcionar en producción, se ha detectado un problema importante: la búsqueda de cribados finalizados con mamografía es muy lenta. Esto ocurre porque se han migrado muchos cribados del sistema anterior, y cuando los usuarios intentan buscar entre todos estos registros, el sistema tarda demasiado tiempo en cargar los resultados. Este problema se ha identificado inicialmente en la unidad de Manises, pero se prevé que afecte a todas las unidades de cribado.\n\nLa lentitud hace que los trabajadores pierdan tiempo y productividad al esperar los resultados de las búsquedas, especialmente cuando necesitan encontrar cribados específicos. Por eso era necesario implementar cambios que permitieran hacer búsquedas más rápidas y eficientes, filtrando la información de una forma más inteligente.",
+          "descripcion": "El cambio principal consiste en que ahora, cuando se busca un cribado finalizado con mamografía, el sistema obliga a establecer un filtro por fecha de visita o por identificación de paciente para reducir la cantidad de registros a consultar. El sistema calculará automáticamente el rango de fechas basándose en un número de días configurado, mostrando solo los cribados de ese período. Los usuarios podrán modificar este rango de fechas si lo necesitan, pero siempre respetando el límite de días establecido, y también tendrán la opción de buscar directamente por identificación de paciente sin indicar fechas.\n\nAdemás, se añade una nueva columna que muestra la hora exacta de cada visita en la lista de cribados, lo que permite a los radiólogos identificar rápidamente quién asistió por la mañana y quién por la tarde. También se incorpora un nuevo filtro que permite buscar cribados por rango horario de visita, permitiendo seleccionar las horas exactas deseadas en intervalos de media hora, lo que facilita la organización y seguimiento del trabajo diario.",
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-08",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933449/oei0tvpfugub2ovf8h6y.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933450/yyrl3xzu1uiw5ukjfybv.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933450/mwj5oxljtx06zc9cszvq.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933451/dlhlpfsli9svfgmaelwa.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933452/d44ssmsiszs02vqtbkno.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933452/lunhhxr8hvtodgmrpha0.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933453/qxmy5qqjc7bbw6c3xmgc.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933453/tyum6zorpooqsgwof7hz.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933454/gfojvxy9l7pl40wlkbyw.png"
+          ]
+        }
+      ]
+    }
+  ]
 }
