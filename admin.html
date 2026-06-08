@@ -808,6 +808,7 @@ async function parseText(text, app, filename, docType, formDate, onProgress) {
 
     // Step 0: extract title deterministically
     const extractedTitle = extractTitleFromText(text, filename);
+    console.log('[extractedTitle]', extractedTitle, '| from text sample:', text.slice(0,500));
 
     // Step 1: chunk and extract key facts (no synthesis yet)
     const CHUNK = 7000;
