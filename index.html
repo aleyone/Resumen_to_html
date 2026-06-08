@@ -360,10 +360,19 @@ async function loadDeployment(app, version) {
       return;
     }
     document.getElementById('empty-state').className='';
-    var dep = deps[0];
-    currentReqs = (dep.requirements || []).map(function(r, i){ return Object.assign({}, r, {_idx: i}); });
+
+    // Combine requirements from ALL matching deployments (not just first)
+    var allReqs = [];
+    deps.forEach(function(dep) {
+      (dep.requirements || []).forEach(function(r) {
+        allReqs.push(Object.assign({}, r));
+      });
+    });
+    // Re-index _idx globally
+    currentReqs = allReqs.map(function(r, i) { return Object.assign({}, r, {_idx: i}); });
+
     populateComponentFilter(currentReqs);
-    document.getElementById('tb-count').textContent = currentReqs.length + ' reqs \u00b7 ' + dep.app + ' ' + dep.version;
+    document.getElementById('tb-count').textContent = currentReqs.length + ' reqs \u00b7 ' + deps[0].app + ' ' + deps[0].version;
     document.getElementById('app').className='on';
     activeComp = '';
     renderSidebar('');
