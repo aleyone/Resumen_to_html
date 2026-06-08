@@ -1,3 +1,35 @@
 {
-  "deployments": []
+  "deployments": [
+    {
+      "id": "dep_1780935619943_0",
+      "app": "SIA",
+      "version": "mama",
+      "date": "2026-06-08",
+      "author": "David Gil",
+      "files": [
+        "[SIA][CRIBAT][MAMA] Mejoras en la lista de cribados [SIA-2699].pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Mejoras en la lista de cribados",
+          "situacion_actual": "Tras la puesta en Producción y, dada la cantidad de cribados migrados de SIGMA, se hace necesario mejorar los tiempos de carga de los cribados en la lista al realizar la búsqueda de cribados 'Finalizados con mamografía'. Se observa lentitud en la carga de cribados en este estado, debida a la cantidad de cribados migrados desde SIGMA. Esta circunstancia se detecta para la UPCM piloto de Manises, circunstancia que se va a producir en el resto de UPCMs.",
+          "descripcion": "Al filtrar por cribados 'Finalizados con mamografía', se obligará a indicar un rango de Fecha de visita o un SIP\nSe creará una nueva variable de configuración CMAMA_DIAS para poder determinar el número máximo de días para el filtro de Fecha visita\nAl seleccionar la opción de cribados 'Finalizados con mamografía', desde la lista de cribados de Gestión de pacientes, y pulsar 'Buscar', se consultará la cantidad de días indicado en la variable y se rellenará automáticamente el rango de fechas\nSe consultarán los días indicados en la nueva variable desde HOY hasta la fecha resultante de restar los días como rango de fechas de visita\nEl rango de Fecha de visita se podrá modificar, pero siempre con el rango de días indicados en la variable",
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-08",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780935634/t9jw8whgb60bm6cczhat.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780935634/yy2vmncnbfqtjrf4vjiq.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780935635/zgxe6mnhdhvhtspefxun.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780935636/ayf3jjfyezhfyb6iz9xh.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780935636/f8bgyqwc3c7r7wuwcbvi.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780935637/ynawaw9oxz9wtxcm8kp8.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780935637/swtcxawdg2e9zkcwdnvr.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780935638/wbad52bdckcmwx1pqzug.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780935639/irjfidpnhs4mef85qxzz.png"
+          ]
+        }
+      ]
+    }
+  ]
 }
