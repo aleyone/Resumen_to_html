@@ -1102,8 +1102,12 @@ async function submitAll(){
     const filteredImages = (images || []).slice(1, 11);
     const reqsWithImgs = associateImages(html || '', requirements, filteredImages);
       allRequirements=allRequirements.concat(reqsWithImgs);
-      // Store raw_text keyed by filename for server-side storage
-      allRawTexts.push({ filename: file.name, raw_text: raw_text || '' });
+      // Store raw_text with the global requirement index for correct server-side mapping
+      allRawTexts.push({
+        filename: file.name,
+        raw_text: raw_text || '',
+        reqIndex: allRequirements.length - reqsWithImgs.length  // index of first req from this file
+      });
       setFileStatus(file.name,'ok',`✓ ${requirements.length} reqs`);
     }
 
