@@ -7,7 +7,8 @@
       "date": "2026-06-08",
       "author": "Jordi Gallego",
       "files": [
-        "[SIA][CRIBAT][MAMA] Mejoras en la lista de cribados [SIA-2699].pdf"
+        "[SIA][CRIBAT][MAMA] Mejoras en la lista de cribados [SIA-2699].pdf",
+        "[SIA][CRIBAT][MAMA] [Integración_GIMD] Cambio en la integración con Universal Viewer [SIA-2703].pdf"
       ],
       "requirements": [
         {
@@ -27,6 +28,25 @@
             "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933453/qxmy5qqjc7bbw6c3xmgc.png",
             "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933453/tyum6zorpooqsgwof7hz.png",
             "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933454/gfojvxy9l7pl40wlkbyw.png"
+          ]
+        },
+        {
+          "id": "REQ-02",
+          "title": "Universal Viewer",
+          "situacion_actual": "Desde SIA, los profesionales podrán acceder al visor de imágenes Universal Viewer desde las Lecturas 1 y 2, y el Consenso dentro de la HC. Para ello, deberán indicar las credenciales de acceso a Universal Viewer, que quedarán almacenadas en caché mientras esté activa la sesión, eliminándose al finalizar ésta. Al cerrar la HC se deberá cerrar el visor de forma que cuando el radiólogo acceda a la HC para realizar la siguiente lectura, no esté abierto el Universal Viewer de otras mujeres, para ello es necesario cambiar la integración.",
+          "descripcion": "Se cambia la integración con GIMD para la apertura del visor de imágenes Universal Viewer dentro del circuito de Cribado de cáncer de mama para que al cerrar la HC también se cierre el visor Al acceder a las lecturas en la HC, se muestra el botón 'GIMD/PACS' Al pulsar el botón 'GIMD/PACS', se solicitan las credenciales del visor de imágenes Una vez introducidas las credenciales y pulsar 'Guardar', se invocará a la pasarela SIA – PACS, a su vez establecerá la comunicación con UV vía websocket para abrir el visor en modo Edge nativo mediante petición GET El usuario podrá ver el estado en el que se encuentra la petición al visor de apertura de un estudio, el accession number enviado, y también se mostrará un aviso de que no cierre la ventana porque eso provocaría el cierre del visor",
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-08",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933472/jfmrc9peqa1stfjn2iq2.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933472/j5ea6gh49fhlxzuudblt.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933473/jnfnrynpmdwmpnf0m7qo.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933474/vztqf0jz0k6a4lsisdop.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933474/uj4vuz25sypkmcr5s5wl.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933475/eehqu5k5jgkzy8rwm3a1.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933475/d47jrpbyddymxbomveah.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933476/brhsrjj7pveepyhaxvzp.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933477/muvna8nomuolctinnlcn.png"
           ]
         }
       ]
