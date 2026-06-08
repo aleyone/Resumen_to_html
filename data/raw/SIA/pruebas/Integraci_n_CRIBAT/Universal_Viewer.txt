@@ -1,0 +1,110 @@
+[DOCUMENTO]
+[SIA][CRIBAT][MAMA] [Integración GIMD] Cambio en la integración con Universal Viewer [SIA 2703]
+
+SIA
+Código de la versión: SIA V 41.01.04
+Última actualización: 27/05/2026
+Versión Fecha Autor/es Descripción de la Versión/Cambios
+
+[APARTADO] 1.0 26/05/2025 Carmina Córcoles Versión inicial
+1 Introducción .............................................................................................................. 4
+
+[APARTADO] 1.1 Petición que se recoge en este documento ................................................................. 4
+2 Requisitos que cubre el análisis ................................................................................. 5
+3 Análisis ..................................................................................................................... 6
+
+[APARTADO] 3.1 Análisis textual ............................................................................................................... 6
+Acceso al visor de imágenes desde las lecturas de la HC ................................. 6
+
+[APARTADO] 4.1 Plan de pruebas funcional ........................................................................................... 12
+[PLAN_PRUEBAS]
+5 Configuraciones (detalle)......................................................................................... 13
+
+[APARTADO] 5.1 Resumen de configuraciones...................................................................................... 13
+
+[APARTADO] 5.2 Resumen de la lista de impacto .................................................................................. 14
+Ilustración 1.Acceso al visor desde las lecturas .......................................................................... 6
+Ilustración 2.Solicitud de credenciales de acceso a visor de imágenes .................................... 6
+Ilustración 3.Cargando el visor de imágenes................................................................................ 7
+
+[SECCION] 1 INTRODUCCIÓN
+En el presente documento se recoge el análisis y diseño técnico de los requisitos indicados
+en el Apartado “2. Requisitos que cubre el análisis”.
+El análisis de estos requisitos se ha realizado utilizando las técnicas que se han considerado
+como más apropiadas para definir la implementación de las funcionalidades solicitadas.
+
+[APARTADO] 1.1 Petición que se recoge en este documento
+Se cambia la integración con GIMD para la apertura del visor de imágenes Universal Viewer
+dentro del circuito de Cribado de cáncer de mama para que al cerrar la HC también se cierre
+el visor.
+
+[SECCION] 2 REQUISITOS QUE CUBRE EL ANÁLISIS
+A continuación, se detallan los requisitos/funcionalidades de los que se realizará el análisis y
+
+[SECCION] 3 ANÁLISIS
+
+[APARTADO] 3.1 Análisis textual
+Desde SIA, los profesionales podrán acceder al visor de imágenes Universal Viewer desde las
+Lecturas 1 y 2, y el Consenso dentro de la HC.
+Para ello, deberán indicar las credenciales de acceso a Universal Viewer, que quedarán
+almacenadas en caché mientras esté activa la sesión, eliminándose al finalizar ésta.
+Al cerrar la HC se deberá cerrar el visor de forma que cuando el radiólogo acceda a la HC para
+realizar la siguiente lectura, no esté abierto el Universal Viewer de otras mujeres, para ello es
+necesario cambiar la integración.
+Acceso al visor de imágenes desde las lecturas de la HC
+Al acceder a las lecturas en la HC, ya se muestra el botón ‘GIMD/PACS’:
+Ilustración 1.Acceso al visor desde las lecturas
+Al pulsar el botón ‘GIMD/PACS’, se solicitan las credenciales del visor de imágenes:
+Ilustración 2.Solicitud de credenciales de acceso a visor de imágenes
+Una vez introducidas las credenciales y pulsar ‘Guardar’, se invocará a la pasarela SIA – PACS,
+a su vez establecerá la comunicación con UV vía websocket para abrir el visor en modo Edge
+nativo mediante petición GET:
+Análisis y diseño técnico Ilustración 3.Cargando el visor de imágenes
+A dicha pasarela, se le enviarán los siguientes parámetros dentro de un objeto JSON,
+codificado en base64:
+· PACS_COM4_MESSAGE_ID: identificador del mensaje.
+· PACS_COM4_EXAM_IDENT: PACS_COM4_ID_MESSAGE + “*ACC:” + accNumber de la cita
+· PACS_COM4_USERNAME: usuario indicado en la ventana emergente.
+· PACS_COM4_PASSWORD: contraseña indicada en la ventana emergente.
+Esta pasarela, una vez reciba la petición ejecutará el algoritmo indicado el apartado
+Procesos, donde se hará uso de un fichero javascript que nos proporciona GIMD llamado
+“desktop_launcher.js”. Este contiene las diferentes funciones necesarias para poder ejecutar
+el algoritmo.
+De esta forma, el usuario podrá ver el estado en el que se encuentra la petición al visor de
+apertura de un estudio, el accession number enviado, y también se mostrará un aviso de que
+no cierre la ventana porque eso provocaría el cierre del visor.
+En el caso de producirse algún error en la integración, también se le mostrará en esta
+pantalla para que puedan escalarlo a los equipos de soporte de SIA y PACS, y que puedan
+revisar el problema en detalle.
+Esta forma de integración con el visor de imágenes, permitirá que al cerrar la HC en SIA,
+cerrará la pestaña del navegador que se hubiera abierto desde la lectura.
+
+[APARTADO] 4.1 Plan de pruebas funcional
+[PLAN_PRUEBAS]
+(*) El plan de pruebas completo de estas especificaciones se encuentra detallado en el
+documento Plan de pruebas de la versión
+
+[SECCION] 5 CONFIGURACIONES (DETALLE)
+
+[APARTADO] 5.1 Resumen de configuraciones
+A continuación, se detallan los permisos y configuraciones necesarios para el funcionamiento
+de las especificaciones reflejadas en este documento.
+Permisos [Administración de seguridad – Gestor de seguridad]
+No aplica
+Configuración [Administración de seguridad – Configuración de variables]
+No aplica
+Ficheros de propiedades [local.properties – comun.properties – siaet.config –…]
+sia3-config.properties
+Se definen las siguientes propiedades para la integración SIA- Universal Viewer:
+- citacribat.visor.pacs.url → Propiedad donde se configura la URL a la que se invocará
+para abrir el visor de imágenes de Universal Viewer. Al ser una URL relativa, será la
+misma para todos los entornos:
+TEST /downloads/sia/sia3neos/ficheros/siapacs/siapacs.html
+PRE /downloads/sia/sia3neos/ficheros/siapacs/siapacs.html
+PRO /downloads/sia/sia3neos/ficheros/siapacs/siapacs.html
+Otras configuraciones y procesos [Configuraciones no contempladas en puntos anteriores]
+No aplica
+
+[APARTADO] 5.2 Resumen de la lista de impacto
+A continuación, se indican los apartados de la lista de impacto afectados por el presente
+requerimiento:
