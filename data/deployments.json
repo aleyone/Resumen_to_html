@@ -1,3 +1,25 @@
 {
-  "deployments": []
+  "deployments": [
+    {
+      "id": "dep_1780911900528",
+      "app": "SIA",
+      "version": "SIA 45",
+      "date": "2026-06-08",
+      "author": "Jordi Gallego",
+      "files": [
+        "[SIA][CRIBAT][MAMA] Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846].pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Gestión del cribado de cancer de Mama [Fase III][SIAGP 1859][SIAGP 1868][SIAGP 1732][SIAGP 1846]",
+          "situacion_actual": "Anteriormente, el proceso de cribado de cáncer de mama funcionaba de forma lineal: las pacientes recibían citas automáticas generadas por el sistema o citas manuales en los centros de mamografía, y al llegar a su cita solo podían completar un cuestionario inicial si aceptaban realizar la prueba. Si la paciente rechazaba la mamografía o si el equipo de mamografía no estaba disponible en su centro asignado, el cribado quedaba interrumpido sin opciones claras de continuar el proceso.\n\nEste funcionamiento presentaba limitaciones importantes: no existía forma de gestionar cribados que ya estaban en el sistema de años anteriores, no había opciones para solicitar pruebas adicionales o complementarias desde el informe, y los radiólogos no podían coordinar derivaciones a especialistas de forma integrada. Tampoco había un flujo claro cuando las pacientes necesitaban realizar proyecciones complementarias o cuando surgían hallazgos que requerían seguimiento especializado.",
+          "descripcion": "El nuevo sistema integra completamente el ciclo de vida del cribado de mama, permitiendo que los cribados previos migrados sean visibles y gestionables dentro de la plataforma. Ahora es posible solicitar pruebas adicionales directamente desde el informe de mamografía, seleccionar diagnósticos específicos para esas solicitudes, y que el radiólogo indique directamente qué proyecciones complementarias son necesarias. Las pacientes pueden recibir citas automáticas para estas pruebas complementarias desde la lista de cribados, y todo el histórico de valoraciones y resultados queda registrado en la historia clínica de forma ordenada y accesible.\n\nDesde el punto de vista del usuario, el proceso es ahora más flexible y coordinado: una paciente puede llegar para una mamografía de cribado y, si se identifica que necesita más estudios, se gestiona todo el seguimiento sin interrupciones, incluyendo interconsultas con especialistas cuando sea necesario. El CAU debe saber que las citas ahora pueden generarse automáticamente desde múltiples puntos del proceso (informes, lista de cribados, solicitudes de pruebas) y que existe un cuestionario específico para recopilar información adicional de cada paciente dentro del protocolo de cribado.",
+          "component": "Gestión de Pacientes",
+          "req_date": "2025-12-23",
+          "images": []
+        }
+      ]
+    }
+  ]
 }
