@@ -1,25 +1,3 @@
 {
-  "deployments": [
-    {
-      "id": "dep_1780928534063",
-      "app": "SIA",
-      "version": "deewrewrewr",
-      "date": "2026-06-08",
-      "author": "David Gil",
-      "files": [
-        "[SIA][CRIBAT][MAMA] [Integración_GIMD] Cambio en la integración con Universal Viewer [SIA-2703].pdf"
-      ],
-      "requirements": [
-        {
-          "id": "REQ-01",
-          "title": "Universal Viewer",
-          "situacion_actual": "Anteriormente, los profesionales sanitarios podían acceder al visor de imágenes Universal Viewer desde diferentes secciones de la historia clínica en el sistema SIA, introduciendo sus credenciales cada vez que lo necesitaban. Sin embargo, existía un problema importante: al cerrar la historia clínica, el visor no se cerraba automáticamente, lo que provocaba que cuando un radiólogo accedía a la siguiente paciente, pudiera ver las imágenes de la paciente anterior aún abiertas en el navegador. Esta situación comprometía la privacidad y seguridad de los datos de las pacientes.",
-          "descripcion": "El cambio mejora la integración del visor de imágenes para que funcione de manera más segura y automática. Ahora, cuando el profesional accede al visor desde la lectura o el consenso de la historia clínica, las credenciales se guardan temporalmente durante su sesión y el sistema se conecta automáticamente con el visor de forma más directa. Lo más importante para el usuario es que al cerrar la historia clínica, el visor también se cierra automáticamente, garantizando que las imágenes de una paciente no queden visibles al acceder a la siguiente, mejorando la privacidad y evitando confusiones.",
-          "component": "Integración CRIBAT",
-          "req_date": "2026-06-08",
-          "images": []
-        }
-      ]
-    }
-  ]
+  "deployments": []
 }
