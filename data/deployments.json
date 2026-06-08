@@ -30,6 +30,37 @@
           ]
         }
       ]
+    },
+    {
+      "id": "dep_1780934346148_1",
+      "app": "SIA",
+      "version": "mama",
+      "date": "2026-06-08",
+      "author": "Christian Gil",
+      "files": [
+        "[SIA][CRIBAT][MAMA] [Integración_GIMD] Cambio en la integración con Universal Viewer [SIA-2703].pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Cambio en la integración con Universal Viewer",
+          "situacion_actual": "Actualmente, los profesionales sanitarios pueden acceder al visor de imágenes Universal Viewer desde diferentes secciones de la historia clínica (Lecturas 1 y 2, y Consenso). Para ello, deben introducir sus credenciales de acceso que se mantienen almacenadas durante toda la sesión activa. Sin embargo, existe un problema de seguridad y usabilidad: cuando se cierra la historia clínica, el visor no se cierra automáticamente, lo que significa que cuando el siguiente radiólogo abre la historia clínica para realizar una nueva lectura, puede encontrarse con el visor de imágenes de otro paciente abierto.",
+          "descripcion": "Con este cambio, el acceso al visor de imágenes se realiza de forma más segura y controlada. Cuando el profesional pulsa el botón para abrir el visor, se le solicitarán las credenciales, y el sistema establecerá una conexión directa con el visor que se abrirá en una nueva ventana del navegador. Durante este proceso, el usuario verá el estado de la petición y un aviso advirtiéndole de no cerrar la ventana manualmente, ya que ello afectaría al visor.\nLa mejora principal es que ahora, cuando el profesional cierra la historia clínica, el sistema cierra automáticamente la ventana del visor que se había abierto, garantizando que el siguiente profesional que acceda a la historia clínica no encuentre imágenes de otros pacientes. Además, si ocurre algún problema durante el proceso, el sistema mostrará un mensaje de error claro al usuario para que pueda reportarlo al equipo de soporte.",
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-08",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780934363/xurn4e090avps4pqkeq2.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780934364/f4rlirw3u8amue1k7szx.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780934364/ygxcizqnqyecwv4tfgvn.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780934365/wuov0okgdfultl2g8yi1.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780934366/hwqehwvf8m1mlfklczhb.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780934367/jcwxlmahco8acr4ktk4o.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780934367/gmai5vx9lr4oyjuqpl2w.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780934368/iwbmuvb1gchnajz4oynp.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780934368/gzg8agdhb9zvlptauinr.png"
+          ]
+        }
+      ]
     }
   ]
 }
