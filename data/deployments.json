@@ -1,3 +1,25 @@
 {
-  "deployments": []
+  "deployments": [
+    {
+      "id": "dep_1780928730280",
+      "app": "SIA",
+      "version": "dsfd",
+      "date": "2026-06-08",
+      "author": "Jordi Gallego",
+      "files": [
+        "[SIA][CRIBAT][MAMA] [Integración_GIMD] Cambio en la integración con Universal Viewer [SIA-2703].pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Universal Viewer",
+          "situacion_actual": "Anteriormente, los profesionales podían acceder al visor de imágenes Universal Viewer desde diferentes apartados de la historia clínica en SIA. Sin embargo, cuando cerraban la historia clínica, el visor permanecía abierto en el navegador. Esto generaba un problema de seguridad y privacidad importante: cuando el siguiente radiólogo abría una nueva historia clínica para realizar su lectura, podía ver accidentalmente las imágenes de la paciente anterior que aún estaban visibles en la pantalla.",
+          "descripcion": "El cambio implementa un cierre automático del visor de imágenes cuando se cierra la historia clínica. Ahora, cuando el profesional accede a las lecturas dentro de SIA, aparece un botón para abrir el visor. Al pulsarlo, se solicitan las credenciales de acceso de forma segura. Posteriormente, se establece una conexión con el sistema de imágenes y se muestra una ventana informativa donde el usuario puede ver el estado de la apertura del estudio, los datos enviados y un aviso importante de no cerrar esa ventana.\n\nCuando el profesional finaliza su trabajo y cierra la historia clínica en SIA, el visor se cierra automáticamente en el navegador, eliminando cualquier riesgo de que otro profesional pueda visualizar imágenes de pacientes anteriores. Las credenciales se mantienen en memoria durante la sesión activa y se eliminan al finalizar, garantizando la seguridad del acceso. Si ocurre algún error durante el proceso, se muestra un mensaje al usuario para que sea consciente del problema.",
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-08",
+          "images": []
+        }
+      ]
+    }
+  ]
 }
