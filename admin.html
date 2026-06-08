@@ -403,20 +403,39 @@ async function extractPDF(file){
   const pageTexts=[];
   const images=[];
 
-  // We'll collect screenshots of pages that contain images
-  // by checking if page has image XObjects before rendering
-  const pagesToRender=new Set();
-
-  for(let i=1;i<=Math.min(pdf.numPages,60);i++){
+  // Render pages likely to have images (low text density), skip page 1 (logo/cover), max 10
+  const imagePages = [];
+  for(let i=2;i<=Math.min(pdf.numPages,60);i++){
     const pg=await pdf.getPage(i);
-    const ops=await pg.getOperatorList();
-    // Check if page has image paint operations
-    const hasImages=ops.fnArray.some(fn=>
-      fn===pdfjsLib.OPS.paintImageXObject||
-      fn===pdfjsLib.OPS.paintInlineImageXObject||
-      fn===pdfjsLib.OPS.paintImageMaskXObject
-    );
-    if(hasImages)pagesToRender.add(i);
+    const tc=await pg.getTextContent();
+    const textLen=tc.items.reduce((s,x)=>s+(x.str?.trim().length||0),0);
+    const viewport=pg.getViewport({scale:1});
+    const pageArea=viewport.width*viewport.height;
+    // Pages with images typically have significant area but less text
+    // Also check operator list for actual image paint operations
+    let hasImgOps=false;
+    try{
+      const ops=await pg.getOperatorList();
+      // OPS values: paintImageXObject=85, paintInlineImageXObject=86, paintImageMaskXObject=84
+      hasImgOps=ops.fnArray.some(fn=>fn===85||fn===86||fn===84||fn===83);
+    }catch(e){}
+    if(hasImgOps)imagePages.push(i);
+  }
+
+  // Render image pages to canvas
+  for(const pageNum of imagePages.slice(0,10)){
+    try{
+      const pg=await pdf.getPage(pageNum);
+      const viewport=pg.getViewport({scale:1.5});
+      const canvas=document.createElement('canvas');
+      canvas.width=viewport.width;
+      canvas.height=viewport.height;
+      const ctx=canvas.getContext('2d');
+      await pg.render({canvasContext:ctx,viewport}).promise;
+      const b64=canvas.toDataURL('image/png').split(',')[1];
+      if(b64)images.push(b64);
+    }catch(e){console.warn('PDF render p'+pageNum,e.message);}
+  }
 
     const tc=await pg.getTextContent();
     const items=tc.items.filter(x=>x.str.trim().length>0);
@@ -446,22 +465,6 @@ async function extractPDF(file){
       return true;
     });
     if(filtered.length)pageTexts.push(filtered.join('\n'));
-  }
-
-  // Render pages with images to canvas — skip first page (cover/logo), max 10
-  const renderPages=[...pagesToRender].filter(p=>p>1).slice(0,10);
-  for(const pageNum of renderPages){
-    try{
-      const pg=await pdf.getPage(pageNum);
-      const viewport=pg.getViewport({scale:1.5});
-      const canvas=document.createElement('canvas');
-      canvas.width=viewport.width;
-      canvas.height=viewport.height;
-      const ctx=canvas.getContext('2d');
-      await pg.render({canvasContext:ctx,viewport}).promise;
-      const b64=canvas.toDataURL('image/png').split(',')[1];
-      if(b64)images.push(b64);
-    }catch(e){console.warn('PDF page render error p'+pageNum,e.message);}
   }
 
   const text=pageTexts.join('\n\n');
@@ -688,10 +691,22 @@ function extractTitleFromText(text, filename) {
   }
 
   // Pattern 2 — PDF/docx requisitos table row
-  // "[SIAGP-2703] [CRIBAT][MAMA][Integración_GIMD] Cambio en integración con Universal Viewer"
-  const reqRowMatch = text.match(/\[(?:SIAGP|GAIAGP|GAIA|SIA)[\w-]+\]\s+([\s\S]{5,200}?)(?:\n|$)/i);
+  // The title may span multiple lines: "[SIAGP-2703] [CRIBAT][MAMA][Integración_GIMD] Cambio en integración con\nUniversal Viewer"
+  const reqRowMatch = text.match(/\[(?:SIAGP|GAIAGP|GAIA|SIA)[\w-]+\]\s+([\s\S]{5,300}?)(?:\n\n|\[(?:SIAGP|GAIAGP|GAIA|SIA)|$)/i);
   if (reqRowMatch) {
-    const cleaned = cleanBracketPrefixes(reqRowMatch[1].trim());
+    // Join lines that are continuation of the title (short lines without structure)
+    const rawLines = reqRowMatch[1].split('\n').map(l => l.trim()).filter(Boolean);
+    const titleLines = [];
+    for (const line of rawLines) {
+      // Stop at structural lines (numbered headings, new sections)
+      if (/^\d+[\.\s]/.test(line) && line.length > 20) break;
+      if (/^(ÍNDICE|Versiones|Última|SGPTIC)/i.test(line)) break;
+      titleLines.push(line);
+      // Stop after 2 lines — title shouldn't be longer
+      if (titleLines.length >= 2) break;
+    }
+    const joined = titleLines.join(' ');
+    const cleaned = cleanBracketPrefixes(joined);
     if (cleaned.length > 3) return cleaned;
   }
 
@@ -1310,62 +1325,79 @@ async function submitAll(){
   setProgress(5,'Iniciando...');
 
   try{
-    let allRequirements=[];
-    let allRawTexts=[];   // parallel array — raw_text per file
-    let globalMeta={};
-    const allFileNames=files.map(f=>f.name);
-    const depId=`dep_${Date.now()}`;
+    const today=new Date().toISOString().split('T')[0];
 
-    for(let fi=0;fi<files.length;fi++){
-      const file=files[fi];
-      setFileStatus(file.name,'processing','⏳ extrayendo');
-      setProgress(5+Math.round((fi/files.length)*20),`Leyendo: ${file.name}`);
-      const{text,html,images}=await extractFile(file);
-      console.log(`[${file.name}] text length:`, text?.length, '| images:', images?.length, '| html length:', html?.length);
+    if(docType==='single'){
+      // ── SINGLE MODE: one upload per file ──
+      for(let fi=0;fi<files.length;fi++){
+        const file=files[fi];
+        const fileDepId=`dep_${Date.now()}_${fi}`;
+        setFileStatus(file.name,'processing','⏳ extrayendo');
+        setProgress(5+Math.round((fi/files.length)*20),`Leyendo: ${file.name}`);
+        const{text,html,images}=await extractFile(file);
 
-      setFileStatus(file.name,'processing','⏳ analizando');
-      const{meta,requirements,raw_text}=await parseText(text, app, file.name, docType, new Date().toISOString().split('T')[0], (msg,pct)=>{
-        setProgress(pct,`[${fi+1}/${files.length}] ${msg}`);
+        setFileStatus(file.name,'processing','⏳ analizando');
+        const{meta,requirements,raw_text}=await parseText(text,app,file.name,docType,today,(msg,pct)=>{
+          setProgress(pct,`[${fi+1}/${files.length}] ${msg}`);
+        });
+
+        const filteredImages=(images||[]).slice(1,11);
+        const reqsWithImgs=associateImages(html||'',requirements,filteredImages);
+        const reindexed=reqsWithImgs.map((r,i)=>({...r,id:`REQ-${String(i+1).padStart(2,'0')}`}));
+
+        setProgress(70+Math.round((fi/files.length)*15),`Subiendo imágenes: ${file.name}`);
+        const reqsWithUrls=await uploadAllImages(reindexed,fileDepId,(msg,pct)=>setProgress(pct,msg));
+
+        setProgress(86+Math.round((fi/files.length)*12),`Guardando: ${file.name}`);
+        const rawTexts=[{filename:file.name,raw_text:raw_text||'',reqIndex:0}];
+
+        const resp=await fetch('/api/upload',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({app,version,author,depId:fileDepId,date:today,files:[file.name],requirements:reqsWithUrls,rawTexts})
+        });
+        const result=await resp.json();
+        if(!resp.ok||!result.ok)throw new Error(result.error||`Error guardando ${file.name}`);
+        setFileStatus(file.name,'ok',`✓ publicado`);
+      }
+
+    }else{
+      // ── SUMMARY MODE: all files → one deployment ──
+      let allRequirements=[];
+      let allRawTexts=[];
+      let globalMeta={};
+      const allFileNames=files.map(f=>f.name);
+      const depId=`dep_${Date.now()}`;
+
+      for(let fi=0;fi<files.length;fi++){
+        const file=files[fi];
+        setFileStatus(file.name,'processing','⏳ extrayendo');
+        setProgress(5+Math.round((fi/files.length)*20),`Leyendo: ${file.name}`);
+        const{text,html,images}=await extractFile(file);
+
+        setFileStatus(file.name,'processing','⏳ analizando');
+        const{meta,requirements,raw_text}=await parseText(text,app,file.name,docType,today,(msg,pct)=>{
+          setProgress(pct,`[${fi+1}/${files.length}] ${msg}`);
+        });
+
+        if(fi===0)globalMeta=meta;
+        const filteredImages=(images||[]).slice(1,11);
+        const reqsWithImgs=associateImages(html||'',requirements,filteredImages);
+        allRequirements=allRequirements.concat(reqsWithImgs);
+        allRawTexts.push({filename:file.name,raw_text:raw_text||'',reqIndex:allRequirements.length-reqsWithImgs.length});
+        setFileStatus(file.name,'ok',`✓ ${requirements.length} reqs`);
+      }
+
+      allRequirements=allRequirements.map((r,i)=>({...r,id:`REQ-${String(i+1).padStart(2,'0')}`}));
+      setProgress(70,'Subiendo imágenes a Cloudinary...');
+      const reqsWithUrls=await uploadAllImages(allRequirements,depId,(msg,pct)=>setProgress(pct,msg));
+      setProgress(86,'Guardando en GitHub...');
+      const resp=await fetch('/api/upload',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({app,version,author,depId,date:today,files:allFileNames,requirements:reqsWithUrls,rawTexts:allRawTexts})
       });
-
-      if(fi===0)globalMeta=meta;
-    // Filter images: skip index 0 (usually logo/header), max 10
-    const filteredImages = (images || []).slice(1, 11);
-    const reqsWithImgs = associateImages(html || '', requirements, filteredImages);
-      allRequirements=allRequirements.concat(reqsWithImgs);
-      // Store raw_text with the global requirement index for correct server-side mapping
-      allRawTexts.push({
-        filename: file.name,
-        raw_text: raw_text || '',
-        reqIndex: allRequirements.length - reqsWithImgs.length  // index of first req from this file
-      });
-      setFileStatus(file.name,'ok',`✓ ${requirements.length} reqs`);
+      const result=await resp.json();
+      if(!resp.ok||!result.ok)throw new Error(result.error||'Error en el servidor');
     }
-
-    // Re-number sequentially
-    allRequirements=allRequirements.map((r,i)=>({...r,id:`REQ-${String(i+1).padStart(2,'0')}`}));
-
-    // Upload images to Cloudinary directly from browser
-    setProgress(70,'Subiendo imágenes a Cloudinary...');
-    const reqsWithUrls = await uploadAllImages(allRequirements, depId, (msg, pct) => setProgress(pct, msg));
-
-    setProgress(86,'Guardando en GitHub...');
-
-    const resp=await fetch('/api/upload',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        app, version, author,
-        depId,
-        date:new Date().toISOString().split('T')[0],
-        files:allFileNames,
-        requirements:reqsWithUrls,
-        rawTexts: allRawTexts   // stored in data/raw/ on server, NOT in deployments.json
-      })
-    });
-
-    const result=await resp.json();
-    if(!resp.ok||!result.ok)throw new Error(result.error||'Error en el servidor');
 
     setProgress(100,'Completado');
     showAlert('success');
