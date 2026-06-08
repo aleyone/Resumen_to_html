@@ -1,3 +1,25 @@
 {
-  "deployments": []
+  "deployments": [
+    {
+      "id": "dep_1780915341879",
+      "app": "SIA",
+      "version": "SIA Prueba Mama",
+      "date": "2026-06-08",
+      "author": "Jordi Gallego",
+      "files": [
+        "[SIA][CRIBAT][MAMA] Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846].pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Gestión del cribado de cancer de Mama [Fase III][SIAGP 1859][SIAGP 1868][SIAGP 1732][SIAGP 1846]",
+          "situacion_actual": "Anteriormente, el sistema de cribado de cáncer de mama presentaba limitaciones importantes en la visualización de información y la experiencia del usuario. Los cuestionarios de cribados finalizados solo podían consultarse sin posibilidad de edición, mientras que los cribados migrados desde el sistema anterior no mostraban estos cuestionarios al no existir en el nuevo sistema. Además, el acceso requería que los profesionales introdujeran manualmente tanto el usuario como la contraseña en cada login, lo que ralentizaba el proceso de autenticación.",
+          "descripcion": "El cambio implementa una modernización completa del proceso de cribado, introduciendo un nuevo circuito de generación de informes que mejora significativamente cómo se comunican los resultados a los pacientes. Se amplía la información disponible sobre los pacientes, se incorpora inteligencia artificial para ordenar automáticamente los listados según prioridades clínicas, se integra el sistema de almacenamiento de imágenes médicas (PACS) para recibir notificaciones de llegada de mamografías, y se añaden nuevas funcionalidades para gestionar citas complementarias y solicitar pruebas adicionales. El usuario final experimentará accesos más rápidos gracias al precargado automático de su DNI en el login, mejor organización de sus cribados pendientes, y una vista completa de todo el proceso desde la solicitud inicial hasta la finalización.\n\nPara el equipo CAU es fundamental comprender que este cambio afecta a múltiples puntos del flujo de trabajo: desde la recepción de pacientes hasta la generación de informes finales, pasando por la interpretación de imágenes y la coordinación de citas de refuerzo. Los usuarios pueden encontrar variaciones en ciertos datos si consultan un cribado en diferentes momentos, antes de que se hayan guardado determinadas etapas. Además, se debe tener presente que algunos cribados migrados del sistema anterior funcionarán de forma diferente, sin mostrar cuestionarios iniciales, por lo que el equipo debe estar preparado para orientar a los profesionales sobre estas diferencias.",
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-08",
+          "images": []
+        }
+      ]
+    }
+  ]
 }
