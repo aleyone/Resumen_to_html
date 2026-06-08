@@ -1,3 +1,35 @@
 {
-  "deployments": []
+  "deployments": [
+    {
+      "id": "dep_1780932393269",
+      "app": "SIA",
+      "version": "MAMA",
+      "date": "2026-06-08",
+      "author": "Jordi Gallego",
+      "files": [
+        "[SIA][CRIBAT][MAMA] Mejoras en la lista de cribados [SIA-2699].pdf",
+        "[SIA][CRIBAT][MAMA] [Integración_GIMD] Cambio en la integración con Universal Viewer [SIA-2703].pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Mejoras en la lista de cribados",
+          "situacion_actual": "El sistema tiene dificultades para mostrar rápidamente la lista de cribados finalizados con mamografía debido al gran volumen de datos migrados desde el sistema anterior. Esto causa tiempos de carga lentos que afectan principalmente a los radiológos cuando necesitan consultar estos cribados, siendo especialmente evidente en las unidades piloto.",
+          "descripcion": "Para mejorar la velocidad de carga, el sistema ahora exige al usuario que acote su búsqueda de cribados finalizados con mamografía indicando un rango de fechas o un número de identificación de paciente. El rango de fechas se rellena automáticamente según una configuración que determina cuántos días hacia atrás debe buscar el sistema, evitando que el usuario tenga que indicarlo manualmente cada vez. También es posible buscar solo por identificación de paciente sin necesidad de especificar fechas.\n\nAdemás, se añade una nueva columna que muestra la hora de visita de cada paciente en la lista de cribados, permitiendo que los radiológos sepan rápidamente qué pacientes acudieron por la mañana o por la tarde según sus turnos. Se incorpora también un filtro opcional por rango horario para que puedan buscar cribados de un horario específico del día, con opciones en intervalos de media hora.",
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-08",
+          "images": []
+        },
+        {
+          "id": "REQ-02",
+          "title": "Universal Viewer",
+          "situacion_actual": "Anteriormente, los radiólogos podían abrir el visor de imágenes Universal Viewer desde la historia clínica de SIA para realizar sus lecturas. Sin embargo, cuando cerraban la historia clínica de una paciente, el visor permanecía abierto en segundo plano. Esto causaba un problema de seguridad: cuando el radiólogo accedía a la siguiente historia clínica para hacer otra lectura, podía ver las imágenes de la paciente anterior, lo que viola la confidencialidad de datos sensibles. Se necesitaba modificar cómo funciona la conexión con el visor para que se cierre automáticamente al cerrar cada historia clínica.",
+          "descripcion": "El cambio implementa un nuevo flujo donde el radiólogo debe ingresar sus credenciales cada vez que accede a las lecturas, las cuales se solicitan al pulsar un botón específico. El sistema establece una conexión más controlada con el visor, que permanece abierto solo mientras la historia clínica esté activa, y se cierra automáticamente al salir de ella. Esto garantiza que el siguiente radiólogo nunca verá imágenes de pacientes anteriores, mejorando la seguridad y privacidad de los datos. El usuario verá un aviso claro indicándole que no cierre manualmente la ventana del visor, ya que el sistema lo hará de forma automática.\nDesde el punto de vista de soporte, es importante saber que si algo falla durante la apertura del visor, el usuario recibirá un mensaje de error en la pantalla que se abre, permitiéndole identificar el problema. El comportamiento es más predecible: la conexión se establece una sola vez por historia clínica, y puede reutilizarse para múltiples peticiones dentro de esa misma sesión. Esta mejora elimina completamente el riesgo de que datos confidenciales de una paciente queden expuestos en sesiones posteriores.",
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-08",
+          "images": []
+        }
+      ]
+    }
+  ]
 }
