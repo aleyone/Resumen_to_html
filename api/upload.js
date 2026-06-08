@@ -52,7 +52,7 @@ export default async function handler(req, res) {
   if (!GITHUB_TOKEN || !GITHUB_REPO) return res.status(500).json({ error: 'Faltan variables de entorno' });
 
   try {
-    const { app, version, author, date, files, requirements, depId, rawTexts } = req.body;
+    const { app, version, author, date, files, requirements, depId, rawTexts, noMerge } = req.body;
     if (!app || !version || !author || !requirements?.length) {
       return res.status(400).json({ error: 'Faltan campos obligatorios' });
     }
@@ -102,7 +102,8 @@ export default async function handler(req, res) {
     // 3. Load and update deployments.json
     const { content: db, sha } = await getDeploymentsDB(GITHUB_REPO, GITHUB_TOKEN);
 
-    const existingIdx = db.deployments.findIndex(d => d.app === app && d.version === version);
+    // Check if same app+version exists — only merge in summary mode (noMerge=true skips)
+    const existingIdx = noMerge ? -1 : db.deployments.findIndex(d => d.app === app && d.version === version);
     if (existingIdx >= 0) {
       const existing = db.deployments[existingIdx];
       const offset = existing.requirements.length;
