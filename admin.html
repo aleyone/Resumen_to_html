@@ -402,58 +402,48 @@ async function extractPDF(file){
   const pdf=await pdfjsLib.getDocument({data:ab}).promise;
   const pageTexts=[];
   const images=[];
+  const imagePageNums=[];
 
-  // Render pages likely to have images (low text density), skip page 1 (logo/cover), max 10
-  const imagePages = [];
-  for(let i=2;i<=Math.min(pdf.numPages,60);i++){
+  // Single pass: extract text + detect image pages
+  for(let i=1;i<=Math.min(pdf.numPages,60);i++){
     const pg=await pdf.getPage(i);
-    const tc=await pg.getTextContent();
-    const textLen=tc.items.reduce((s,x)=>s+(x.str?.trim().length||0),0);
-    const viewport=pg.getViewport({scale:1});
-    const pageArea=viewport.width*viewport.height;
-    // Pages with images typically have significant area but less text
-    // Also check operator list for actual image paint operations
-    let hasImgOps=false;
-    try{
-      const ops=await pg.getOperatorList();
-      // OPS values: paintImageXObject=85, paintInlineImageXObject=86, paintImageMaskXObject=84
-      hasImgOps=ops.fnArray.some(fn=>fn===85||fn===86||fn===84||fn===83);
-    }catch(e){}
-    if(hasImgOps)imagePages.push(i);
-  }
 
-  // Render image pages to canvas
-  for(const pageNum of imagePages.slice(0,10)){
-    try{
-      const pg=await pdf.getPage(pageNum);
-      const viewport=pg.getViewport({scale:1.5});
-      const canvas=document.createElement('canvas');
-      canvas.width=viewport.width;
-      canvas.height=viewport.height;
-      const ctx=canvas.getContext('2d');
-      await pg.render({canvasContext:ctx,viewport}).promise;
-      const b64=canvas.toDataURL('image/png').split(',')[1];
-      if(b64)images.push(b64);
-    }catch(e){console.warn('PDF render p'+pageNum,e.message);}
-  }
+    // Check for image operations (skip page 1 — usually logo/cover)
+    if(i>1){
+      try{
+        const ops=await pg.getOperatorList();
+        const hasImgOps=ops.fnArray.some(fn=>fn===85||fn===86||fn===84||fn===83);
+        if(hasImgOps)imagePageNums.push(i);
+      }catch(e){}
+    }
 
+    // Extract text
     const tc=await pg.getTextContent();
     const items=tc.items.filter(x=>x.str.trim().length>0);
     if(!items.length)continue;
+
     items.sort((a,b)=>{
       const yDiff=b.transform[5]-a.transform[5];
       if(Math.abs(yDiff)>3)return yDiff;
       return a.transform[4]-b.transform[4];
     });
+
     const lines=[];
     let currentItems=[];
     let lastY=null;
     for(const item of items){
       const y=Math.round(item.transform[5]);
-      if(lastY===null||Math.abs(y-lastY)<=3){currentItems.push(item);lastY=y;}
-      else{if(currentItems.length)lines.push(joinItemsWithSpaces(currentItems));currentItems=[item];lastY=y;}
+      if(lastY===null||Math.abs(y-lastY)<=3){
+        currentItems.push(item);
+        lastY=y;
+      }else{
+        if(currentItems.length)lines.push(joinItemsWithSpaces(currentItems));
+        currentItems=[item];
+        lastY=y;
+      }
     }
     if(currentItems.length)lines.push(joinItemsWithSpaces(currentItems));
+
     const filtered=lines.filter(line=>{
       const t=line.trim();
       if(!t||t.length<3)return false;
@@ -467,8 +457,23 @@ async function extractPDF(file){
     if(filtered.length)pageTexts.push(filtered.join('\n'));
   }
 
+  // Render image pages to canvas (max 10)
+  for(const pageNum of imagePageNums.slice(0,10)){
+    try{
+      const pg=await pdf.getPage(pageNum);
+      const viewport=pg.getViewport({scale:1.5});
+      const canvas=document.createElement('canvas');
+      canvas.width=viewport.width;
+      canvas.height=viewport.height;
+      const ctx=canvas.getContext('2d');
+      await pg.render({canvasContext:ctx,viewport}).promise;
+      const b64=canvas.toDataURL('image/png').split(',')[1];
+      if(b64)images.push(b64);
+    }catch(e){console.warn('PDF render p'+pageNum,e.message);}
+  }
+
   const text=pageTexts.join('\n\n');
-  console.log('[extractPDF] pages:', pdf.numPages, '| text:', text.length, '| images:', images.length);
+  console.log('[extractPDF] pages:',pdf.numPages,'| text:',text.length,'| images:',images.length);
   return{text,images};
 }
 
