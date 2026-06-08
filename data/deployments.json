@@ -7,7 +7,8 @@
       "date": "2026-06-08",
       "author": "Jordi Gallego",
       "files": [
-        "[SIA][CRIBAT][MAMA] Mejoras en la lista de cribados [SIA-2699].pdf"
+        "[SIA][CRIBAT][MAMA] Mejoras en la lista de cribados [SIA-2699].pdf",
+        "[SIA][CRIBAT][MAMA] [Integración_GIMD] Cambio en la integración con Universal Viewer [SIA-2703].pdf"
       ],
       "requirements": [
         {
@@ -27,6 +28,25 @@
             "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933872/b4okycszc4ld2csrtpia.png",
             "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933873/k1a5clqibfvktvr4lb0i.png",
             "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933874/nju8xlilhoaxovhvbxjx.png"
+          ]
+        },
+        {
+          "id": "REQ-02",
+          "title": "Universal Viewer",
+          "situacion_actual": "Actualmente, los profesionales sanitarios pueden acceder al visor de imágenes Universal Viewer desde diferentes puntos dentro de la historia clínica del programa de cribado de cáncer de mama. Para utilizar este visor, deben proporcionar sus credenciales de acceso, que se mantienen disponibles durante toda su sesión de trabajo y se eliminan automáticamente cuando cierran sesión. Sin embargo, existe un problema: cuando el profesional cierra la historia clínica, el visor de imágenes permanece abierto en el navegador, lo que puede causar confusiones si otro radiólogo accede posteriormente a una historia clínica diferente y encuentra imágenes de otras pacientes aún visibles.",
+          "descripcion": "La principal mejora es que al cerrar la historia clínica, el visor de imágenes se cerrará automáticamente junto con ella. De esta forma, cuando un profesional acceda a una nueva historia clínica para realizar otra lectura, no encontrará imágenes de pacientes anteriores abiertas. El usuario seguirá accediendo al visor del mismo modo, mediante un botón específico, y sus credenciales funcionarán de la misma manera durante su sesión.\nAdemás, se han añadido mejoras en la comunicación entre sistemas para que cualquier problema o error que ocurra durante la apertura del visor se muestre claramente en pantalla, permitiendo que el profesional sea consciente de cualquier incidencia y pueda reportarla al equipo de soporte técnico. Se ha incluido también un aviso que recuerda al usuario no cerrar manualmente la ventana del visor, ya que esto podría interrumpir la conexión.",
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-08",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933912/kwkbf5lidvf0dnmoael5.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933912/yzjbhpmbbu833n8icnkr.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933913/pw6ukclbbkdsdkxa53bq.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933914/v1h4tplbk6tcw1f3pakd.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933914/q3ub1rrybrcorybbteua.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933915/txgqrshphrbfjr4taqra.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933916/eqvzf943ipazlmmrtjji.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933917/iaxleujiufr3lq14mk9j.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933918/txcxdytvsfvrnvm2sm3n.png"
           ]
         }
       ]
