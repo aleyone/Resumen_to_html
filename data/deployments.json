@@ -1,3 +1,25 @@
 {
-  "deployments": []
+  "deployments": [
+    {
+      "id": "dep_1780917849570",
+      "app": "SIA",
+      "version": "SIA PRUEBA MAMA",
+      "date": "2026-06-08",
+      "author": "Jordi Gallego",
+      "files": [
+        "[SIA][CRIBAT][MAMA] Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846].pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Gestión del cribado de cancer de Mama [Fase III][SIAGP 1859][SIAGP 1868][SIAGP 1732][SIAGP 1846]",
+          "situacion_actual": "En la versión anterior del sistema, se implementó una gestión básica del cribado de cáncer de mama que permitía a las clínicas realizar cuestionarios a las mujeres citadas, enviar las peticiones de mamografía y generar los informes correspondientes. Sin embargo, esta solución inicial presentaba limitaciones en cuanto a la cantidad de información disponible, la integración con otros sistemas y la capacidad de gestionar diferentes tipos de citas y pruebas complementarias. El equipo funcional ha trabajado en un nuevo algoritmo que requiere una revisión completa del circuito para mejorar la experiencia de los profesionales sanitarios y la calidad del proceso de cribado.",
+          "descripcion": "La nueva versión mejora significativamente cómo funciona todo el proceso de cribado de mama. Ahora el sistema permite gestionar diferentes tipos de citas (mamografía inicial y citas de refuerzo), registrar múltiples informes de lectura, integrar automáticamente las imágenes que llegan del equipo de radiología, solicitar pruebas complementarias cuando sea necesario y acceder al historial de cribados desde la historia clínica del paciente. Además, utiliza inteligencia artificial para ayudar en la ordenación de los casos según su prioridad, y recupera información de cribados anteriores realizados en otros sistemas.\n\nPara el usuario final (profesionales sanitarios y personal administrativo), esto significa un flujo de trabajo más completo y coordinado: desde que se cita a una mujer hasta que se cierra el proceso con todos los informes finalizados, todo está integrado en una sola herramienta. El equipo CAU debe saber que esta actualización afecta a múltiples pantallas del sistema, nuevas funcionalidades de búsqueda y filtrado, y cambios en cómo se reciben y visualizan los informes radiológicos.",
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-08",
+          "images": []
+        }
+      ]
+    }
+  ]
 }
