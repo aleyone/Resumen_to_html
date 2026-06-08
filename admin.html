@@ -405,45 +405,42 @@ async function extractPDF(file){
   for(let i=1;i<=Math.min(pdf.numPages,60);i++){
     const pg=await pdf.getPage(i);
     const tc=await pg.getTextContent();
-
-    // Group items by vertical position (y coordinate) to reconstruct lines
-    // Items with same/similar Y are on the same line
     const items=tc.items.filter(x=>x.str.trim().length>0);
     if(!items.length)continue;
 
-    // Sort by Y descending (top of page first), then X ascending
+    // Sort by Y descending (top first), then X ascending
     items.sort((a,b)=>{
       const yDiff=b.transform[5]-a.transform[5];
       if(Math.abs(yDiff)>3)return yDiff;
       return a.transform[4]-b.transform[4];
     });
 
-    // Group into lines by Y position (within 3px tolerance)
+    // Group into lines by Y position, then join with smart spacing
     const lines=[];
-    let currentLine=[];
+    let currentItems=[];
     let lastY=null;
     for(const item of items){
       const y=Math.round(item.transform[5]);
       if(lastY===null||Math.abs(y-lastY)<=3){
-        currentLine.push(item.str);
+        currentItems.push(item);
         lastY=y;
       }else{
-        if(currentLine.length)lines.push(currentLine.join(''));
-        currentLine=[item.str];
+        if(currentItems.length)lines.push(joinItemsWithSpaces(currentItems));
+        currentItems=[item];
         lastY=y;
       }
     }
-    if(currentLine.length)lines.push(currentLine.join(''));
+    if(currentItems.length)lines.push(joinItemsWithSpaces(currentItems));
 
-    // Filter out header/footer noise: short lines with only SGPTIC, page numbers, corporate text
+    // Filter headers/footers
     const filtered=lines.filter(line=>{
       const t=line.trim();
       if(!t||t.length<3)return false;
-      if(/^SGPTIC\s*$/.test(t))return false;
-      if(/^SGPTIC\s+\d+\s*\|\s*\d+/.test(t))return false;
+      if(/^SGPTIC\s*(\d+\s*\|\s*\d+)?\s*$/.test(t))return false;
+      if(/^SGPTIC\s*\d+/.test(t)&&t.length<20)return false;
       if(/^\d+\s*\|\s*\d+$/.test(t))return false;
       if(/^Análisis y diseño técnico\s*$/.test(t))return false;
-      if(/^SUBDIRECCIÓN GENERAL DE SISTEMAS DE INFORMACIÓN PARA LA SALUD\s*$/.test(t))return false;
+      if(/^SUBDIRECCIÓN GENERAL/.test(t))return false;
       return true;
     });
 
@@ -454,6 +451,27 @@ async function extractPDF(file){
   console.log('[extractPDF] pages:', pdf.numPages, '| text length:', text.length);
   console.log('[extractPDF] first 500 chars:', text.slice(0,500));
   return{text,images:[]};
+}
+
+function joinItemsWithSpaces(items){
+  if(!items.length)return'';
+  let result=items[0].str;
+  for(let i=1;i<items.length;i++){
+    const prev=items[i-1];
+    const curr=items[i];
+    const prevEnd=prev.transform[4]+(prev.width||0);
+    const currStart=curr.transform[4];
+    const gap=currStart-prevEnd;
+    const fontSize=Math.abs(curr.transform[3])||10;
+    const spaceWidth=fontSize*0.25;
+    // Add space if gap is significant OR if previous doesn't end with space
+    if(gap>spaceWidth||(!result.endsWith(' ')&&!curr.str.startsWith(' ')&&gap>1)){
+      result+=' '+curr.str;
+    }else{
+      result+=curr.str;
+    }
+  }
+  return result;
 }
 async function loadJSZip() {
   if (window.JSZip) return window.JSZip;
