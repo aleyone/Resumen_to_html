@@ -898,14 +898,90 @@ async function parseText(text, app, filename, docType, formDate, onProgress) {
 }
 
 // ── Structure raw text with semantic tags ──
+function structureRawPDF(lines, out) {
+  // PDF gets lighter treatment — preserve content, just add section tags and remove noise
+  const noisePatterns = [
+    /^SGPTIC\s*(\d+\s*\|\s*\d+)?\s*$/i,
+    /^SUBDIRECCIÓN GENERAL/i,
+    /^Análisis y diseño técnico\s*$/i,
+    /^\d+\s*\|\s*\d+\s*$/,
+    /^Ilustración\s+\d/i,
+    /^ÍNDICE(\s+DE\s+ILUSTRACIONES)?\s*$/i,
+  ];
+
+  let inVersionTable = false;
+  let versionLines = [];
+  let inIndex = false;
+  let inTechnical = false;
+
+  for (const line of lines) {
+    const t = line.trim();
+    if (!t) continue;
+    if (noisePatterns.some(p => p.test(t))) continue;
+
+    // Detect version table
+    if (/versiones del documento/i.test(t)) { inVersionTable = true; continue; }
+    if (inVersionTable) {
+      if (/^\d+\.\d+\s+\d{2}\/\d{2}\/\d{4}/.test(t)) { versionLines.push(t); continue; }
+      if (versionLines.length && !/^\d/.test(t)) {
+        if (versionLines.length) { out.push('[VERSIONES]'); out.push(...versionLines); out.push(''); }
+        inVersionTable = false; versionLines = [];
+      } else continue;
+    }
+
+    // Skip index section
+    if (/^ÍNDICE\s*$/i.test(t)) { inIndex = true; continue; }
+    if (inIndex) {
+      if (/^\d+[\.\d]*\s+.+\.{3,}/.test(t)) continue; // index lines with dots
+      inIndex = false;
+    }
+
+    // Skip technical sections
+    if (/^(Modelo de datos|Diseño de Interfaz|Diagrama de integración|Cumplimiento de ENS|Resumen de la lista de impacto|Estimación)\s*$/i.test(t)) {
+      inTechnical = true; continue;
+    }
+    if (inTechnical && /^(\d+\.\d+|\d+\s+[A-Z]|Análisis textual|Plan de pruebas|Configuraciones|Requisitos que)/i.test(t)) {
+      inTechnical = false;
+    }
+    if (inTechnical) continue;
+
+    // Tag numbered sections
+    if (/^\d+\.\d+\.\d+\s+/.test(t)) { out.push(''); out.push('[SUBAPARTADO] ' + t); }
+    else if (/^\d+\.\d+\s+/.test(t)) { out.push(''); out.push('[APARTADO] ' + t); }
+    else if (/^\d+\s+[A-ZÁÉÍÓÚÑ]/.test(t) && t.length < 80) { out.push(''); out.push('[SECCION] ' + t); }
+    else {
+      // Tag known functional sections
+      if (/^(Análisis textual|Situación actual|Descripción|Petición que)/i.test(t)) {
+        out.push('');
+        if (/situación actual/i.test(t)) out.push('[SITUACION_ACTUAL]');
+        else if (/descripción/i.test(t)) out.push('[DESCRIPCION]');
+        out.push('[SUBAPARTADO] ' + t);
+      } else {
+        out.push(t);
+      }
+    }
+  }
+
+  const result = out.join('\n').replace(/\n{3,}/g, '\n\n').slice(0, 60000);
+  console.log('[structureRawPDF] output length:', result.length);
+  return result;
+}
+
 function structureRawText(text, filename) {
+  const isPDF = /\.pdf$/i.test(filename);
   const lines = text.split('\n');
   const out = [];
 
-  // Header: filename as document identifier
   out.push('[DOCUMENTO]');
   out.push(filename.replace(/\.[^.]+$/, '').replace(/[_\-]+/g, ' ').trim());
   out.push('');
+
+  // For PDFs: lighter processing — mainly tag sections, preserve all content
+  if (isPDF) {
+    return structureRawPDF(lines, out);
+  }
+
+  // For DOCX: full processing with noise removal
 
   // Patterns to detect and skip (noise)
   const skipPatterns = [
