@@ -1,3 +1,35 @@
 {
-  "deployments": []
+  "deployments": [
+    {
+      "id": "dep_1780933163037_0",
+      "app": "SIA",
+      "version": "MAMA",
+      "date": "2026-06-08",
+      "author": "Belén Nuñez",
+      "files": [
+        "[SIA][CRIBAT][MAMA] Mejoras en la lista de cribados [SIA-2699].pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Mejoras en la lista de cribados",
+          "situacion_actual": "Tras migrar una gran cantidad de cribados desde el sistema anterior (SIGMA), la lista de cribados finalizados con mamografía se carga muy lentamente. Esto afecta principalmente a la UPCM piloto de Manises, pero ocurrirá en todas las demás unidades conforme avance la migración de datos. El problema es que el sistema intenta cargar demasiados registros simultáneamente cuando el usuario realiza una búsqueda sin límites, lo que genera demoras importantes en el trabajo diario de los gestores de pacientes.",
+          "descripcion": "Para resolver esto, el sistema ahora obliga a acotar la búsqueda de cribados finalizados con mamografía utilizando un rango de fechas o un número de identificación específico del paciente. Las fechas se rellenarán automáticamente desde hoy hacia atrás según un número de días configurado, evitando que el usuario cargue accidentalmente demasiados registros. Además, se muestra un aviso si alguien intenta ampliar el rango más allá del límite permitido.\n\nComo mejora adicional, se añade una nueva columna que muestra la hora exacta de cada visita (mañana o tarde) en la lista de cribados. Los usuarios podrán filtrar cribados por rango horario usando dos campos con intervalos de media hora, lo que permite a los radiólogos trabajar de forma más organizada según los turnos de atención. Esta hora de visita aparecerá solo en la lista de búsqueda, no en el historial de pacientes.",
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-08",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933178/pr5hkxwaiusz0ixst6pp.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933179/forgxle6eseypb69mc54.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933180/ag3vmmvvh1wuurni5n2k.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933180/jeigw8tucqmiroorjlld.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933181/vcyi4mjcieoqsvt5evgc.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933181/rsfqlhdmiol8ls18mhnu.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933182/z7swl8dgm2mfggcvw1lq.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933183/cj5g5x7zwerd1cgb6b0u.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780933184/gcrbs6s3jobdwp80ujxw.png"
+          ]
+        }
+      ]
+    }
+  ]
 }
