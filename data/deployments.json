@@ -1,37 +1,6 @@
 {
   "deployments": [
     {
-      "id": "dep_1780934323656_0",
-      "app": "SIA",
-      "version": "mama",
-      "date": "2026-06-08",
-      "author": "Christian Gil",
-      "files": [
-        "[SIA][CRIBAT][MAMA] Mejoras en la lista de cribados [SIA-2699].pdf"
-      ],
-      "requirements": [
-        {
-          "id": "REQ-01",
-          "title": "Mejoras en la lista de cribados",
-          "situacion_actual": "Actualmente, en la lista de cribados de Gestión de pacientes solo aparece la fecha de la visita de las mujeres, pero no se muestra la hora exacta. Esto genera dificultades para los radiólogos a la hora de organizar su trabajo, ya que no pueden identificar rápidamente si una paciente acudió por la mañana o por la tarde, lo que afecta a la asignación de lecturas según el turno correspondiente de cada profesional.",
-          "descripcion": "Se añadirá una nueva columna en la lista de cribados que mostrará la hora de visita junto a la fecha, permitiendo a los radiólogos visualizar de manera inmediata si cada mujer acudió por la mañana o por la tarde. De esta forma, podrán identificar fácilmente qué pacientes les corresponde leer según su turno de trabajo. Además, se incorporará un nuevo filtro de búsqueda que permitirá filtrar los cribados por rango horario de visita, facilitando la búsqueda de pacientes dentro de un horario específico. Los radiólogos podrán usar este filtro de forma independiente o combinado con otros criterios de búsqueda para localizar cribados finalizados con mamografía de forma más ágil y eficiente.",
-          "component": "Integración CRIBAT",
-          "req_date": "2026-06-08",
-          "images": [
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780934338/hr2db7ztm6otczmit6an.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780934338/hcpycrkbl8hrpgerencj.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780934339/bun91yz7fdg2bqrz2fp4.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780934340/sw0ab4arlrjwhrx0mxss.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780934341/hg9rbnnj8ptyg3k0idvz.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780934341/ldqaw3u6eutnicthuesx.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780934342/f3xffbxjlxii0ugfkb9z.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780934342/s4wrfuxdm9nkfidkrbju.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780934343/rujqyzxo7gboqc7mkfv4.png"
-          ]
-        }
-      ]
-    },
-    {
       "id": "dep_1780934346148_1",
       "app": "SIA",
       "version": "mama",
