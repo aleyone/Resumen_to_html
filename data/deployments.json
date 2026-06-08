@@ -1,25 +1,3 @@
 {
-  "deployments": [
-    {
-      "id": "dep_1780926879772",
-      "app": "SIA",
-      "version": "pruebas",
-      "date": "2026-06-08",
-      "author": "Mª Carmen Belenguer",
-      "files": [
-        "[SIA][CRIBAT][MAMA] [Integración_GIMD] Cambio en la integración con Universal Viewer [SIA-2703].pdf"
-      ],
-      "requirements": [
-        {
-          "id": "REQ-01",
-          "title": "Universal Viewer",
-          "situacion_actual": "Anteriormente, los profesionales sanitarios podían acceder al visor de imágenes Universal Viewer desde la historia clínica, pero era necesario que introdujeran sus credenciales cada vez que querían consultarlo. Estas credenciales se guardaban temporalmente durante la sesión activa. El problema principal era que al cerrar la historia clínica, el visor no se cerraba correctamente, lo que provocaba que cuando otro radiólogo accedía posteriormente a la historia clínica de otra paciente, se encontrase con el visor de imágenes de la paciente anterior aún abierto. Esto generaba confusión, riesgos de privacidad y necesitaba una mejor gestión de la integración entre sistemas.",
-          "descripcion": "Ahora el acceso al visor de imágenes funciona de forma más ordenada y segura. Cuando el profesional pulsa el botón para abrir el visor desde cualquier lectura, introduce sus credenciales una sola vez, y el sistema establece automáticamente una conexión que permite ver el estado de apertura del estudio. Se muestra información clara sobre el progreso de la carga y se previene que el usuario cierre accidentalmente la ventana. Cuando el profesional cierra la historia clínica, el visor se cierra automáticamente con ella, garantizando que la siguiente lectura comience siempre con el visor limpio.\nEsta mejora significa que los radiólogos no verán información de otros pacientes, el acceso es más rápido gracias a la autenticación única, y reciben retroalimentación clara si algo falla. El sistema también gestiona automáticamente los errores de comunicación y los muestra al usuario, evitando situaciones silenciosas donde no se sepa si el visor está realmente abierto o hay un problema de conexión.",
-          "component": "Integración CRIBAT",
-          "req_date": "2026-06-08",
-          "images": []
-        }
-      ]
-    }
-  ]
+  "deployments": []
 }
