@@ -688,45 +688,21 @@ function extractVersionDate(text) {
 
 // ── Extract title deterministically from document text ──
 function extractTitleFromText(text, filename) {
-  // Pattern 1 — docx: "Nombre de requisito" section
+  // Primary: extract from filename — most reliable source
+  // "[SIA][CRIBAT][MAMA] [Integración_GIMD] Cambio en la integración con Universal Viewer [SIA-2703].pdf"
+  const filenameTitle = cleanBracketPrefixes(
+    filename.replace(/\.[^.]+$/, '').replace(/[_]+/g, ' ').trim()
+  );
+  if (filenameTitle.length > 3) return filenameTitle;
+
+  // Fallback: docx "Nombre de requisito" section
   const nombreMatch = text.match(/Nombre de requisito\s*\n+([^\n]{5,})/i);
   if (nombreMatch) {
     const cleaned = cleanBracketPrefixes(nombreMatch[1].trim());
     if (cleaned.length > 3) return cleaned;
   }
 
-  // Pattern 2 — PDF table: ID may be on its own line, name on next line(s)
-  // Case A: "[SIAGP-2703] [CRIBAT]... Title on same line"
-  // Case B: "[SIAGP-2703]\n[CRIBAT]... Title\ncontinuation"
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-  for (let i = 0; i < Math.min(lines.length, 60); i++) {
-    const line = lines[i];
-    // Found a Jira ID line
-    if (/^\[(?:SIAGP|GAIAGP|GAIA|SIA)[\w-]+\]/.test(line)) {
-      // Get content after the ID on same line
-      const sameLine = line.replace(/^\[(?:SIAGP|GAIAGP|GAIA|SIA)[\w-]+\]\s*/, '').trim();
-      // Collect up to 2 more lines as potential title continuation
-      const titleParts = sameLine ? [sameLine] : [];
-      for (let j = i + 1; j <= i + 2 && j < lines.length; j++) {
-        const next = lines[j];
-        // Stop if it looks like another ID, section number, or index entry
-        if (/^\[(?:SIAGP|GAIAGP|GAIA|SIA)/.test(next)) break;
-        if (/^\d+[\.\s]/.test(next) && next.length > 30) break;
-        if (/^(ÍNDICE|Versiones|SGPTIC|Última)/i.test(next)) break;
-        titleParts.push(next);
-        // If this line doesn't end mid-sentence, stop
-        if (!/con$|en$|de$|del$|la$|el$|y$|a$/.test(next.toLowerCase())) break;
-      }
-      const joined = titleParts.join(' ').trim();
-      const cleaned = cleanBracketPrefixes(joined);
-      if (cleaned.length > 3) return cleaned;
-    }
-  }
-
-  // Fallback: filename
-  return cleanBracketPrefixes(
-    filename.replace(/\.[^.]+$/, '').replace(/[_\-]+/g, ' ').trim()
-  );
+  return filename.replace(/\.[^.]+$/, '').replace(/[_\-]+/g, ' ').trim();
 }
 
 function cleanBracketPrefixes(str) {
@@ -1372,7 +1348,7 @@ async function submitAll(){
 
         const resp=await fetch('/api/upload',{
           method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({app,version,author,depId:fileDepId,date:today,files:[file.name],requirements:reqsWithUrls,rawTexts})
+          body:JSON.stringify({app,version,author,depId:fileDepId,date:today,files:[file.name],requirements:reqsWithUrls,rawTexts,noMerge:true})
         });
         const result=await resp.json();
         if(!resp.ok||!result.ok)throw new Error(result.error||`Error guardando ${file.name}`);
