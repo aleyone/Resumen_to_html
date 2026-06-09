@@ -1,35 +1,3 @@
 {
-  "deployments": [
-    {
-      "id": "dep_1780996269752_0",
-      "app": "GAIA",
-      "version": "GAIA E4.2.4",
-      "date": "2026-06-09",
-      "author": "David Gil",
-      "files": [
-        "[SIA][CRIBAT][MAMA] Mejoras en la lista de cribados [SIA-2699].pdf"
-      ],
-      "requirements": [
-        {
-          "id": "REQ-01",
-          "title": "Mejoras en la lista de cribados",
-          "situacion_actual": "Tras la implementación del sistema en producción, se ha detectado un problema de rendimiento en la búsqueda de cribados mamográficos finalizados. La migración de una gran cantidad de datos desde el sistema anterior ha generado lentitud en la carga de la lista de cribados, especialmente cuando se filtran por el estado 'Finalizados con mamografía'. Este problema se ha identificado inicialmente en la unidad piloto de Manises y se espera que se replique en el resto de unidades.",
-          "descripcion": "El sistema mejora la búsqueda de cribados finalizados con mamografía mediante la obligatoriedad de indicar un rango de fechas de visita o un identificador de paciente. Cuando se selecciona este filtro, el sistema rellena automáticamente un rango de fechas predeterminado que puede ser ajustado por el usuario, facilitando búsquedas más ágiles y evitando consultas de resultados excesivamente grandes. Además, se añade una nueva columna visible en la lista que muestra la hora de la visita, permitiendo a los radiólogos identificar si las pacientes acudieron por la mañana o por la tarde, lo cual es útil para organizar las lecturas según su turno de trabajo. Se incorpora también un filtro adicional por rango horario para buscar cribados de franjas horarias específicas, ofreciendo una experiencia de búsqueda más precisa y flexible.",
-          "component": "EXT",
-          "req_date": "2026-06-09",
-          "images": [
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780996294/dagzztpdiri9rfhupuq7.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780996294/io9o5yjce71fbjyjne7m.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780996295/pqzm3ougmrvhwlsh7vn4.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780996296/snaacec2wxhookjna1ov.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780996297/xvmjhgmnhfy8xhjyjmvl.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780996297/cpg1mb8geupmjpmeyghy.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780996298/di8lvygmyqqrehfuuobt.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780996299/px4k3qtc1isrgoamrvhk.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780996300/jfeuraos9vq9oenrd23e.png"
-          ]
-        }
-      ]
-    }
-  ]
+  "deployments": []
 }
