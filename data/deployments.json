@@ -1,3 +1,41 @@
 {
-  "deployments": []
+  "deployments": [
+    {
+      "id": "dep_1781007182406_0",
+      "app": "GAIA",
+      "version": "hjkhkk",
+      "date": "2026-06-09",
+      "author": "Rafa Pastor",
+      "files": [
+        "[GAIA][2023-29] GAIA-1128 [GVMEGAIA-26358][MPRE3] Incorporar controles indicación de enfermeria con cupo analogos a MFC y PED_v1 (1) 1.docx"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Incorporar controles indicación de enfermeria con cupo analogos a MFC y PED v1 (1) 1",
+          "situacion_actual": "Actualmente, los enfermeros en el sistema pueden indicar y gestionar ciertos tratamientos farmacéuticos para los pacientes asignados a su zona de salud, pero con limitaciones importantes. A diferencia de los médicos de familia y pediatras, los enfermeros no pueden acceder a alertas sobre tratamientos crónicos próximos a finalizar ni consultar esta información de forma completa. Además, los controles sobre la duración máxima de los tratamientos que pueden indicar funcionan de manera diferente a los aplicados a los médicos.",
+          "descripcion": "Con este cambio, los enfermeros con pacientes asignados a su cupo tendrán los mismos permisos y limitaciones de duración de tratamientos que tienen los médicos de familia y pediatras. Podrán indicar tratamientos hasta 365 días en pacientes empadronados de su cupo, o periodos más cortos según corresponda (90 o 180 días) en función de si el paciente está empadronado, dónde reside o cuánto tiempo lleva en la zona. El sistema mostrará mensajes de aviso automáticos informando sobre estas limitaciones según cada situación.\n\nAdemás, los enfermeros ahora podrán ver alertas sobre los tratamientos crónicos de sus pacientes que están próximos a finalizar, similar a como las ven los médicos. Esta información será accesible desde el mismo lugar donde consultan otros detalles del paciente, lo que permitirá un seguimiento más completo y coordinado de los tratamientos farmacéuticos sin necesidad de buscar información en diferentes lugares del sistema.",
+          "keywords": [
+            "indicacion-enfermeria-cupo",
+            "duracion-tratamientos-limitada",
+            "alertas-prescripcion-automaticas"
+          ],
+          "component": "GAIAWEB",
+          "req_date": "2026-06-09",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781007334/euh37dhffd2wbybl8v64.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781007335/z9v6mzulty218ak4y2il.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781007335/wp4pwhngspzaizamg5ev.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781007336/vorkf090qj3q5fsadq4i.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781007336/acugbrm6l7bqdrh4avv3.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781007337/cvhlsjhqs3zpluajgdrr.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781007338/n31gvch5slhj9eqz0pna.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781007338/v5ivb3wfocmtj1knjsbp.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781007339/ruv5rart48ju8vuxjb7c.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781007340/dscwzzwymcjtvqg16q9o.png"
+          ]
+        }
+      ]
+    }
+  ]
 }
