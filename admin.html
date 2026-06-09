@@ -875,15 +875,19 @@ async function parseText(text, app, filename, docType, formDate, onProgress) {
     let keywords = [];
     try {
       const kwPrompt = `Analiza este requerimiento sanitario y extrae exactamente 3-4 palabras clave en español.
-Las palabras clave deben ser términos clínicos, funcionales o del dominio sanitario específicos de este requerimiento.
-NO uses palabras genéricas como "sistema", "usuario", "actualización", "cambio", "mejora", "gestión".
-SÍ usa términos como "mamografia", "cribado", "prescripcion", "envase", "posologia", "citacion", etc.
+
+REGLAS ESTRICTAS:
+- Las keywords deben ser TÉRMINOS COMPUESTOS o FRASES CORTAS de 2-3 palabras que capturen el concepto específico
+- Combina conceptos relacionados en una sola keyword: "citas-cronicos", "vencimiento-tratamiento", "lista-cribados-mama"
+- NO uses palabras sueltas genéricas: PROHIBIDO "citas", "sistema", "usuario", "cambio", "mejora", "gestion", "historia", "clinica", "paciente" solos
+- SÍ usa combinaciones específicas del dominio: "cribado-mama", "prescripcion-antibiotico", "envase-posologia", "notificacion-vencimiento", "visualizador-dicom", "citas-medicas-cronicos"
+- Piensa: ¿con solo estas keywords, sabría alguien de qué trata exactamente el requerimiento?
 
 Título: ${extractedTitle}
 Descripción: ${finalDescripcion.slice(0, 500)}
 Situación previa: ${finalSituacion.slice(0, 300)}
 
-Responde ÚNICAMENTE con JSON sin markdown: {"keywords": ["palabra1", "palabra2", "palabra3"]}`;
+Responde ÚNICAMENTE con JSON sin markdown: {"keywords": ["termino-compuesto-1", "termino-compuesto-2", "termino-compuesto-3"]}`;
 
       const kwResult = await callAI(kwPrompt);
       if (kwResult.keywords && Array.isArray(kwResult.keywords)) {
