@@ -72,6 +72,43 @@
           ]
         }
       ]
+    },
+    {
+      "id": "dep_1781003227859_0",
+      "app": "GAIA",
+      "version": "GAIA E4.2.4",
+      "date": "2026-06-09",
+      "author": "David Gil",
+      "files": [
+        "[GAIA][2023-29] GAIA-1128 [GVMEGAIA-26358][MPRE3] Obtener clave de Enf en SIP al alta de CPA nominal.docx"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Obtener clave de Enf en SIP al alta de CPA nominal",
+          "situacion_actual": "Actualmente, los enfermeros pueden indicar y gestionar tratamientos específicamente marcados como autorizados para enfermería en el sistema de prescripción. Pueden consultar los tratamientos de sus pacientes asignados, pero tienen acceso limitado a funcionalidades como las alertas de medicamentos próximos a vencer o la consulta de tratamientos crónicos desde ciertas pantallas.",
+          "descripcion": "A partir de este cambio, los enfermeros tendrán una experiencia más similar a la de los médicos en cuanto a la visualización de alertas. Recibirán notificaciones automáticas cuando los pacientes de su cupo tengan medicamentos crónicos próximos a vencerse, pero solo verán aquellos medicamentos que están autorizados para ser prescritos por enfermería. Estas alertas aparecerán directamente en las pantallas principales y se mostrarán en un mensaje emergente junto con un listado completo de los tratamientos que necesitan revisión.\nAdemás, el sistema ajustará automáticamente la duración máxima de los tratamientos que los enfermeros pueden indicar, equiparándola a la que usan los médicos, y mostrará avisos aproppiados cuando sea necesario. Los enfermeros solo podrán indicar medicamentos a pacientes que tengan asignado específicamente su código de enfermería, garantizando que cada profesional gestione únicamente el cupo que le corresponde.",
+          "keywords": [
+            "alertas-medicamentos-vencimien",
+            "prescripcion-enfermeria-autori",
+            "notificaciones-tratamientos-cr"
+          ],
+          "component": "GAIAWEB",
+          "req_date": "2026-06-09",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003341/skhd2ulqppzptzsmpsbe.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003342/stv9q4rzh7v2pg0wirtc.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003343/ey2lt3r8bsbnkcokxlgz.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003344/o18v7bdmqomm1a4dktch.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003345/venhalyur71yfo6kdtgh.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003345/fzhggq2bygry1l7au87y.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003346/eghrrd3okzqhj180k773.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003346/v9i0ojpioi32jekktq9p.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003347/ozttlb2i4mjagje3a2bk.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003348/lu2l0ife7hfk9pzqohab.png"
+          ]
+        }
+      ]
     }
   ]
 }
