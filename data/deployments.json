@@ -184,6 +184,43 @@
           ]
         }
       ]
+    },
+    {
+      "id": "dep_1781003680180_3",
+      "app": "GAIA",
+      "version": "GAIA E4.2.4",
+      "date": "2026-06-09",
+      "author": "David Gil",
+      "files": [
+        "[GAIA][2023-29] GAIA-1128 [GVMEGAIA-26358][MPRE3] Incorporar controles indicación de enfermeria con cupo analogos a MFC y PED_v1 (1).docx"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Incorporar controles indicación de enfermeria con cupo analogos a MFC y PED v1 (1)",
+          "situacion_actual": "Actualmente, los enfermeros pueden indicar y gestionar ciertos medicamentos en el sistema, pero solo aquellos que están específicamente marcados como 'Indicado por Enfermería'. Los enfermeros tienen acceso limitado a la información de tratamientos crónicos de sus pacientes, principalmente a través de alertas en el visor de tratamientos y el historial farmacoterapéutico. La capacidad de los enfermeros para trabajar con tratamientos tiene restricciones que no se equiparan completamente a las que tienen los médicos de familia y pediatras en el sistema.",
+          "descripcion": "A partir de este cambio, los enfermeros de primaria podrán acceder a las mismas funcionalidades que actualmente tienen los médicos de familia y pediatras para consultar y gestionar los tratamientos crónicos de sus pacientes asignados. Se amplía el acceso a alertas sobre tratamientos que están próximos a finalizar, información que antes no estaba disponible para el perfil de enfermería, permitiendo un seguimiento más completo de la medicación de sus pacientes.\n\nAdemás, se establecen límites de duración en los tratamientos que los enfermeros pueden indicar o prolongar, de forma similar a como funcionan para los médicos. Estos límites variarán según la relación del paciente con el enfermero (si está asignado a su cupo, si es de su zona o si es de fuera), garantizando que los tratamientos indicados por enfermería sean seguros y apropiados según cada situación.",
+          "keywords": [
+            "acceso-enfermeria-cronicos",
+            "alertas-vencimiento-tratamient",
+            "indicacion-medicamentos-enferm"
+          ],
+          "component": "GAIAWEB",
+          "req_date": "2026-06-09",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003873/psggglsvmj60jndaenba.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003874/wijn73qvakn6uy8k85ua.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003875/dz2pegs95o4ca4lhmfyb.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003875/zh8htvgxftaj9zmzdbsa.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003876/rincr8phbjciwmfqciql.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003877/ccaw0zuodu3iqipa2sib.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003877/vultcspe1ht3tbt7tl81.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003878/v4cwveizutvhkfbakovl.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003879/kn1gvywarntpe6afnwee.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003879/vi1ajttlw5dynqo31cv1.png"
+          ]
+        }
+      ]
     }
   ]
 }
