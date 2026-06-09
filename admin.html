@@ -896,7 +896,7 @@ Responde ÚNICAMENTE con JSON sin markdown: {"keywords": ["termino-compuesto-1",
           .map(k => String(k).toLowerCase()
             .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
             .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
-            .slice(0, 30)
+            .slice(0, 50)
           )
           .filter(k => k.length > 2);
       }
