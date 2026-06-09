@@ -866,8 +866,42 @@ async function parseText(text, app, filename, docType, formDate, onProgress) {
       id: 'REQ-01',
       title: extractedTitle,
       situacion_actual: finalSituacion,
-      descripcion: finalDescripcion
+      descripcion: finalDescripcion,
+      keywords: []   // filled below
     }];
+
+    // Step 3: extract keywords (single call, lightweight)
+    onProgress('Extrayendo palabras clave...', 88);
+    let keywords = [];
+    try {
+      const kwPrompt = `Analiza este requerimiento sanitario y extrae exactamente 3-4 palabras clave en español.
+Las palabras clave deben ser términos clínicos, funcionales o del dominio sanitario específicos de este requerimiento.
+NO uses palabras genéricas como "sistema", "usuario", "actualización", "cambio", "mejora", "gestión".
+SÍ usa términos como "mamografia", "cribado", "prescripcion", "envase", "posologia", "citacion", etc.
+
+Título: ${extractedTitle}
+Descripción: ${finalDescripcion.slice(0, 500)}
+Situación previa: ${finalSituacion.slice(0, 300)}
+
+Responde ÚNICAMENTE con JSON sin markdown: {"keywords": ["palabra1", "palabra2", "palabra3"]}`;
+
+      const kwResult = await callAI(kwPrompt);
+      if (kwResult.keywords && Array.isArray(kwResult.keywords)) {
+        keywords = kwResult.keywords
+          .slice(0, 4)
+          .map(k => String(k).toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+            .slice(0, 30)
+          )
+          .filter(k => k.length > 2);
+      }
+    } catch(e) {
+      console.warn('Keywords extraction failed:', e.message);
+    }
+
+    allReqs[0].keywords = keywords;
+    console.log('[keywords]', keywords);
 
     meta = { title: extractedTitle, version: '', app };
 
@@ -917,7 +951,8 @@ async function parseText(text, app, filename, docType, formDate, onProgress) {
     ...r,
     id: docType === 'single' ? 'REQ-01' : `REQ-${String(i+1).padStart(2,'0')}`,
     component,
-    req_date: formDate || null   // use form date, not document version date
+    req_date: formDate || null,
+    keywords: r.keywords || []   // preserve keywords extracted in single mode
   }));
 
   return { meta, requirements: allReqs, raw_text };
