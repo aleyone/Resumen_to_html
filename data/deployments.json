@@ -1,3 +1,40 @@
 {
-  "deployments": []
+  "deployments": [
+    {
+      "id": "dep_1781000031263_0",
+      "app": "SIA",
+      "version": "SIA v42.00.01",
+      "date": "2026-06-09",
+      "author": "Rafa Pastor",
+      "files": [
+        "[SIA][CRIBAT][MAMA] Mejoras en la lista de cribados [SIA-2699].pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Mejoras en la lista de cribados",
+          "situacion_actual": "Tras la incorporación del sistema a producción, se ha detectado un problema de rendimiento en la carga de la lista de cribados, especialmente cuando se filtran por cribados finalizados con mamografía. Esta lentitud es consecuencia del gran volumen de datos migrados desde el sistema anterior (SIGMA), situación que se ha identificado inicialmente en la UPCM de Manises y que afectará al resto de unidades. El filtrado por este criterio requiere procesar una cantidad muy elevada de registros, lo que ralentiza significativamente la experiencia del usuario.",
+          "descripcion": "El sistema implementa mejoras significativas en la búsqueda de cribados finalizados con mamografía para agilizar la consulta. Ahora, cuando se selecciona este tipo de búsqueda, el sistema solicitará obligatoriamente indicar un periodo de fechas o un número de historia del paciente, rellenándose automáticamente el rango de fechas (últimos días configurables) para optimizar la búsqueda. Además, se añade la posibilidad de buscar únicamente por número de historia sin necesidad de especificar fechas.\n\nComo mejora adicional para facilitar la gestión diaria, la lista de cribados mostrará ahora la hora exacta de cada visita en una nueva columna, permitiendo a los radiólogos identificar rápidamente si las mujeres acudieron por la mañana o por la tarde. Se añade también un nuevo filtro por rango horario (con intervalos de media hora) para que los usuarios puedan buscar cribados de horarios específicos, mejorando así la organización del trabajo y la planificación de actividades.",
+          "keywords": [
+            "cribados",
+            "mamografia",
+            "historia-del-paciente"
+          ],
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-09",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781000049/nw8fyycc5k6mh2usvbde.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781000050/yyb7uxfsauznhc3fykx9.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781000051/qnboynclngqsl6avxozm.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781000051/adbdvssnmilrewi4f9m4.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781000052/yqb68m2r0teelwcdo5xh.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781000052/gmnrmeozrypd1na5fxwm.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781000053/z2vmbypj74rhq6dfpmnw.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781000054/x79ehkf1jat51ekclrj7.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781000054/gzwbth97ijquqlcdnnpv.png"
+          ]
+        }
+      ]
+    }
+  ]
 }
