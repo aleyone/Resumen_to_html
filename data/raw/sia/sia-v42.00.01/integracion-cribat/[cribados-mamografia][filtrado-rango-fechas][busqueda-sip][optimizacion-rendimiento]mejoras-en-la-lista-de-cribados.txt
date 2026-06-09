@@ -1,0 +1,151 @@
+[COMPONENTE_REAL] Integración CRIBAT
+[KEYWORDS] cribados-mamografia,filtrado-rango-fechas,busqueda-sip,optimizacion-rendimiento
+[DOCUMENTO]
+[SIA][CRIBAT][MAMA] Mejoras en la lista de cribados [SIA 2699]
+
+SIA
+Código de la versión: SIA V 42.01.04
+Última actualización: 27/05/2026
+[VERSIONES]
+1.0 20/05/2026 Carmina Córcoles Versión inicial
+
+Optimización y control de los cribados a mostrar en la lista de cribados de
+Gestión de pacientes .............................................................................................................. 6
+Visualización de la hora de visita en la lista de cribados de Gestión de pacientes
+
+[APARTADO] 3.2 Modelo de datos............................................................................................................. 9
+
+[APARTADO] 3.3 Diseño de Interfaz .......................................................................................................... 9
+
+[APARTADO] 3.4 Otras consideraciones ................................................................................................. 10
+Diagrama de integración ..................................................................................... 10
+Impacto en otras aplicaciones o dependencias ................................................ 10
+Cumplimiento de ENS y ENI ................................................................................ 10
+4 Planes de Pruebas................................................................................................... 11
+
+[APARTADO] 4.1 Plan de pruebas funcional ........................................................................................... 11
+5 Configuraciones (detalle)......................................................................................... 12
+
+[APARTADO] 5.1 Resumen de configuraciones...................................................................................... 12
+
+[APARTADO] 5.2 Resumen de la lista de impacto .................................................................................. 13
+
+[SECCION] 1 INTRODUCCIÓN
+En el presente documento se recoge el análisis y diseño técnico de los requisitos indicados
+en el Apartado “2. Requisitos que cubre el análisis”.
+El análisis de estos requisitos se ha realizado utilizando las técnicas que se han considerado
+como más apropiadas para definir la implementación de las funcionalidades solicitadas.
+
+[APARTADO] 1.1 Petición que se recoge en este documento
+Tras la puesta en Producción y, dada la cantidad de cribados migrados de SIGMA, se hace
+necesario mejorar los tiempos de carga de los cribados en la lista al realizar la búsqueda de
+cribados ‘Finalizados con mamografía’.
+Por otra parte, se solicita que se muestre en la lista de cribados la hora de visita de cada mujer
+para que los radiólogos puedan identificar qué mujeres acuden por la mañana (agenda de
+mañanas) y qué mujeres acuden por la tarde (agenda de tardes). Se incluirá el nuevo filtro de
+rango horario de visita para poder buscar cribados para las horas deseadas.
+
+[SECCION] 2 REQUISITOS QUE CUBRE EL ANÁLISIS
+A continuación, se detallan los requisitos/funcionalidades de los que se realizará el análisis y
+diseño técnico.
+ID_REQUISITO Nombre
+[SIAGP-2699] [CRIBAT][MAMA] Mejoras en la lista de cribados
+
+[SECCION] 3 ANÁLISIS
+
+[APARTADO] 3.1 Análisis textual
+Se debe mejorar el tiempo de carga de los cribados ‘Finalizados con mamografía’ desde la
+lista de cribados de Gestión de pacientes, ya que se observa lentitud en la carga de cribados
+en este estado, debida a la cantidad de cribados migrados desde SIGMA. Esta circunstancia
+se detecta para la UPCM piloto de Manises, circunstancia que se va a producir en el resto de
+UPCMs.
+También se solicita clasificar las mujeres pendientes de lectura por horas, para identificar las
+mujeres que debe leer el radiólogo de mañanas y las que debe leer el radiólogo de tardes.Para
+ello, se podrá filtrar por horas de visita y se mostrará la hora de visita en una nueva columna
+de la lista.
+Se dejará para una versión posterior, evolucionar esta búsqueda por horas para UPCMs con
+varias agendas de mañana o de tardes, centros de refuerzo, externos,…por no tener esta
+casuística las primeras UPCMs piloto.
+Optimización y control de los cribados a mostrar en la lista de
+cribados de Gestión de pacientes
+En la lista de cribados de Gestión de pacientes, al filtrar por cribados ‘Finalizados con
+mamografía’, se obligará a indicar un rango de Fecha de visita o un SIP. De esta forma, se
+acotará la cantidad de registros a cargar en la lista.
+Se creará una nueva variable de configuración CMAMA_DIAS para poder determinar el número
+máximo de días para el filtro de Fecha visita.
+De esta forma, al seleccionar la opción de cribados ‘Finalizados con mamografía’, desde la
+lista de cribados de Gestión de pacientes, y pulsar ‘Buscar’, se consultará la cantidad de días
+indicado en la variable y se rellenará automáticamente el rango de fechas.
+El funcionamiento será el siguiente:
+Al filtrar por cribados ‘Finalizados con mamografía’, y pulsar ‘Buscar’, se consultarán los días
+indicados en la nueva variable desde HOY hasta la fecha resultante de restar los días como
+rango de fechas de visita. Se mostrarán los registros resultantes.
+El rango de Fecha de visita se podrá modificar, pero siempre con el rango de días indicados
+en la variable. Si fuera superior la cantidad de días, se mostrará un aviso similar a éste:
+Habiendo filtrado por cribados ‘Finalizados con mamografía’ se podrá buscar por cualquier
+otro criterio, pero al pulsar ‘Buscar’ automáticamente se rellenará el filtro de Fecha de visita
+según lo indicado arriba (desde HOY hacia atrás en función de la cantidad días indicados en
+la variable).
+Al buscar por cribados ‘Finalizados con mamografía’ también se podrá filtrar por SIP sin
+necesidad de indicar un rango de fechas de visita.
+Recordemos que actualmente no es posible la ordenación clickando en las columnas.
+Visualización de la hora de visita en la lista de cribados de Gestión
+de pacientes
+En la lista de cribados de Gestión de pacientes, se mostrará una nueva columna ’Hora visita’
+junto a la ‘Fecha visita’.
+Esto permitirá que los radiólogos puedan identificar las mujeres que han acudido por la
+mañana o por la tarde, para poder realizar las lecturas que les corresponda a cada uno en
+función de si son del turno de mañanas o de tardes.
+La nueva columna ’Hora visita’ no será necesario que se visualice en el histórico de cribados
+de la HC.
+Se incluye también la posibilidad de filtrar por rango horario de la visita, mostrándose 2
+combos con las horas en fracciones de media hora, pudiendo filtrar cribados sólo por la hora
+de visita:
+
+[APARTADO] 3.2 Modelo de datos
+Nueva variable CMAMA_DIAS que permitirá indicar la cantidad de días para la que se permitirá
+filtrar por la fecha de visita.
+CODIGO CMAMA_DIAS
+Número máximo de días en intervalo de búsqueda por Fecha
+DESCRIPCION
+visita en lista de cribados
+VALOR 30
+
+[APARTADO] 3.3 Diseño de Interfaz
+• Se incluye el filtro de horas de visita, así como la nueva columna ‘Hora visita’ en la lista
+de cribados de Gestión de pacientes:
+
+[APARTADO] 3.4 Otras consideraciones
+
+[SECCION] 4 PLANES DE PRUEBAS
+
+[APARTADO] 4.1 Plan de pruebas funcional
+(*) El plan de pruebas completo de estas especificaciones se encuentra detallado en el
+documento Plan de pruebas de la versión
+
+[SECCION] 5 CONFIGURACIONES (DETALLE)
+
+[APARTADO] 5.1 Resumen de configuraciones
+A continuación, se detallan los permisos y configuraciones necesarios para el funcionamiento
+de las especificaciones reflejadas en este documento.
+Permisos [Administración de seguridad – Gestor de seguridad]
+No aplica
+Configuración [Administración de seguridad – Configuración de variables]
+Nueva variable CMAMA_DIAS que permitirá indicar la cantidad de días para la que se permitirá
+filtrar por la fecha de visita.
+CODIGO CMAMA_DIAS
+Número máximo de días en intervalo de búsqueda por Fecha
+DESCRIPCION
+visita en lista de cribados
+VALOR 30
+insertar los nuevos permisos que permitirán acciones sobre una agenda [FUNC_SIA]:
+Ficheros de propiedades [local.properties – comun.properties – siaet.config –…]
+No aplica
+Otras configuraciones y procesos [Configuraciones no contempladas en puntos anteriores]
+No aplica
+
+[APARTADO] 5.2 Resumen de la lista de impacto
+A continuación, se indican los apartados de la lista de impacto afectados por el presente
+requerimiento:
+BBDD PNF's CONFIGURACIÓN PROPERTIES WEB SERVICE INTEGRACIÓN
+Sí No Sí No No No
