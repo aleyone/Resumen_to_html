@@ -2,9 +2,29 @@ export const config = { api: { bodyParser: { sizeLimit: '10mb' } } };
 
 const GH_BASE = 'https://api.github.com';
 
-function normalizePathSegment(str) {
-  return String(str || '').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9._\-]/g, '_').slice(0, 80);
+// Sanitize a string for use as a GitHub path segment
+// "Integración CRIBAT" → "Integracion-CRIBAT"
+// "SIA V 42.01.04"    → "SIA-V-42.01.04"
+function sanitizePath(str, maxLen = 80) {
+  return String(str || '')
+    // Normalize accented characters
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')   // strip diacritics (á→a, é→e, ñ→n, etc.)
+    .replace(/ø/g, 'o').replace(/Ø/g, 'O')
+    .replace(/æ/g, 'ae').replace(/Æ/g, 'AE')
+    // Replace spaces and underscores with hyphens
+    .replace(/[\s_]+/g, '-')
+    // Remove characters not safe for file/folder names
+    .replace(/[^a-zA-Z0-9.\-]/g, '')
+    // Collapse multiple hyphens
+    .replace(/-{2,}/g, '-')
+    // Trim leading/trailing hyphens
+    .replace(/^-+|-+$/g, '')
+    .slice(0, maxLen);
 }
+
+// Keep normalizePathSegment as alias for backwards compat in other contexts
+function normalizePathSegment(str) { return sanitizePath(str); }
 
 function cleanTitle(title) {
   // Remove bracket prefixes like [GVMEGAIA-27207] GAIA-523 [MPRE3]

@@ -46,7 +46,10 @@ export default async function handler(req, res) {
   }
 
   function normSeg(s) {
-    return String(s || '').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9._\-]/g, '_');
+    return String(s || '')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[\s_]+/g, '-').replace(/[^a-zA-Z0-9.\-]/g, '')
+      .replace(/-{2,}/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
   }
 
   // Extract functional snippet from structured raw text using tags

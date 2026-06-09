@@ -5,6 +5,13 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'DELETE') return res.status(405).json({ error: 'Method not allowed' });
 
+  function sanitizePath(str, maxLen = 80) {
+    return String(str || '')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[\s_]+/g, '-').replace(/[^a-zA-Z0-9.\-]/g, '')
+      .replace(/-{2,}/g, '-').replace(/^-+|-+$/g, '').slice(0, maxLen);
+  }
+
   const { GITHUB_TOKEN, GITHUB_REPO, CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } = process.env;
   if (!GITHUB_TOKEN || !GITHUB_REPO) return res.status(500).json({ error: 'Faltan variables de entorno' });
 
@@ -42,8 +49,8 @@ export default async function handler(req, res) {
     const dep = db.deployments.find(d => d.id === depId);
     if (!dep) return res.status(404).json({ error: 'Despliegue no encontrado' });
 
-    const appSafe = dep.app.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9._\-]/g, '_');
-    const versionSafe = dep.version.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9._\-]/g, '_');
+    const appSafe = sanitizePath(dep.app);
+    const versionSafe = sanitizePath(dep.version);
 
     // 2. Delete Cloudinary images
     if (CLOUDINARY_CLOUD_NAME && CLOUDINARY_API_KEY && CLOUDINARY_API_SECRET) {
