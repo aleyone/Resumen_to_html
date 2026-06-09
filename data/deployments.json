@@ -1,43 +1,6 @@
 {
   "deployments": [
     {
-      "id": "dep_1781002999137_0",
-      "app": "SIA",
-      "version": "SIA v42.00.01",
-      "date": "2026-06-09",
-      "author": "David Gil",
-      "files": [
-        "[SIA][CRIBAT][MAMA] Mejoras en la lista de cribados [SIA-2699].pdf"
-      ],
-      "requirements": [
-        {
-          "id": "REQ-01",
-          "title": "Mejoras en la lista de cribados",
-          "situacion_actual": "Desde la puesta en funcionamiento del sistema, se ha detectado una ralentización importante en la carga de la lista de cribados finalizados con mamografía en el módulo de Gestión de pacientes. Esta lentitud es consecuencia de la gran cantidad de cribados migrados desde el sistema anterior (SIGMA), siendo especialmente evidente en la UPCM piloto de Manises y reproduciéndose en el resto de unidades.",
-          "descripcion": "Para mejorar la experiencia de uso, el sistema ahora obligará a los usuarios a especificar un rango de fechas o un SIP cuando busquen cribados finalizados con mamografía, acotando automáticamente los resultados a los últimos días configurados en el sistema. El rango de fechas se podrá ajustar según las necesidades, aunque el sistema mostrará un aviso si se intenta ampliar más allá del límite establecido. Además, ahora es posible buscar por SIP sin necesidad de indicar fechas, ofreciendo una alternativa más flexible.\n\nPara facilitar la identificación de las pacientes por turno de visita, la lista de cribados mostrará una nueva columna con la hora exacta de cada visita junto a la fecha. Los radiólogos podrán filtrar los cribados según el rango horario deseado (mañana, tarde o ambos) usando dos selectores que permiten elegir horas en intervalos de media hora, pudiendo buscar únicamente por hora si lo necesitan, sin requerir especificar fechas.",
-          "keywords": [
-            "cribados-mamografia",
-            "filtrado-rango-fechas",
-            "busqueda-sip",
-            "optimizacion-rendimiento"
-          ],
-          "component": "Integración CRIBAT",
-          "req_date": "2026-06-09",
-          "images": [
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003018/blzbgwtjyaklrgy9cxtj.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003019/d4wufccvhft9obylm9re.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003019/j89dkrvftrqdwx26rizh.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003020/rmxcdz4txusos8eeslqe.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003020/w8dmdwe8ownijmvg1xjr.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003021/dlb57in5dux9az9zjeq3.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003022/dizq4uxb3ymrv8hjqkuq.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003023/zxqjbgpimrd5sw36obu8.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003024/ugogkwkwtxbphrkduhy2.png"
-          ]
-        }
-      ]
-    },
-    {
       "id": "dep_1781003026898_1",
       "app": "SIA",
       "version": "SIA v42.00.01",
