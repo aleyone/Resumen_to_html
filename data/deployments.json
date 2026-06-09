@@ -35,6 +35,43 @@
           ]
         }
       ]
+    },
+    {
+      "id": "dep_1781000164438_0",
+      "app": "SIA",
+      "version": "SIA v42.01.00",
+      "date": "2026-06-09",
+      "author": "Jordi Gallego",
+      "files": [
+        "[SIA][CRIBAT][MAMA] [Integración_GIMD] Cambio en la integración con Universal Viewer [SIA-2703].pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Cambio en la integración con Universal Viewer",
+          "situacion_actual": "Actualmente, los radiológos pueden acceder al visualizador de imágenes Universal Viewer desde diferentes secciones de la historia clínica en SIA, como las lecturas iniciales, segundas lecturas y consensos. Para ello, deben proporcionar sus credenciales de acceso al visor, que se mantienen activas durante su sesión de trabajo y se eliminan automáticamente al cerrar la sesión. Sin embargo, existe un problema: cuando se cierra la historia clínica, el visor permanece abierto, lo que significa que cuando otro radiólogo accede a la misma historia clínica para realizar la siguiente lectura, puede ver las imágenes de pacientes anteriores. Esta situación requiere un cambio en cómo se integran los sistemas.",
+          "descripcion": "Con el nuevo cambio, cuando el radiólogo accede a las lecturas en la historia clínica verá un botón para abrir el visualizador de imágenes. Al pulsarlo, deberá introducir sus credenciales, y el sistema se conectará automáticamente con el visor mediante una comunicación segura. Durante este proceso, el usuario podrá ver en pantalla el estado de la conexión y el identificador del estudio que se está abriendo, además de un aviso indicándole que no cierre la ventana. Si ocurre algún problema durante la conexión, recibirá un mensaje de error claro para poder informar al equipo de soporte.\n\nLa mejora principal es que ahora, cuando el radiólogo cierra la historia clínica, el sistema cerrará automáticamente la ventana del visor, garantizando que no queden imágenes abiertas de pacientes anteriores. Esto asegura que cada vez que un nuevo profesional acceda a una lectura, comience con el visor completamente cerrado, mejorando la privacidad del paciente y evitando confusiones entre estudios.",
+          "keywords": [
+            "radiologia",
+            "visualizador-de-imagenes",
+            "historia-clinica",
+            "identificador-del-estudio"
+          ],
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-09",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781000182/ttdopb8axflmhnydfcx2.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781000183/cq7nm6wurtmxticrchiq.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781000183/kzxdbi3bqomjom78we2y.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781000184/fbqn2eozmapbbnh3f6ao.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781000185/nykcfyjxinoqtsgbix8k.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781000186/hkzokqbdgnqion9wuqq7.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781000186/m4yxmthyvnr8pqeg39ul.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781000187/qohstdr6ciimnta5ellz.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781000188/qooji1lin6ng6jwkdaxq.png"
+          ]
+        }
+      ]
     }
   ]
 }
