@@ -30,37 +30,6 @@
           ]
         }
       ]
-    },
-    {
-      "id": "dep_1780935641960_1",
-      "app": "SIA",
-      "version": "mama",
-      "date": "2026-06-08",
-      "author": "David Gil",
-      "files": [
-        "[SIA][CRIBAT][MAMA] [Integración_GIMD] Cambio en la integración con Universal Viewer [SIA-2703].pdf"
-      ],
-      "requirements": [
-        {
-          "id": "REQ-01",
-          "title": "Cambio en la integración con Universal Viewer",
-          "situacion_actual": "Actualmente, los profesionales sanitarios pueden acceder al visor de imágenes Universal Viewer directamente desde la Historia Clínica cuando realizan lecturas de mamografías o consensos. Para ello, introducen sus credenciales de acceso que se mantienen almacenadas durante toda su sesión de trabajo. Sin embargo, existe un problema: cuando cierran la Historia Clínica de una paciente, el visor de imágenes permanece abierto, lo que significa que cuando el radiólogo accede a otra Historia Clínica, puede ver las imágenes de la paciente anterior en lugar de las nuevas.",
-          "descripcion": "El cambio mejora la seguridad y privacidad del proceso. Ahora, cuando el profesional cierra la Historia Clínica de una paciente, el visor de imágenes se cerrará automáticamente. Esto garantiza que cada vez que se abre una nueva Historia Clínica, el visor se abre limpio sin mostrar imágenes de otras pacientes. El flujo de trabajo sigue siendo el mismo: los profesionales acceden al visor desde las lecturas o el consenso introduciendo sus credenciales, pero con la seguridad de que no habrá información residual de pacientes anteriores. Además, si ocurre algún problema durante la apertura del visor, el sistema mostrará un mensaje de error claro para que el profesional pueda reportarlo al equipo de soporte.",
-          "component": "Integración CRIBAT",
-          "req_date": "2026-06-08",
-          "images": [
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780935656/ofdbv4bahl2h4dx01j8c.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780935657/k0hupjs1rvvxptsinjfe.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780935657/grttenwcllmbqaonhnpi.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780935658/xslmy5mdjl9py29fjh5g.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780935659/wwqwy3ecgd3ricnjfhcs.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780935659/nve95gil3ychrw2abzes.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780935660/phsnniicpgvzvsohx3uh.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780935661/ao3kygmqvm4rg6djswql.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780935662/imapjojpwt1yjos7zxjk.png"
-          ]
-        }
-      ]
     }
   ]
 }
