@@ -1,3 +1,40 @@
 {
-  "deployments": []
+  "deployments": [
+    {
+      "id": "dep_1780997198411_0",
+      "app": "SIA",
+      "version": "SIA PRUEBAS",
+      "date": "2026-06-09",
+      "author": "David Gil",
+      "files": [
+        "[SIA][CRIBAT][MAMA] Mejoras en la lista de cribados [SIA-2699].pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Mejoras en la lista de cribados",
+          "situacion_actual": "Tras la implementación del sistema en producción, se ha migrado una gran cantidad de cribados desde el sistema anterior (SIGMA). Esta migración ha generado un problema de rendimiento en la búsqueda de cribados que están finalizados con mamografía, presentando tiempos de carga muy lentos debido al volumen de registros. Este problema se ha identificado inicialmente en la unidad piloto de Manises, pero se prevé que afectará al resto de unidades cuando realicen sus migraciones.",
+          "descripcion": "El sistema ahora obliga a los usuarios a acotar sus búsquedas de cribados finalizados con mamografía utilizando un rango de fechas o un número de paciente (SIP). Cuando se selecciona esta opción de búsqueda, el sistema rellena automáticamente un rango de fechas predeterminado que puede ser ajustado según las necesidades, aunque manteniendo límites para asegurar que las búsquedas sean eficientes. Además, se incorpora un nuevo filtro por rango horario de visita para permitir búsquedas más específicas.\n\nEn la lista de cribados, ahora aparecerá una nueva columna que muestra la hora exacta de la visita de cada mujer, permitiendo que los radiólogos identifiquen rápidamente si las pacientes asistieron en turno de mañana o de tarde. Esto facilita la asignación de lecturas según el turno de cada radiólogo. Los usuarios también pueden filtrar directamente por franjas horarias utilizando dos desplegables con intervalos de media hora, e incluso pueden hacer búsquedas utilizando solo la hora de visita si lo necesitan.",
+          "keywords": [
+            "cribados",
+            "mamografia",
+            "rango-de-fechas"
+          ],
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-09",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780997215/olkkhrsadpjniq6lhqvx.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780997216/kk4tvs7lafqkwvzqhhit.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780997216/gm7whstsumpmp1ewrwzq.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780997217/eijz1ojdjovhkb181hn5.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780997218/poehpppphlnyzd1aixnz.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780997218/jjjxeh4zmfqkn8ozyomu.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780997219/kbruako2hsgnphgft29g.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780997220/n5yt0ngkpb5vmzo7pd2r.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1780997220/f7jmdy43qo4rrfsfm45a.png"
+          ]
+        }
+      ]
+    }
+  ]
 }
