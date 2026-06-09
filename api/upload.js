@@ -84,13 +84,20 @@ export default async function handler(req, res) {
         // Fall back to index i if reqIndex not provided (backwards compat)
         const reqIdx = reqIndex !== undefined ? reqIndex : i;
         const req = requirements[reqIdx] || requirements[i] || requirements[0];
-        const realComponent = req?.component || 'General'; // original name with accents
+        const realComponent = req?.component || 'General';
         const component = normalizePathSegment(realComponent);
         const titleClean = normalizePathSegment(cleanTitle(req?.title || filename));
-        const rawPath = `data/raw/${appSafe}/${versionSafe}/${component}/${titleClean}.txt`;
 
-        // Prepend real component name so search.js can read it back correctly
-        const rawWithMeta = `[COMPONENTE_REAL] ${realComponent}\n${raw_text}`;
+        // Build keyword prefix for filename: [keyword1][keyword2][keyword3]
+        const keywords = Array.isArray(req?.keywords) ? req.keywords : [];
+        const kwPrefix = keywords.length
+          ? keywords.map(k => `[${k}]`).join('') 
+          : '';
+        const rawFilename = `${kwPrefix}${titleClean}.txt`;
+        const rawPath = `data/raw/${appSafe}/${versionSafe}/${component}/${rawFilename}`;
+
+        // Prepend metadata so search.js can read it back correctly
+        const rawWithMeta = `[COMPONENTE_REAL] ${realComponent}\n[KEYWORDS] ${keywords.join(',')}\n${raw_text}`;
 
         try {
           const existing = await ghGet(GITHUB_REPO, GITHUB_TOKEN, rawPath);
@@ -104,10 +111,11 @@ export default async function handler(req, res) {
       }
     }
 
-    // 2. Clean titles in requirements + strip raw_text just in case
+    // 2. Clean titles in requirements + preserve keywords, strip raw_text
     const cleanReqs = requirements.map(r => ({
       ...r,
       title: cleanTitle(r.title),
+      keywords: Array.isArray(r.keywords) ? r.keywords : [],
       images: (r.images || []).filter(v => typeof v === 'string' && v.startsWith('http')),
       raw_text: undefined
     }));
