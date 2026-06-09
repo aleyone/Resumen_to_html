@@ -1,43 +1,6 @@
 {
   "deployments": [
     {
-      "id": "dep_1781003508200_2",
-      "app": "GAIA",
-      "version": "GAIA E4.2.4",
-      "date": "2026-06-09",
-      "author": "David Gil",
-      "files": [
-        "[GAIA][2023-29] GAIA-1128 [GVMEGAIA-26358][MPRE3] Incorporar controles indicación de enfermeria con cupo analogos a MFC y PED_v1 (1) (1).docx"
-      ],
-      "requirements": [
-        {
-          "id": "REQ-01",
-          "title": "Incorporar controles indicación de enfermeria con cupo analogos a MFC y PED v1 (1) (1)",
-          "situacion_actual": "Actualmente, los enfermeros en el sistema pueden indicar y gestionar ciertos medicamentos marcados como 'Indicados por Enfermería' en el catálogo de medicamentos. Estos profesionales tienen acceso a consultar tratamientos crónicos a través de diferentes alertas y avisos, aunque existen algunas limitaciones según el tipo de paciente y su relación con la zona de salud donde trabaja el enfermero.",
-          "descripcion": "Con este cambio, se incorporan nuevos controles y mensajes informativos para los enfermeros cuando indican medicamentos a pacientes. Dependiendo de si el paciente está asignado a su cupo, pertenece a su zona de salud o es residente en centros específicos, el sistema mostrará avisos explicando cuántos días máximo puede durar el tratamiento que está indicando. Estos límites varían entre 30, 90 y 365 días según la situación del paciente.\n\nAdemás, se establecen reglas diferentes según el tipo de enfermería: los enfermeros de residencias pueden indicar tratamientos más largos sin restricción de zona, mientras que los de atención continuada tendrán un máximo de 30 días. El sistema informará al profesional mediante mensajes claros si está indicando a un paciente fuera de su zona o sin estar asignado a su cupo, para que pueda tomar decisiones informadas sobre la duración del tratamiento.",
-          "keywords": [
-            "indicacion-enfermeria-medicame",
-            "limites-duracion-tratamiento",
-            "controles-cupo-analogos"
-          ],
-          "component": "GAIAWEB",
-          "req_date": "2026-06-09",
-          "images": [
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003672/p9lsoiomrvpoesgnemow.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003672/udquq8lsjx1s71q3cwly.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003673/tqbvmwpg6tlbqatdiodg.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003673/foj50rrpfv9d87ggu81u.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003674/xpwrzopaottpkm6mkkbx.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003674/yvwiodneqfxfkecfxbf3.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003675/aum1j5pzfadbyxzg73wb.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003676/b03hu8cmcc93s4ib8mij.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003676/ylvk0ksc8lezqoyx12ip.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003677/seaqwqr30fe01rmrbxmn.png"
-          ]
-        }
-      ]
-    },
-    {
       "id": "dep_1781003680180_3",
       "app": "GAIA",
       "version": "GAIA E4.2.4",
