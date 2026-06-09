@@ -48,7 +48,8 @@ export default async function handler(req, res) {
   function normSeg(s) {
     return String(s || '')
       .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      .replace(/[\s_]+/g, '-').replace(/[^a-zA-Z0-9.\-]/g, '')
+      .toLowerCase()
+      .replace(/[\s_]+/g, '-').replace(/[^a-z0-9.\-]/g, '')
       .replace(/-{2,}/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
   }
 
