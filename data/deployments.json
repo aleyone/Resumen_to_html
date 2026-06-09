@@ -1,44 +1,6 @@
 {
   "deployments": [
     {
-      "id": "dep_1781003351452_1",
-      "app": "GAIA",
-      "version": "GAIA E4.2.4",
-      "date": "2026-06-09",
-      "author": "David Gil",
-      "files": [
-        "[GAIA][2023-29] GAIA-1128 [GVMEGAIA-26358][MPRE3] Incorporar controles indicación de enfermeria con cupo analogos a MFC y PED_v1 (1) 1.docx"
-      ],
-      "requirements": [
-        {
-          "id": "REQ-01",
-          "title": "Incorporar controles indicación de enfermeria con cupo analogos a MFC y PED v1 (1) 1",
-          "situacion_actual": "Actualmente, los enfermeros pueden indicar y gestionar ciertos medicamentos en el sistema, pero solo aquellos específicamente marcados como 'Indicados por Enfermería'. El acceso a funcionalidades como la consulta de tratamientos crónicos o alertas de vencimiento no está disponible para el personal de enfermería. Además, solo algunos enfermeros tienen un cupo de pacientes asignado, lo que limita sus capacidades de gestión.",
-          "descripcion": "A partir de este cambio, los enfermeros con cupo de pacientes asignado tendrán mayores capacidades de prescripción y seguimiento, equiparables a las que actualmente tienen los médicos de familia y pediatras. Podrán ver alertas cuando los tratamientos crónicos de sus pacientes estén próximos a vencer, y accederán a una consulta de tratamientos crónicos desde el sistema de prescripción, mejorando el control del seguimiento farmacoterapéutico. Los límites de duración máxima de los tratamientos se ajustarán según el tipo de relación con el paciente, permitiendo mayor flexibilidad en la indicación según si el paciente está empadronado o en otras situaciones especiales. Esto permitirá que los enfermeros con cupo ejerzan un papel más activo en la gestión de medicamentos de los pacientes a su cargo.",
-          "keywords": [
-            "prescripcion-enfermeria",
-            "alertas-vencimiento-cronicos",
-            "seguimiento-farmacoterapeutico",
-            "tratamientos-cronicos-paciente"
-          ],
-          "component": "GAIAWEB",
-          "req_date": "2026-06-09",
-          "images": [
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003499/krljjgsfdmqlymf80vk6.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003500/ojvbhiukcdn3wflgsqvi.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003500/d2edwpxtatjsimaycftk.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003501/wl21dxzpyvtd2gwmem6q.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003502/xuthzjpkoxbnez7ltqmr.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003502/ixf9fvd16btklv22zyze.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003503/jebiupyuimk3jby7t7mj.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003504/hpbrjgrfuui6smrusl4d.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003504/j90f80s92hxxkpgirxgc.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003505/sj7plenzsd5s7jquwjhi.png"
-          ]
-        }
-      ]
-    },
-    {
       "id": "dep_1781003508200_2",
       "app": "GAIA",
       "version": "GAIA E4.2.4",
