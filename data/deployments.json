@@ -36,6 +36,42 @@
           ]
         }
       ]
+    },
+    {
+      "id": "dep_1781003026898_1",
+      "app": "SIA",
+      "version": "SIA v42.00.01",
+      "date": "2026-06-09",
+      "author": "David Gil",
+      "files": [
+        "[SIA][CRIBAT][MAMA] [Integración_GIMD] Cambio en la integración con Universal Viewer [SIA-2703].pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Cambio en la integración con Universal Viewer",
+          "situacion_actual": "Actualmente, los profesionales sanitarios acceden al visor de imágenes Universal Viewer desde diferentes secciones de la historia clínica (Lecturas 1 y 2, y Consenso) durante el proceso de cribado de cáncer de mama. Para utilizar este visor, deben introducir sus credenciales de acceso, que se mantienen activas durante toda la sesión. Sin embargo, existe un problema: cuando cierran la historia clínica, el visor no se cierra automáticamente, lo que puede causar que radiológos posteriores visualicen imágenes de pacientes anteriores al acceder a nuevas historias clínicas.",
+          "descripcion": "El cambio mejora la seguridad y privacidad del proceso. Ahora, cuando se accede a las secciones de lectura dentro de la historia clínica, aparecerá un botón específico para abrir el visor de imágenes. Al pulsar este botón, se solicitarán las credenciales de acceso de forma segura, y una vez introducidas, se abrirá automáticamente el visor con las imágenes del paciente correspondiente. Si ocurre algún problema en la apertura del visor, se mostrará un mensaje de error claro en pantalla para que el profesional pueda reportarlo al equipo de soporte técnico.\n\nLa mejora principal es que al cerrar la historia clínica, el visor de imágenes se cerrará automáticamente, asegurando que cada vez que se acceda a una nueva historia clínica solo aparezcan las imágenes del paciente actual. Además, se mostrará información en tiempo real sobre el estado de la conexión y la carga del estudio, indicando que no debe cerrarse la ventana mientras se está procesando la solicitud.",
+          "keywords": [
+            "visualizador-imagenes-seguro",
+            "cribado-cancer-mama",
+            "autenticacion-credenciales-vis"
+          ],
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-09",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003188/tpgnthldwbd4ymoox6ga.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003189/mdtuu5crxsisqwbrykp9.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003190/ny9cwmitphr9yenkdr8u.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003190/lremkfem9z3obzl9yrtr.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003191/rx3vhdhmvjkxaquzyjny.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003191/tj1q8pt3wsbnewismhkj.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003193/ajdbzb0rbbtzyn5n4og7.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003193/pmtuv5hjzcix7tszepdy.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781003194/ylv2lj3p9wmql89ex3cb.png"
+          ]
+        }
+      ]
     }
   ]
 }
