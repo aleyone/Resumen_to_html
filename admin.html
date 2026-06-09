@@ -1140,6 +1140,10 @@ function structureRawText(text, filename) {
       inIndex = false;
     }
 
+    // Skip TOC/index lines: "2.2.1.1\tDatos generales\t30" or "2\tRequisitos\t10"
+    // These are tab-separated with a page number at the end
+    if (/^\d[\d.]*\t.+\t\d+\r?$/.test(line) || /^\d[\d.]*\t.+\t\d+$/.test(line)) continue;
+
     // Detect technical sections to skip
     if (technicalSections.some(p => p.test(trimmed)) &&
         (/^#+/.test(trimmed) || /^\d+[\.\d]*\s/.test(trimmed) || trimmed.length < 60)) {
@@ -1183,33 +1187,34 @@ function structureRawText(text, filename) {
       tableTitle = '';
     }
 
+    // Clean line: strip tab+pagenumber suffix (TOC artifacts like "2.2.1\tCU001...\t30")
+    const cleanedLine = trimmed.replace(/\t\d+\r?$/, '').replace(/^\d[\d.]*\t/, '');
+
     // Detect headings
     let tagged = false;
     for (const { re, tag } of sectionPatterns) {
-      const m = trimmed.match(re);
+      const m = cleanedLine.match(re);
       if (m) {
         out.push('');
         if (tag) {
-          out.push(tag + ' ' + trimmed);
+          out.push(tag + ' ' + cleanedLine);
         } else {
-          // markdown heading — determine level
-          const hLevel = (trimmed.match(/^#+/) || [''])[0].length;
-          const hText = trimmed.replace(/^#+\s*/, '');
+          const hLevel = (cleanedLine.match(/^#+/) || [''])[0].length;
+          const hText = cleanedLine.replace(/^#+\s*/, '');
           const hTag = hLevel <= 1 ? '[SECCION]' : hLevel === 2 ? '[APARTADO]' : '[SUBAPARTADO]';
           out.push(hTag + ' ' + hText);
         }
-        currentSection = trimmed;
+        currentSection = cleanedLine;
         tagged = true;
 
-        // Tag known functional sections
-        if (/situación actual/i.test(trimmed)) {
+        if (/situación actual/i.test(cleanedLine)) {
           out.push('[SITUACION_ACTUAL]');
-        } else if (/descripción del requisito/i.test(trimmed) || /descripción funcional/i.test(trimmed)) {
+        } else if (/descripción del requisito/i.test(cleanedLine) || /descripción funcional/i.test(cleanedLine)) {
           out.push('[DESCRIPCION]');
-        } else if (/^(cu\d+|caso de uso)/i.test(trimmed.replace(/.*?\]\s*/, '')) ||
-                   /cu\d+\s*[–-]/i.test(trimmed)) {
+        } else if (/^(cu\d+|caso de uso)/i.test(cleanedLine.replace(/.*?\]\s*/, '')) ||
+                   /cu\d+\s*[–-]/i.test(cleanedLine)) {
           out.push('[CASO_DE_USO]');
-        } else if (/plan de pruebas funcional/i.test(trimmed)) {
+        } else if (/plan de pruebas funcional/i.test(cleanedLine)) {
           out.push('[PLAN_PRUEBAS]');
         }
         break;
@@ -1218,19 +1223,19 @@ function structureRawText(text, filename) {
     if (tagged) continue;
 
     // Special: detect CU headers that aren't numbered headings
-    if (/^CU\d+\s*[–-]/i.test(trimmed) || /^Datos generales\s*$/i.test(trimmed) ||
-        /^Secuencia Normal\s*$/i.test(trimmed) || /^Excepción \d+\s*$/i.test(trimmed)) {
+    if (/^CU\d+\s*[–-]/i.test(cleanedLine) || /^Datos generales\s*$/i.test(cleanedLine) ||
+        /^Secuencia Normal\s*$/i.test(cleanedLine) || /^Excepción \d+\s*$/i.test(cleanedLine)) {
       out.push('');
-      if (/^CU\d+/i.test(trimmed)) out.push('[CASO_DE_USO] ' + trimmed);
-      else out.push('[SUBAPARTADO] ' + trimmed);
+      if (/^CU\d+/i.test(cleanedLine)) out.push('[CASO_DE_USO] ' + cleanedLine);
+      else out.push('[SUBAPARTADO] ' + cleanedLine);
       continue;
     }
 
     // Regular content — strip markdown formatting
-    const clean = trimmed
-      .replace(/\*\*([^*]+)\*\*/g, '$1')  // bold
-      .replace(/\*([^*]+)\*/g, '$1')       // italic
-      .replace(/`([^`]+)`/g, '$1');        // code
+    const clean = cleanedLine
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/\*([^*]+)\*/g, '$1')
+      .replace(/`([^`]+)`/g, '$1');
 
     if (clean.length > 1) out.push(clean);
   }
