@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Faltan variables de entorno' });
   }
 
-  const { question, app, component, lastVersionOnly, history, confirmedKeywords, phase } = req.body;
+  const { question, app, component, lastVersionOnly, history, confirmedKeywords } = req.body;
   if (!question) return res.status(400).json({ error: 'Pregunta requerida' });
 
   const GH = { Authorization: `token ${GITHUB_TOKEN}`, Accept: 'application/vnd.github.v3+json' };
@@ -154,13 +154,8 @@ Responde ÚNICAMENTE con JSON: {"keywords": ["termino1", "termino2"]}`;
       matched: matchKeywordsB(question, [kw]).length > 0
     })).sort((a, b) => b.matched - a.matched);
 
-    // ── FASE 4: Si solo se piden keywords, devolver sin leer raws ──
-    if (phase === 'keywords') {
-      return res.status(200).json({ suggestedKeywords });
-    }
-
-    // Limit to top 5 candidates for reading
-    const topCandidates = allCandidates.slice(0, 5);
+    // Limit to top 2 candidates for reading (larger raw = fewer docs to avoid timeout)
+    const topCandidates = allCandidates.slice(0, 2);
 
     // ── 5. Build raw file paths and read them ──
     function sanitize(str) {
@@ -202,7 +197,7 @@ Responde ÚNICAMENTE con JSON: {"keywords": ["termino1", "termino2"]}`;
     const docsBlock = docs.map(d => {
       const compMatch = d.text.match(/^\[COMPONENTE_REAL\] (.+)/m);
       const realComp = compMatch ? compMatch[1].trim() : d.component;
-      return `=== ${realComp} / ${d.version} / ${d.req.title} ===\n${d.text.slice(0, 20000)}`;
+      return `=== ${realComp} / ${d.version} / ${d.req.title} ===\n${d.text.slice(0, 60000)}`;
     }).join('\n\n');
 
     const recentHistory = (history || []).slice(-6);
@@ -227,7 +222,7 @@ ${docsBlock}`;
 
     const answer = await callClaude(
       [{ role: 'user', content: systemPrompt + '\n\n' + messages.map(m => m.role.toUpperCase() + ': ' + m.content).join('\n') }],
-      1200
+      1500
     );
 
     const references = docs.map(d => {
