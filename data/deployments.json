@@ -36,43 +36,6 @@
           ]
         }
       ]
-    },
-    {
-      "id": "dep_1781179229110_0",
-      "app": "SIA",
-      "version": "123pro",
-      "date": "2026-06-11",
-      "author": "Belén Nuñez",
-      "files": [
-        "[SIA][CRIBAT][MAMA] Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2.pdf"
-      ],
-      "requirements": [
-        {
-          "id": "REQ-01",
-          "title": "Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2",
-          "situacion_actual": "Actualmente, cuando una paciente se realiza una mamografía de cribado, el sistema notifica automáticamente cuando las primeras imágenes llegan al archivo de imágenes médicas. En ese momento, el proceso pasa de estar en fase inicial a quedar a la espera de que un especialista (lector 1) revise las imágenes y elabore el informe correspondiente. El lector 1 accede a estos casos pendientes desde su lista de trabajo y realiza la lectura de las mamografías para generar el primer informe.",
-          "descripcion": "Con los cambios implementados, el flujo de trabajo se optimiza significativamente para los profesionales sanitarios. Se introduce un nuevo proceso de generación de informes más eficiente, se amplía la información disponible sobre cada paciente durante la revisión, y se mejora la capacidad de ordenar y gestionar la lista de casos pendientes de lectura. Además, se integra inteligencia artificial para ayudar en la priorización de casos.\n\nDesde la perspectiva del usuario final, también se mejora la experiencia con la incorporación de citas específicas para mamografías de cribado y para pruebas complementarias cuando sea necesario. Se pueden consultar todos los procesos de cribado de mama de un paciente tanto desde la gestión centralizada como desde su historial clínico, y el sistema notifica automáticamente cuando las imágenes están disponibles para ser revisadas, asegurando que ningún caso se pierda en el proceso.",
-          "keywords": [
-            "cribado-cancer-mama",
-            "generacion-informes-mamografia",
-            "priorizacion-casos-ia",
-            "revision-imagenes-medicas"
-          ],
-          "component": "Integración CRIBAT",
-          "req_date": "2026-06-11",
-          "images": [
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781179341/yyozfdmp9taui8ihrfjo.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781179342/lgf649fecyubwdpfwyxr.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781179342/uospofzmeawgwxvprzzr.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781179343/d3yg0noqufwoughmgsjz.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781179344/ofcu0el7m2nxk20pbi1r.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781179345/brzfnv139kacd3mkymru.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781179345/uyc0nnumaad6jiwysc6j.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781179346/f9l3bswzr63gcu0uprrh.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781179346/tvb68ipymrem7httuzio.png"
-          ]
-        }
-      ]
     }
   ]
 }
