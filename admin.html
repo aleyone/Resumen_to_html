@@ -978,6 +978,7 @@ function structureRawPDF(lines, out) {
   let versionLines = [];
   let inIndex = false;
   let inTechnical = false;
+  let inTechnicalCount = 0;
 
   for (const line of lines) {
     // Strip "Análisis y diseño técnico" prefix when it's glued to content
@@ -1004,10 +1005,17 @@ function structureRawPDF(lines, out) {
 
     // Skip technical sections
     if (/^(\d+\.\d+\s+)?(Modelo de datos|Diseño de Interfaz|Diagrama de integración|Cumplimiento de ENS|Resumen de la lista de impacto|Estimación)\s*$/i.test(t)) {
-      inTechnical = true; continue;
+      console.log('[inTechnical ON]', JSON.stringify(t));
+      inTechnical = true; inTechnicalCount = 0; continue;
     }
-    if (inTechnical && /^(\d+\.\d+|\d+\s+[A-Z]|Análisis textual|Plan de pruebas|Configuraciones|Requisitos que|Otras consideraciones|Acceso de profesionales|Nuevos datos|Permisos|Cribados finalizados|Informados de Cribados|Solicitud de pruebas|Visor de pruebas)/i.test(t)) {
-      inTechnical = false;
+    if (inTechnical) {
+      inTechnicalCount++;
+      // Exit on known functional sections OR after 60 lines (section likely ended)
+      if (inTechnicalCount > 60 ||
+          /^(\d+\.\d+|\d+\s+[A-Z]|Análisis textual|Plan de pruebas|Configuraciones|Requisitos que|Otras consideraciones|Acceso de profesionales|Nuevos datos|Permisos|Cribados finalizados|Informados de Cribados|Solicitud de pruebas|Visor de pruebas|En ningún caso|Desde cada informado)/i.test(t)) {
+        console.log('[inTechnical OFF] after', inTechnicalCount, 'lines, trigger:', JSON.stringify(t));
+        inTechnical = false; inTechnicalCount = 0;
+      }
     }
     if (inTechnical) continue;
 
