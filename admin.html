@@ -968,7 +968,7 @@ function structureRawPDF(lines, out) {
   const noisePatterns = [
     /^SGPTIC\s*(\d+\s*\|\s*\d+)?\s*$/i,
     /^SUBDIRECCIÓN GENERAL/i,
-    /^Análisis y diseño técnico\s*$/i,
+    /^Análisis y diseño técnico$/i,
     /^\d+\s*\|\s*\d+\s*$/,
     /^Ilustración\s+\d/i,
     /^ÍNDICE(\s+DE\s+ILUSTRACIONES)?\s*$/i,
@@ -980,7 +980,8 @@ function structureRawPDF(lines, out) {
   let inTechnical = false;
 
   for (const line of lines) {
-    const t = line.trim();
+    // Strip "Análisis y diseño técnico" prefix when it's glued to content
+    const t = line.trim().replace(/^Análisis y diseño técnico\s*/i, '');
     if (!t) continue;
     if (noisePatterns.some(p => p.test(t))) continue;
 
