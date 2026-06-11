@@ -36,6 +36,42 @@
           ]
         }
       ]
+    },
+    {
+      "id": "dep_1781182768664_0",
+      "app": "SIA",
+      "version": "fdfsfds",
+      "date": "2026-06-11",
+      "author": "Belén Nuñez",
+      "files": [
+        "[SIA][CRIBAT][MAMA] Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2.pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2",
+          "situacion_actual": "Actualmente, cuando una paciente se realiza una mamografía de cribado, el sistema avisa automáticamente cuando comienzan a llegarse las imágenes. En ese momento, el cribado cambia su estado y queda a la espera de que un profesional radiólogo (Lector 1) lo revise e informe. Este profesional accede desde la lista de pacientes a los cribados pendientes de lectura y realiza el informe correspondiente de forma online.",
+          "descripcion": "El cambio introduce un nuevo flujo de trabajo más eficiente para los informes radiológicos, mejorando la forma en que se visualiza y procesa la información de las pacientes. Además, se amplía significativamente la información disponible en el historial de cada paciente y se añaden nuevas opciones para solicitar pruebas complementarias cuando sea necesario.\nTambién mejora la organización de las listas de cribados con la ayuda de herramientas inteligentes que ordenan automáticamente los casos, se integra mejor con el equipo de imagen médica para recibir las mamografías más rápidamente, y se añaden nuevas modalidades de citas para pacientes que necesitan mamografías adicionales o estudios complementarios.",
+          "keywords": [
+            "cribado-mama",
+            "informes-radiologicos",
+            "listas-inteligentes-cribados"
+          ],
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-11",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781182878/nbyxqhaikmbrppb4vxna.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781182878/gsn9wghhs8ecxxnekjdi.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781182879/joxk2h1k9f9dnhuxqjam.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781182880/o8unitcz3aioanop6yrs.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781182880/enl3l1gnv7rz4dhnienj.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781182881/se59fpfoqpx7yvvq3w5t.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781182882/zvjd2acuahlekctm0pcn.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781182883/hhsbhxq4roaoxedosbiq.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781182883/yr6jpam1veb6xroxomvg.png"
+          ]
+        }
+      ]
     }
   ]
 }
