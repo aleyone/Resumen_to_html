@@ -344,7 +344,8 @@ async function onVersionChange() {
   activeComp = '';
   await loadDeployment(app, version);
 }
-  activeComp = document.getElementById('f-component').value;
+
+function onComponentFilter() {
   renderSidebar('');
   var visible = getVisible('');
   if (visible.length) selectReq(visible[0]._idx);
