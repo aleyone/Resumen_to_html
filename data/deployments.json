@@ -36,43 +36,6 @@
           ]
         }
       ]
-    },
-    {
-      "id": "dep_1781182298237_0",
-      "app": "SIA",
-      "version": "dsfdsfdsfs",
-      "date": "2026-06-11",
-      "author": "Montse Vaño",
-      "files": [
-        "[SIA][CRIBAT][MAMA] Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2.pdf"
-      ],
-      "requirements": [
-        {
-          "id": "REQ-01",
-          "title": "Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2",
-          "situacion_actual": "El sistema SIA ya disponía de funcionalidades básicas para gestionar el cribado de cáncer de mama desde la versión 41, permitiendo realizar cuestionarios a las mujeres citadas, enviar solicitudes de mamografía y registrar los resultados. Sin embargo, esta versión inicial requería de actualizaciones significativas en el flujo de trabajo completo basándose en un nuevo algoritmo desarrollado por el equipo funcional en septiembre.",
-          "descripcion": "La versión 42 introduce mejoras sustanciales en cómo los profesionales sanitarios pueden gestionar todo el proceso de cribado de mama. Ahora disponen de un nuevo circuito de informes más eficiente, acceso a más información del paciente, y la posibilidad de solicitar pruebas complementarias cuando sea necesario. Además, el sistema permite una mejor organización y búsqueda de los casos de cribado mediante ordenación automática, facilitando que los centros de refuerzo puedan identificar y priorizar los casos que requieren atención adicional.\n\nPara las pacientes, la experiencia mejora significativamente con la incorporación de nuevos tipos de citas adaptadas a sus necesidades específicas, como las citas de proyección complementaria. El sistema ahora se integra automáticamente con el equipo de mamografía para recibir las imágenes directamente, y proporciona a los médicos dos niveles de lecturas e informes para asegurar la calidad del diagnóstico. Todo esto está accesible desde múltiples puntos del sistema sanitario, permitiendo que los profesionales consulten el historial de cribados fácilmente desde la historia clínica del paciente.",
-          "keywords": [
-            "cribado-mama",
-            "circuito-informes-mamografia",
-            "solicitud-pruebas-complementarias",
-            "priorizacion-casos-cribado"
-          ],
-          "component": "Integración CRIBAT",
-          "req_date": "2026-06-11",
-          "images": [
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781182408/ptfedi4wklkpjiaaptzu.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781182409/cposretsmr0aokalirqp.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781182410/tl5mg4nxyjgmk7ebowsr.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781182410/qnhj97l8qnysuhyz5tu4.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781182411/ckkknmvo3ke4ubmxwdm2.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781182412/zt2eayvr9cie3fe9bkte.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781182412/b5gcwantqsw46fbnxxlf.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781182413/mlif9kxueobe3wsrqgi5.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781182414/yz4kpqyuhiycvct16l45.png"
-          ]
-        }
-      ]
     }
   ]
 }
