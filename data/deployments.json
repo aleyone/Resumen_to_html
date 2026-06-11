@@ -36,43 +36,6 @@
           ]
         }
       ]
-    },
-    {
-      "id": "dep_1781178251524_0",
-      "app": "SIA",
-      "version": "123PRO",
-      "date": "2026-06-11",
-      "author": "Mª Carmen Belenguer",
-      "files": [
-        "[SIA][CRIBAT][MAMA] Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2.pdf"
-      ],
-      "requirements": [
-        {
-          "id": "REQ-01",
-          "title": "Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2",
-          "situacion_actual": "Desde la versión 41 del sistema, existe una herramienta que permite gestionar el proceso de cribado de cáncer de mama en SIA. Con esta herramienta, las mujeres citadas para realizarse una mamografía pueden responder un cuestionario, se envía la solicitud al equipo de mamografía y se generan los informes correspondientes. Ahora se presenta una actualización completa del proceso que se lanzará en la versión 42, incorporando un nuevo algoritmo desarrollado por el equipo funcional y ajustes solicitados que impactan en todo el flujo de trabajo.",
-          "descripcion": "La principal novedad es un nuevo circuito de informes que mejora cómo se generan y comunican los resultados a las pacientes. Además, se amplía la información disponible sobre cada paciente, se añaden pruebas complementarias cuando son necesarias, y la lista de cribados ahora es más funcional y ordenada, incluso con capacidad de análisis inteligente. El sistema ahora se integra mejor con los equipos de radiología, los centros de refuerzo y avisa automáticamente cuando las imágenes llegan al archivo de radiología.\n\nLos profesionales podrán acceder a toda la información del cribado de mama desde varios puntos: desde la gestión de citas, desde el historial clínico de la paciente, y con informes de lectura más claros y estructurados. El sistema también facilita las citas para mamografías de cribado y las citas de pruebas complementarias cuando se requieren, integrando todo el proceso de forma más eficiente y coordinada.",
-          "keywords": [
-            "cribado-mama",
-            "circuito-informes-resultados",
-            "lista-cribados-funcional",
-            "integracion-radiologia"
-          ],
-          "component": "Integración CRIBAT",
-          "req_date": "2026-06-11",
-          "images": [
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781178361/ye4yoy0cm8ara7hy5ojj.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781178362/ogzorxpkakzl44kl3akp.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781178363/yvwzvmgl5jvyfkgcs9vb.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781178364/cuvl56zklmjannlaq8wx.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781178364/ag5bjiqi2fd9ffs5dtve.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781178365/yznql3baiylwhdr95zvt.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781178366/nueejckqbm9susc1yok2.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781178366/hqvcoqamhnur741wd0ws.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781178367/di6ogh1tezkoen4yqczq.png"
-          ]
-        }
-      ]
     }
   ]
 }
