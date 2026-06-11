@@ -985,7 +985,11 @@ function structureRawPDF(lines, out) {
     // Strip "Análisis y diseño técnico" prefix when it's glued to content
     const t = line.trim().replace(/^Análisis y diseño técnico\s*/i, '');
     if (!t) continue;
-    if (noisePatterns.some(p => p.test(t))) { discardedNoise += t.length; continue; }
+    if (noisePatterns.some(p => p.test(t))) { 
+      const matchedPattern = noisePatterns.findIndex(p => p.test(t));
+      if (matchedPattern >= 0) console.log('[noise p' + matchedPattern + ']', JSON.stringify(t.slice(0, 80)));
+      discardedNoise += t.length; continue; 
+    }
 
     // Detect version table
     if (/versiones del documento/i.test(t)) { inVersionTable = true; continue; }
