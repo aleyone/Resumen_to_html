@@ -979,12 +979,13 @@ function structureRawPDF(lines, out) {
   let inIndex = false;
   let inTechnical = false;
   let inTechnicalCount = 0;
+  let discardedNoise = 0, discardedIndex = 0, discardedVersion = 0, discardedTechnical = 0;
 
   for (const line of lines) {
     // Strip "Análisis y diseño técnico" prefix when it's glued to content
     const t = line.trim().replace(/^Análisis y diseño técnico\s*/i, '');
     if (!t) continue;
-    if (noisePatterns.some(p => p.test(t))) continue;
+    if (noisePatterns.some(p => p.test(t))) { discardedNoise += t.length; continue; }
 
     // Detect version table
     if (/versiones del documento/i.test(t)) { inVersionTable = true; continue; }
@@ -993,13 +994,13 @@ function structureRawPDF(lines, out) {
       if (versionLines.length && !/^\d/.test(t)) {
         if (versionLines.length) { out.push('[VERSIONES]'); out.push(...versionLines); out.push(''); }
         inVersionTable = false; versionLines = [];
-      } else continue;
+      } else { discardedVersion += t.length; continue; }
     }
 
     // Skip index section
     if (/^ÍNDICE\s*$/i.test(t)) { inIndex = true; continue; }
     if (inIndex) {
-      if (/^\d+[\.\d]*\s+.+\.{3,}/.test(t)) continue; // index lines with dots
+      if (/^\d+[\.\d]*\s+.+\.{3,}/.test(t)) { discardedIndex += t.length; continue; }
       inIndex = false;
     }
 
@@ -1010,7 +1011,7 @@ function structureRawPDF(lines, out) {
     }
     if (inTechnical) {
       inTechnicalCount++;
-      // Exit on known functional sections OR after 60 lines (section likely ended)
+      discardedTechnical += t.length;
       if (inTechnicalCount > 60 ||
           /^(\d+\.\d+|\d+\s+[A-Z]|Análisis textual|Plan de pruebas|Configuraciones|Requisitos que|Otras consideraciones|Acceso de profesionales|Nuevos datos|Permisos|Cribados finalizados|Informados de Cribados|Solicitud de pruebas|Visor de pruebas|En ningún caso|Desde cada informado)/i.test(t)) {
         console.log('[inTechnical OFF] after', inTechnicalCount, 'lines, trigger:', JSON.stringify(t));
@@ -1037,7 +1038,8 @@ function structureRawPDF(lines, out) {
   }
 
   const result = out.join('\n').replace(/\n{3,}/g, '\n\n').slice(0, 150000);
-  console.log('[structureRawPDF] output length:', result.length);
+  console.log('[structureRawPDF] input lines:', lines.length, '| output length:', result.length);
+  console.log('[structureRawPDF] discarded → noise:', discardedNoise, '| index:', discardedIndex, '| version:', discardedVersion, '| technical:', discardedTechnical, '| TOTAL:', discardedNoise+discardedIndex+discardedVersion+discardedTechnical);
   return result;
 }
 
