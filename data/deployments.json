@@ -36,42 +36,6 @@
           ]
         }
       ]
-    },
-    {
-      "id": "dep_1781181420656_0",
-      "app": "SIA",
-      "version": "dfdsf",
-      "date": "2026-06-11",
-      "author": "Montse Vaño",
-      "files": [
-        "[SIA][CRIBAT][MAMA] Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2.pdf"
-      ],
-      "requirements": [
-        {
-          "id": "REQ-01",
-          "title": "Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2",
-          "situacion_actual": "El sistema SIA ya contaba con funcionalidades básicas para gestionar el cribado de cáncer de mama, permitiendo realizar cuestionarios a las mujeres citadas, enviar solicitudes al equipo de radiología e incorporar los informes de los especialistas. Sin embargo, el proceso presentaba limitaciones en la cantidad de información disponible y en la flexibilidad para organizar y consultar los datos del cribado.",
-          "descripcion": "Con esta actualización, el flujo de trabajo se rediseña completamente con un nuevo proceso de informes que simplifica la documentación de resultados. Los profesionales tendrán acceso a más información de la paciente en pantalla, podrán solicitar pruebas complementarias cuando sea necesario y dispondrán de herramientas mejoradas para organizar y buscar los casos de cribado según diferentes criterios. Además, se integra un sistema inteligente que ayuda a priorizar los casos automáticamente.\n\nPor otra parte, el sistema ahora se comunica automáticamente con el equipo de radiología cuando llegan las imágenes de las mamografías, facilitando el flujo entre centros. Se crean nuevas opciones para citar a las pacientes tanto para la mamografía inicial como para pruebas adicionales si es necesario. Los profesionales podrán consultar toda la información del cribado desde diferentes vistas: desde la gestión general de pacientes y desde el historial clínico individual de cada mujer.",
-          "keywords": [
-            "cribado-cancer-mama",
-            "informes-resultados",
-            "priorizacion-automatica-casos"
-          ],
-          "component": "Integración CRIBAT",
-          "req_date": "2026-06-11",
-          "images": [
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781181530/vtjui9zrmeclwa2zqpp2.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781181530/rcueyayewo7lyd5nyulk.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781181531/hxtk6jr74mdrljmy001e.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781181532/zujikhxti8g9sxvzoszi.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781181532/wfpdcdfzbjv0exkoflin.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781181533/dlmvhnbtoeaymsgfjxfx.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781181534/xpenkvyyuetspyhwofct.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781181534/xf4kca4gfdugyjhwhpui.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781181535/k6l86mzpmtkbzvvdjq51.png"
-          ]
-        }
-      ]
     }
   ]
 }
