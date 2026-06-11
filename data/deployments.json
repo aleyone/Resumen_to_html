@@ -36,43 +36,6 @@
           ]
         }
       ]
-    },
-    {
-      "id": "dep_1781179669613_0",
-      "app": "SIA",
-      "version": "1234fdsfdsf",
-      "date": "2026-06-11",
-      "author": "Montse Vaño",
-      "files": [
-        "[SIA][CRIBAT][MAMA] Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2.pdf"
-      ],
-      "requirements": [
-        {
-          "id": "REQ-01",
-          "title": "Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2",
-          "situacion_actual": "Anteriormente, el sistema SIA permitía realizar cuestionarios a las mujeres citadas para mamografía, enviar las peticiones al equipo de diagnóstico e incorporar los informes resultantes. Se contaba con un proceso funcional básico que cubría estas actividades principales del cribado de cáncer de mama.",
-          "descripcion": "El sistema mejora significativamente la experiencia del usuario final al ampliar y reorganizar toda la información disponible en cada paso del proceso. Ahora los profesionales acceden a más detalles del paciente, pueden ordenar y filtrar de manera más eficiente los listados de cribados, y reciben avisos automáticos cuando las imágenes de las mamografías llegan al sistema, sin necesidad de comprobarlo manualmente.\nAdemás, se incorporan nuevas modalidades de citas y procesos complementarios, permitiendo citar a las mujeres para pruebas adicionales cuando sea necesario. Todo esto se integra de forma más fluida con los sistemas de imagen y con las diferentes áreas donde se consulta la información del paciente, como la historia clínica y la gestión de citas, proporcionando una visión más completa y coordinada de todo el circuito de cribado.",
-          "keywords": [
-            "cribado-mama",
-            "notificacion-mamografias",
-            "listados-filtrados-cribados",
-            "citas-modalidades-complementarias"
-          ],
-          "component": "Integración CRIBAT",
-          "req_date": "2026-06-11",
-          "images": [
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781179783/uhxjgj2nplq1r1cfpjqn.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781179784/sdaw0cxckmu5gujgrjgp.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781179785/qilzpzi1l54oe0wc9voz.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781179785/v853qojhtmqdnvongqhm.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781179786/dsr0lnyuvoxete6qxxqh.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781179787/dwoayl2ttek0fuz3wmnw.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781179787/ixp4sbcwv90lswxxc08p.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781179788/iy2dau5bpxaljxad2yyl.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781179789/pui8bn6mzizsveoyximo.png"
-          ]
-        }
-      ]
     }
   ]
 }
