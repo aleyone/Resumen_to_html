@@ -231,7 +231,7 @@ select.cf-sel:focus{border-color:var(--accent);}
   <div class="tb-sep"></div>
   <div id="filters">
     <select class="fs" id="f-app" onchange="onFilterChange()"><option value="">Todas las apps</option></select>
-    <select class="fs" id="f-version" onchange="onFilterChange()"><option value="">Todas las versiones</option></select>
+    <select class="fs" id="f-version" onchange="onVersionChange()"><option value="">Todas las versiones</option></select>
     <select class="fs" id="f-component" onchange="onComponentFilter()"><option value="">Todos los componentes</option></select>
     <span class="tb-count" id="tb-count"></span>
   </div>
@@ -329,16 +329,21 @@ function populateComponentFilter(reqs) {
 
 async function onFilterChange() {
   var app = document.getElementById('f-app').value;
-  var version = document.getElementById('f-version').value;
-  activeComp = '';
+  // Reset dependent filters when app changes
+  document.getElementById('f-version').value = '';
   document.getElementById('f-component').value = '';
+  activeComp = '';
   populateVersionFilter(app);
-  if (app || version) {
-    await loadDeployment(app, version);
-  }
+  await loadDeployment(app, '');
 }
 
-function onComponentFilter() {
+async function onVersionChange() {
+  var app = document.getElementById('f-app').value;
+  var version = document.getElementById('f-version').value;
+  document.getElementById('f-component').value = '';
+  activeComp = '';
+  await loadDeployment(app, version);
+}
   activeComp = document.getElementById('f-component').value;
   renderSidebar('');
   var visible = getVisible('');
@@ -361,15 +366,17 @@ async function loadDeployment(app, version) {
     }
     document.getElementById('empty-state').className='';
 
-    // Combine requirements from ALL matching deployments (not just first)
+    // Combine requirements from ALL matching deployments, re-number globally
     var allReqs = [];
+    var globalIdx = 0;
     deps.forEach(function(dep) {
       (dep.requirements || []).forEach(function(r) {
-        allReqs.push(Object.assign({}, r));
+        var newId = 'REQ-' + String(globalIdx + 1).padStart(2, '0');
+        allReqs.push(Object.assign({}, r, { _idx: globalIdx, id: newId }));
+        globalIdx++;
       });
     });
-    // Re-index _idx globally
-    currentReqs = allReqs.map(function(r, i) { return Object.assign({}, r, {_idx: i}); });
+    currentReqs = allReqs;
 
     populateComponentFilter(currentReqs);
     document.getElementById('tb-count').textContent = currentReqs.length + ' reqs \u00b7 ' + deps[0].app + ' ' + deps[0].version;
@@ -624,6 +631,16 @@ function updateChatComponents() {
   var app = document.getElementById('cf-app').value;
   var cfComp = document.getElementById('cf-comp');
   var comps = [];
+  // Filter deployments by selected app, collect unique components
+  allDeployments.forEach(function(d){
+    if (app && d.app !== app) return;
+    // Get components from current loaded requirements if same app/version
+    // Otherwise use component info from deployments metadata
+    if (d.component) {
+      if (comps.indexOf(d.component) === -1) comps.push(d.component);
+    }
+  });
+  // Also check currentReqs if they match the selected app
   currentReqs.forEach(function(r){
     var c = r.component;
     if (c && c !== 'Sin componente' && comps.indexOf(c) === -1) comps.push(c);
