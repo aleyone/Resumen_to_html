@@ -181,7 +181,36 @@ select.cf-sel:focus{border-color:var(--accent);}
 }
 .chat-empty-icon{font-size:32px;opacity:0.4;}
 
-#chat-input-area{
+/* ── FASE 4: keyword chips ── */
+.kw-confirm-box{
+  align-self:flex-start;width:100%;
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:12px;border-bottom-left-radius:4px;
+  padding:12px 14px;display:flex;flex-direction:column;gap:10px;
+}
+.kw-confirm-label{font-size:11px;color:var(--text3);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;}
+.kw-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.kw-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:20px;font-size:12px;cursor:pointer;
+  border:1px solid var(--border2);background:var(--surface);
+  color:var(--text2);transition:all 0.12s;user-select:none;
+}
+.kw-chip.selected{
+  background:var(--accent);border-color:var(--accent);color:white;
+}
+.kw-chip:hover:not(.selected){background:var(--surface2);border-color:var(--accent);color:var(--accent);}
+.kw-chip-check{font-size:10px;}
+.kw-actions{display:flex;gap:8px;}
+.kw-btn{
+  padding:5px 12px;font-size:12px;font-family:var(--font);
+  border-radius:var(--radius);cursor:pointer;border:1px solid var(--border2);
+  background:var(--surface);color:var(--text2);transition:background 0.12s;
+}
+.kw-btn.primary{background:var(--accent);border-color:var(--accent);color:white;}
+.kw-btn:hover:not(.primary){background:var(--surface2);}
+.kw-btn.primary:hover{opacity:0.88;}
+
   padding:12px 14px;border-top:1px solid var(--border);
   display:flex;gap:8px;align-items:flex-end;flex-shrink:0;
   background:var(--surface);
@@ -701,12 +730,12 @@ function addMsg(role, content, refs) {
   return div;
 }
 
-function addThinking() {
+function addThinking(msg) {
   var msgs = document.getElementById('chat-messages');
   var div = document.createElement('div');
   div.className = 'chat-thinking';
   div.id = 'chat-thinking';
-  div.innerHTML = 'Buscando en requerimientos <div class="dots"><span></span><span></span><span></span></div>';
+  div.innerHTML = (msg || 'Buscando en requerimientos') + ' <div class="dots"><span></span><span></span><span></span></div>';
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
 }
@@ -728,12 +757,13 @@ async function sendChat() {
 
   addMsg('user', question);
   chatHistory.push({ role: 'user', content: question });
-  addThinking();
 
   var app = document.getElementById('cf-app').value;
   var component = document.getElementById('cf-comp').value;
   var lastVersionOnly = document.getElementById('cf-last').checked;
 
+  // ── FASE 4: Paso 1 — obtener keywords sugeridas ──
+  addThinking('Detectando palabras clave');
   try {
     var resp = await fetch('/api/search', {
       method: 'POST',
@@ -743,7 +773,98 @@ async function sendChat() {
         app: app,
         component: component,
         lastVersionOnly: lastVersionOnly,
-        history: chatHistory.slice(-6)
+        phase: 'keywords'
+      })
+    });
+    var data = await resp.json();
+    removeThinking();
+
+    var kws = (data.suggestedKeywords || []);
+    var matched = kws.filter(function(k){ return k.matched; });
+
+    if (kws.length > 0) {
+      // Mostrar chips para que el usuario confirme
+      showKeywordChips(kws, question, app, component, lastVersionOnly);
+    } else {
+      // Sin keywords → buscar directamente sin filtro
+      await executeSearch(question, app, component, lastVersionOnly, []);
+    }
+  } catch(e) {
+    removeThinking();
+    addMsg('assistant', 'Error al conectar con el servidor: ' + e.message);
+  }
+
+  sendBtn.disabled = false;
+  input.focus();
+}
+
+function showKeywordChips(kws, question, app, component, lastVersionOnly) {
+  var msgs = document.getElementById('chat-messages');
+  var empty = msgs.querySelector('.chat-empty');
+  if (empty) empty.remove();
+
+  var box = document.createElement('div');
+  box.className = 'kw-confirm-box';
+  box.id = 'kw-confirm-box';
+
+  // Estado de selección: por defecto solo los matched
+  var selected = {};
+  kws.forEach(function(k){ selected[k.keyword] = k.matched; });
+
+  function renderChips() {
+    var chipsDiv = box.querySelector('.kw-chips');
+    chipsDiv.innerHTML = '';
+    kws.forEach(function(k) {
+      var chip = document.createElement('span');
+      chip.className = 'kw-chip' + (selected[k.keyword] ? ' selected' : '');
+      chip.innerHTML = (selected[k.keyword] ? '✓ ' : '') + esc(k.keyword);
+      chip.onclick = function() {
+        selected[k.keyword] = !selected[k.keyword];
+        renderChips();
+      };
+      chipsDiv.appendChild(chip);
+    });
+  }
+
+  box.innerHTML =
+    '<div class="kw-confirm-label">Palabras clave detectadas</div>' +
+    '<div class="kw-chips"></div>' +
+    '<div class="kw-actions">' +
+      '<button class="kw-btn primary" id="kw-search-btn">Buscar</button>' +
+      '<button class="kw-btn" id="kw-skip-btn">Sin filtrar</button>' +
+    '</div>';
+
+  msgs.appendChild(box);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  renderChips();
+
+  box.querySelector('#kw-search-btn').onclick = async function() {
+    var confirmed = kws.filter(function(k){ return selected[k.keyword]; }).map(function(k){ return k.keyword; });
+    box.remove();
+    await executeSearch(question, app, component, lastVersionOnly, confirmed);
+  };
+
+  box.querySelector('#kw-skip-btn').onclick = async function() {
+    box.remove();
+    await executeSearch(question, app, component, lastVersionOnly, []);
+  };
+}
+
+async function executeSearch(question, app, component, lastVersionOnly, confirmedKeywords) {
+  addThinking('Buscando en requerimientos');
+  try {
+    var resp = await fetch('/api/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        question: question,
+        app: app,
+        component: component,
+        lastVersionOnly: lastVersionOnly,
+        history: chatHistory.slice(-6),
+        confirmedKeywords: confirmedKeywords,
+        phase: 'search'
       })
     });
     var data = await resp.json();
@@ -757,10 +878,8 @@ async function sendChat() {
     removeThinking();
     addMsg('assistant', 'Error al conectar con el servidor: ' + e.message);
   }
-
-  sendBtn.disabled = false;
-  input.focus();
 }
+
 </script>
 </body>
 </html>
