@@ -36,6 +36,43 @@
           ]
         }
       ]
+    },
+    {
+      "id": "dep_1781180255577_0",
+      "app": "SIA",
+      "version": "erwrew",
+      "date": "2026-06-11",
+      "author": "Montse Vaño",
+      "files": [
+        "[SIA][CRIBAT][MAMA] Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2.pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2",
+          "situacion_actual": "El sistema SIA ya disponía de funcionalidades básicas para gestionar el cribado de cáncer de mama en su versión anterior, permitiendo realizar cuestionarios a las mujeres citadas para mamografía, enviar las solicitudes al equipo de radiología e introducir los resultados. Ahora se implementa de manera completa y mejorada todo el proceso de cribado con un nuevo algoritmo que ha sido validado por el equipo funcional, incluyendo además varios cambios solicitados que afectan a todas las fases del circuito asistencial.",
+          "descripcion": "El personal sanitario dispondrá de un circuito de informados completamente renovado que mejora la forma en que se comunican los resultados a las pacientes. Además, toda la información clínica relacionada con el cribado se mostrará de forma más completa y accesible, incluyendo opciones para realizar pruebas complementarias cuando sea necesario, con mejor organización de los listados y la posibilidad de visualizar los procesos desde múltiples ubicaciones dentro de la historia clínica de la paciente.\nLas citas para mamografía y las citas de seguimiento complementario se gestionarán de forma integrada, con sincronización automática de las imágenes radiológicas y avisos de recepción. El sistema priorizará automáticamente los casos más relevantes en los listados de trabajo mediante inteligencia artificial, y permitirá que los centros de refuerzo participen en el circuito de forma coordinada, mejorando la eficiencia en la detección y seguimiento del cáncer de mama.",
+          "keywords": [
+            "cribado-mama",
+            "comunicacion-resultados",
+            "pruebas-complementarias",
+            "historia-clinica-accesible"
+          ],
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-11",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781180373/juwkzhegigx2hlalngt5.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781180374/jkk1fpmm3f5jynpcdmph.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781180375/yovc69dfxp26ctyl1kba.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781180376/pxp4xy2jlkmoxrcqakum.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781180377/cqlg1aqqv4wlvzbltgbx.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781180378/kulnbdg42piaivynejnq.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781180378/wlnlytbbxtbnrcm3hyij.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781180379/r0o3bmiweygywkgipoix.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781180380/tudhpgz46grzvvctpito.png"
+          ]
+        }
+      ]
     }
   ]
 }
