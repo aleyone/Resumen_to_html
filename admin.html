@@ -474,6 +474,7 @@ async function extractPDF(file){
 
   const text=pageTexts.join('\n\n');
   console.log('[extractPDF] pages:',pdf.numPages,'| text:',text.length,'| images:',images.length);
+  console.log('[extractPDF] pageTexts lengths:', pageTexts.map((p,i)=>(i+1)+':'+p.length).join(' | '));
   return{text,images};
 }
 
@@ -970,7 +971,7 @@ function structureRawPDF(lines, out) {
     /^SUBDIRECCIÓN GENERAL/i,
     /^Análisis y diseño técnico$/i,
     /^\d+\s*\|\s*\d+\s*$/,
-    /^Ilustración\s+\d/i,
+    /^Ilustración\s+\d[^.]*\.{3,}/i,  // solo índice de ilustraciones (con puntos suspensivos)
     /^ÍNDICE(\s+DE\s+ILUSTRACIONES)?\s*$/i,
   ];
 
