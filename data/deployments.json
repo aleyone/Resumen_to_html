@@ -73,44 +73,6 @@
           ]
         }
       ]
-    },
-    {
-      "id": "dep_1781267778942_0",
-      "app": "GAIA",
-      "version": "Tutriferio maximo!!",
-      "date": "2026-06-12",
-      "author": "Christian Gil",
-      "files": [
-        "[GAIA][2023-29] GAIA-1 - [MPRE3] [MDIS3][GAIAWS] Home delivery SUFAR.docx"
-      ],
-      "requirements": [
-        {
-          "id": "REQ-01",
-          "title": "- [MPRE3] [MDIS3][GAIAWS] Home delivery SUFAR",
-          "situacion_actual": "Actualmente, el hospital compra los sensores de glucosa y otros productos del programa SUFAR, que son enviados al centro de salud a través de valija interna para su entrega a los pacientes. Para planificar las cantidades necesarias, se consultan manualmente los tratamientos vigentes en el sistema y se completan formularios en papel que se entregan al servicio de suministros. Este proceso requiere múltiples pasos manuales y coordinaciones entre diferentes áreas.",
-          "descripcion": "El nuevo proceso automatiza completamente la solicitud y entrega de productos SUFAR, incluyendo sensores de glucosa, medicamentos y absorbentes. El sistema ahora calcula automáticamente las cantidades necesarias según los tratamientos activos de los pacientes y realiza el pedido directamente al proveedor sin necesidad de formularios en papel ni consultas manuales. Además, el envío a domicilio (Home Delivery) se gestiona de forma automática con confirmación de entregas.\n\nEl personal sanitario solo debe validar los tratamientos que lo requieran en el sistema y confirmar los datos de envío de los pacientes. El sistema se encarga de controlar qué unidades fueron entregadas, cuáles no llegaron y cuáles excedentes envió el proveedor, ajustando automáticamente los próximos pedidos. La comunicación con el proveedor logístico también se realiza de forma automatizada, eliminando gestiones manuales y reduciendo errores.",
-          "keywords": [
-            "entrega-domiciliaria-sufar",
-            "calculo-automatico-cantidades",
-            "pedido-proveedor-sensores",
-            "confirmacion-entregas-productos"
-          ],
-          "component": "GAIAWEB",
-          "req_date": "2026-06-12",
-          "images": [
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781267963/qakod9vsllhkaxevnzod.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781267964/ld3dohkbgomjsouufb2c.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781267964/dlqwmnpisxl9wslkhpeo.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781267965/iav4vbm99vaimpkdv22a.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781267966/v29cwhy3sr8fgbziuxos.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781267966/ld7ge7h6u9apxyexdxae.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781267967/uaw6c6n1veslndqtu8jr.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781267967/h4ljpxcfuvk32cgmoc50.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781267968/zvgcmlufjkxszsjmthek.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781267969/x2wsrctcxw2tgl1kaylk.png"
-          ]
-        }
-      ]
     }
   ]
 }
