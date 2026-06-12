@@ -36,43 +36,6 @@
           ]
         }
       ]
-    },
-    {
-      "id": "dep_1781263428061_0",
-      "app": "SIA",
-      "version": "hkhkhk",
-      "date": "2026-06-12",
-      "author": "Rafa Pastor",
-      "files": [
-        "[SIA][CRIBAT][MAMA] Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2.pdf"
-      ],
-      "requirements": [
-        {
-          "id": "REQ-01",
-          "title": "Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2",
-          "situacion_actual": "El sistema SIA ya disponía de funcionalidades básicas para la gestión del cribado de cáncer de mama desde la versión 41, permitiendo realizar cuestionarios a las mujeres citadas, enviar peticiones de mamografía e incorporar los informes correspondientes. Con esta nueva versión 42, se implementa un circuito completo y mejorado basado en un nuevo algoritmo funcional desarrollado recientemente, junto con varios cambios de alcance que optimizan todo el proceso de cribado.",
-          "descripcion": "Los usuarios contarán con un nuevo flujo de informes más eficiente, una visualización ampliada de datos clínicos relevantes, y la posibilidad de gestionar pruebas complementarias de manera integrada. Además, el sistema mejora significativamente la gestión de citas, tanto para mamografías de cribado como para estudios complementarios, facilitando el acceso a los procesos desde diferentes puntos de la historia clínica y permitiendo que los centros de refuerzo trabajen de forma más coordinada.\n\nOtra mejora importante es la integración automática de las imágenes que llegan del equipo de mamografía, que ahora se reciben y notifican directamente en el sistema, permitiendo que los especialistas accedan más rápidamente a ellas. El proceso de lectura y generación de informes se realiza ahora en dos fases organizadas, mejorando la calidad del análisis y permitiendo una clasificación más inteligente de los casos que requieren atención complementaria.",
-          "keywords": [
-            "cribado-mama",
-            "citas-mamografias",
-            "informes-complementarios",
-            "pruebas-integradas"
-          ],
-          "component": "Integración CRIBAT",
-          "req_date": "2026-06-12",
-          "images": [
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781263533/oytq70ceysj2l9tkiizk.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781263534/qowcy6fharksnepvrmll.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781263534/oaqc66xwdcwbkkbao6l3.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781263535/p4ka4gdunrndahhh1snf.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781263536/dvaxe1ptuoolkgtcyzp9.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781263536/bxvr8hpd6gmyynkjzsby.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781263537/gxbqzuuwgkozpt0ikija.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781263538/ekwvjtqz3gydqalfaugv.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781263538/hmntgmmmp3aamzkmcl4l.png"
-          ]
-        }
-      ]
     }
   ]
 }
