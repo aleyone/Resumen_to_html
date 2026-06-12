@@ -405,7 +405,7 @@ async function extractPDF(file){
   const imagePageNums=[];
 
   // Single pass: extract text + detect image pages
-  for(let i=1;i<=Math.min(pdf.numPages,60);i++){
+  for(let i=1;i<=pdf.numPages;i++){
     const pg=await pdf.getPage(i);
 
     // Check for image operations (skip page 1 — usually logo/cover)
