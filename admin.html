@@ -1097,10 +1097,23 @@ function structureRawText(text, filename) {
   ];
 
   const technicalSections = [
-    /diseño técnico/i, /modelo de datos/i, /diagrama de clases/i,
-    /ficheros ext/i, /configuración/i, /variables de configuración/i,
-    /estimación/i, /cumplimiento de ens/i, /impacto en otras aplicaciones/i,
-    /otras consideraciones/i
+    /^#+\s*(diseño técnico)/i,
+    /^#+\s*(modelo de datos)/i,
+    /^#+\s*(diagrama de clases)/i,
+    /^#+\s*(ficheros (ext|mdis|mpre|gaiaws))/i,
+    /^#+\s*(variables de configuración)/i,
+    /^#+\s*(estimación (macro|micro|de esfuerzo))/i,
+    /^#+\s*(cumplimiento de ens)/i,
+    /^#+\s*(impacto en otras aplicaciones)/i,
+    /^#+\s*(otras consideraciones)/i,
+    /^\d+[\.\d]*\s+(diseño técnico)/i,
+    /^\d+[\.\d]*\s+(modelo de datos)/i,
+    /^\d+[\.\d]*\s+(diagrama de clases)/i,
+    /^\d+[\.\d]*\s+(ficheros (mdis|mpre|gaiaws))/i,
+    /^\d+[\.\d]*\s+(variables de configuración)/i,
+    /^\d+[\.\d]*\s+(estimación (macro|micro|de esfuerzo))/i,
+    /^\d+[\.\d]*\s+(cumplimiento de ens)/i,
+    /^\d+[\.\d]*\s+(impacto en otras aplicaciones)/i,
   ];
 
   let inTechnicalSection = false;
@@ -1161,8 +1174,7 @@ function structureRawText(text, filename) {
     if (/^\d[\d.]*\t.+\t\d+\r?$/.test(line) || /^\d[\d.]*\t.+\t\d+$/.test(line)) continue;
 
     // Detect technical sections to skip
-    if (technicalSections.some(p => p.test(trimmed)) &&
-        (/^#+/.test(trimmed) || /^\d+[\.\d]*\s/.test(trimmed) || trimmed.length < 60)) {
+    if (technicalSections.some(p => p.test(trimmed))) {
       inTechnicalSection = true;
       currentSection = trimmed;
       continue;
