@@ -36,6 +36,43 @@
           ]
         }
       ]
+    },
+    {
+      "id": "dep_1781263897167_0",
+      "app": "SIA",
+      "version": "dsssdf",
+      "date": "2026-06-12",
+      "author": "Christian Gil",
+      "files": [
+        "[SIA][CRIBAT][MAMA] Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2.pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2",
+          "situacion_actual": "Actualmente, cuando se realiza una mamografía de cribado, el sistema notifica automáticamente cuando las primeras imágenes llegan al archivo de imágenes médicas. En ese momento, el cribado cambia de estado y queda pendiente de que el primer radiólogo lo revise. Este radiólogo accede desde la lista de pacientes a los estudios pendientes de lectura y puede revisar las imágenes mientras se prepara la consulta formal.",
+          "descripcion": "El nuevo sistema introduce cambios significativos en cómo se organiza y gestiona todo el proceso de cribado de mama. Ahora hay un circuito mejorado para generar los informes, se muestra más información del paciente en pantalla, se pueden solicitar pruebas complementarias cuando sea necesario, y la lista de cribados pendientes se ordena automáticamente con ayuda de inteligencia artificial para priorizar los casos más importantes. También se han añadido nuevas opciones para agendar citas de mamografía y citas para pruebas adicionales cuando se necesiten.\n\nDesde el punto de vista del profesional sanitario, el trabajo se simplifica porque toda la información relevante del paciente está más accesible, los casos a revisar llegan ordenados por prioridad, y el sistema se integra mejor con el archivo de imágenes para garantizar que nunca se pierda un estudio. Si se detecta la necesidad de pruebas complementarias o consultas especializadas, el sistema facilita la programación de estas citas de forma automática, mejorando la coordinación entre los diferentes profesionales involucrados en el cribado.",
+          "keywords": [
+            "cribado-mama",
+            "priorizacion-ia-casos",
+            "informes-mamografia",
+            "citas-complementarias"
+          ],
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-12",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781264001/zzbyxierm0no0medi4yo.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781264002/ubrc0o7vzo9f0pf6jpec.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781264003/lsqotbxaaod2fzq7tm02.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781264003/odlmztburwdrhkhozstp.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781264004/ckxuvvsgofd6cvvj42r6.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781264005/yqlwio7x5bygbhnc81sk.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781264006/sb3jnknthfz0spa3p907.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781264006/jg81n9zraq8w0eyyjc2q.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781264007/jxwmk7zmdudlitn91bej.png"
+          ]
+        }
+      ]
     }
   ]
 }
