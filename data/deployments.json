@@ -36,6 +36,43 @@
           ]
         }
       ]
+    },
+    {
+      "id": "dep_1781265227443_0",
+      "app": "SIA",
+      "version": "jjljlj",
+      "date": "2026-06-12",
+      "author": "Mª Carmen Belenguer",
+      "files": [
+        "[SIA][CRIBAT][MAMA] Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2.pdf"
+      ],
+      "requirements": [
+        {
+          "id": "REQ-01",
+          "title": "Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2",
+          "situacion_actual": "Actualmente, el sistema de cribado de cáncer de mama permite que profesionales externos refuercen el equipo en diferentes tareas: realizando las lecturas de las mamografías, asistiendo a las mujeres en sus citas y realizando los cuestionarios de participación, así como llevando a cabo las propias mamografías. Para identificar qué profesional realiza cada actividad, el sistema utiliza credenciales de acceso asociadas al centro de la UPCM y marcadas como personal externo.",
+          "descripcion": "El sistema incorpora mejoras significativas en cómo se gestiona y presenta la información del cribado de mama. Ahora los profesionales verán ampliada la información disponible sobre los datos de las mujeres, podrán acceder a un nuevo circuito para gestionar los informados de resultados, tendrán acceso a pruebas complementarias, y dispondrán de listas mejoradas que se ordenan automáticamente según criterios de prioridad. Además, las imágenes de mamografías se integran directamente desde el sistema PACS, notificando automáticamente cuando las imágenes están disponibles.\n\nLos profesionales podrán consultar el estado completo del cribado desde varios puntos: desde la gestión de pacientes, desde la historia clínica, y tendrán mejor control sobre las citas de mamografía y las citas de proyección complementaria. El sistema también proporciona información clara sobre quién ha realizado cada lectura (primera y segunda lectura), mejorando la trazabilidad y control de calidad de todo el proceso de cribado.",
+          "keywords": [
+            "cribado-mama",
+            "gestion-resultados",
+            "priorizacion-automatica",
+            "integracion-mamografias"
+          ],
+          "component": "Integración CRIBAT",
+          "req_date": "2026-06-12",
+          "images": [
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781265359/escaurffzlneq9miqnjx.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781265360/s1yml4q8rmmli7yzwcxt.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781265362/wfa48gh5h9vsoibnwnaw.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781265363/znlukc5lgxcjf7943nmr.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781265364/wrvysdtn9vo16hdtavqw.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781265365/twj1s5nuhrc3hhzutfyo.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781265366/qhptvmitoo0mgqfai3vy.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781265367/mbmes4tzeu2ilz1zkhd3.png",
+            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781265368/epvytgski71o3to59jik.png"
+          ]
+        }
+      ]
     }
   ]
 }
