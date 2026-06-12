@@ -73,44 +73,6 @@
           ]
         }
       ]
-    },
-    {
-      "id": "dep_1781266627037_0",
-      "app": "GAIA",
-      "version": "Ohhh SUFAR SUFAR SUFAR... Ohhhhh SUFAR SUFAR SUFAR",
-      "date": "2026-06-12",
-      "author": "Christian Gil",
-      "files": [
-        "[GAIA][2023-29] GAIA-1 - [MPRE3] [MDIS3][GAIAWS] Home delivery SUFAR.docx"
-      ],
-      "requirements": [
-        {
-          "id": "REQ-01",
-          "title": "- [MPRE3] [MDIS3][GAIAWS] Home delivery SUFAR",
-          "situacion_actual": "Actualmente, el hospital compra sensores de glucosa que se envían al centro de salud a través de un sistema interno de valijas. Para saber cuántos productos solicitar al proveedor, se consultan los tratamientos activos de los pacientes en el sistema de dispensación. Además, se utiliza un formulario en papel que se completa manualmente y se entrega al servicio de suministros para registrar las prescripciones de estos productos.",
-          "descripcion": "El nuevo proceso automatiza completamente la solicitud de productos al proveedor, eliminando los formularios en papel y las consultas manuales. Ahora, cuando un paciente recibe un tratamiento con sensores de glucosa u otros productos del programa, esta información se registra automáticamente en el sistema y se envía directamente al proveedor para coordinar la entrega a domicilio.\nAdemás, el sistema calculará automáticamente las cantidades necesarias basándose en los tratamientos vigentes, considerando lo que ya se ha entregado al paciente en entregas anteriores. De esta forma, se evitan duplicados y se optimiza el inventario, realizando entregas más precisas y eficientes sin necesidad de gestión manual.",
-          "keywords": [
-            "entrega-domiciliaria-productos",
-            "sensores-glucosa-automatizados",
-            "solicitud-proveedor-integrada",
-            "calculo-cantidades-tratamientos"
-          ],
-          "component": "GAIAWEB",
-          "req_date": "2026-06-12",
-          "images": [
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781266832/keoxm9c6aergegevgpgj.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781266834/eb57ohzq3aldddswvatx.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781266836/ofduavn76yocwzgve3dk.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781266837/sdtnzwbeekbkqrx9fvav.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781266837/nwbotufnnhbcmw5iijfu.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781266838/ippb81qsemaajhvzdees.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781266839/tjcoanagq9cbyoakfo2y.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781266839/enowtlyxagqhzjsuup4l.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781266840/smrff1oldofheoewh7zs.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781266840/yxs1w3jmlu6l9kks4fan.png"
-          ]
-        }
-      ]
     }
   ]
 }
