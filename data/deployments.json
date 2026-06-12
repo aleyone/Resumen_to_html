@@ -36,42 +36,6 @@
           ]
         }
       ]
-    },
-    {
-      "id": "dep_1781262227525_0",
-      "app": "SIA",
-      "version": "dsfdsfdfd",
-      "date": "2026-06-12",
-      "author": "Jordi Gallego",
-      "files": [
-        "[SIA][CRIBAT][MAMA] Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2.pdf"
-      ],
-      "requirements": [
-        {
-          "id": "REQ-01",
-          "title": "Gestión del cribado de cancer de Mama [Fase III][SIAGP-1859][SIAGP-1868][SIAGP-1732][SIAGP-1846] 2",
-          "situacion_actual": "El sistema SIA ya contaba con una funcionalidad básica para gestionar el cribado de cáncer de mama en su versión anterior. Esta permitía realizar cuestionarios a las mujeres citadas para realizarse una mamografía, enviar las peticiones al equipo de radiología e incorporar los resultados de los informes médicos. Con esta base establecida, se ha desarrollado una mejora significativa del proceso completo basada en nuevas recomendaciones del equipo funcional.",
-          "descripcion": "A partir de esta versión, el circuito de cribado de mama experimenta cambios importantes en cómo se registran y comunican los resultados de las pruebas. Las mujeres citadas tendrán acceso a información más completa sobre sus historiales, y se han incorporado nuevas opciones cuando se detectan hallazgos que requieren pruebas adicionales o confirmatorias. El sistema ahora gestiona de forma integrada tanto las citas para mamografías de rutina como las citas para pruebas complementarias cuando estas son necesarias. Además, los profesionales sanitarios contarán con listas de pacientes mejor organizadas y podrán acceder a toda la información relacionada con el cribado desde diferentes puntos del sistema. La recepción automática de las imágenes radiológicas y los avisos de disponibilidad hacen que el flujo de trabajo sea más ágil y eficiente para todos los involucrados en el proceso.",
-          "keywords": [
-            "cribado-mama",
-            "resultados-mamografia",
-            "citas-complementarias"
-          ],
-          "component": "Integración CRIBAT",
-          "req_date": "2026-06-12",
-          "images": [
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781262341/icqisg13husdiula8uos.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781262342/z6guohne5nrxkdao8wj0.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781262343/myzm8bnft9aoiuxilipa.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781262344/uvrni5jsz0wnnjspdbnl.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781262345/fptkf9gvospekighqwr1.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781262346/j7zasyxysxud4bbrowf0.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781262346/xqq3oishetamzfbgwizp.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781262347/u3ppa7qoftvo5gaw1ssm.png",
-            "https://res.cloudinary.com/dav2tz0w7/image/upload/v1781262348/atz0lauyt6lhpq3gkoav.png"
-          ]
-        }
-      ]
     }
   ]
 }
